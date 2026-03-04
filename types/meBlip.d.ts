@@ -123,6 +123,9 @@ declare class meBlip {
   update(id: string, patch: Partial<ActivityConfig>): void;
   update(patch: Partial<ActivityConfig>): void;
 
+  /** Check if a notification exists in the queue by ID */
+  has(id: string): boolean;
+
   /** Remove a notification by ID (or the active one) */
   remove(id?: string): void;
 

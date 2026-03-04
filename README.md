@@ -176,6 +176,7 @@ Anade una actividad a la cola. Devuelve una **Promesa** que se resuelve con `{ i
 | Metodo | Descripcion |
 |--------|-------------|
 | `update([id], patch)` | Modifica una actividad. Si se omite el `id`, se actua sobre la notificacion activa. Util para actualizar progreso, subtitulo, tipo, etc. Produce morphing visual si se cambia el `type`. |
+| `has(id)` | Comprueba si existe una actividad con el ID dado en la cola. Devuelve `true` si existe, `false` en caso contrario. |
 | `remove([id])` | Cierra y elimina una actividad inmediatamente. Si se omite el `id`, se elimina la notificacion activa. |
 | `addUndo(config)` | Patron undo: muestra una notificacion con boton de deshacer y countdown. Ver seccion dedicada. |
 | `addVerify(config)` | Patron verify: muestra una notificacion con codigo de verificacion que el usuario debe introducir. Ver seccion dedicada. |

@@ -646,7 +646,7 @@ body.light-mode .info-drawer-table td:nth-child(2) { color: #7c3aed; }
 <!-- ── Hero ─────────────────────────────────────── -->
 <section class="hero">
   <h1>meBlip</h1>
-  <p>Notificaciones tipo Dynamic Island para la web. Zero dependencias. Spring physics. Accesible.</p>
+  <p>Componente de notificaciones tipo Dynamic Island con animaciones spring, colas inteligentes, temas, formularios y verificacion. Sin dependencias.</p>
   <div class="hero-badges">
     <span class="badge">v1.0</span>
     <span class="badge">MIT</span>
@@ -1011,7 +1011,7 @@ blip.setIslandWidth('normal');
   <section class="demo-category cat-advanced">
     <div class="demo-category-header">
       <h2>Avanzado</h2>
-      <span class="demo-category-badge">18 demos</span>
+      <span class="demo-category-badge">19 demos</span>
     </div>
     <div class="demo-grid">
       <div class="demo-card" onclick="demoCustomType()">
@@ -1139,6 +1139,13 @@ blip.setIslandWidth('normal');
         </div>
         <div class="demo-card-title">Persistent</div>
         <div class="demo-card-desc">No se puede cerrar con Escape ni click, solo program&aacute;ticamente</div>
+      </div>
+      <div class="demo-card" onclick="demoHas()">
+        <div class="demo-card-icon" style="background: rgba(59,130,246,0.12); color: #3b82f6;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+        </div>
+        <div class="demo-card-title">has()</div>
+        <div class="demo-card-desc">Comprueba si una notificaci&oacute;n existe en la cola por su ID</div>
       </div>
     </div>
   </section>
@@ -1644,6 +1651,35 @@ blip.setIslandWidth('normal');
         duration: 2000
       });
     }, 3000);
+  }
+
+  function demoHas() {
+    var task = blip.add({
+      type: 'info', icon: 'info',
+      title: 'Notificacion de prueba',
+      subtitle: 'Comprobando has()...',
+      duration: 5000
+    });
+
+    setTimeout(function() {
+      if (blip.has(task.id)) {
+        blip.update(task.id, {
+          type: 'success', icon: 'success',
+          title: 'Existe',
+          subtitle: 'has() devuelve true'
+        });
+      }
+    }, 1500);
+
+    setTimeout(function() {
+      blip.remove(task.id);
+      blip.add({
+        type: 'warning', icon: 'warning',
+        title: 'Eliminada',
+        subtitle: 'has() ahora devuelve ' + blip.has(task.id),
+        duration: 3000
+      });
+    }, 3500);
   }
 
   /* ── 8. Verificacion (v4.0) ─────────────────── */
@@ -2343,6 +2379,13 @@ blip.setIslandWidth('normal');
       props: [
         { name: 'persistent', value: "true", desc: 'Bloquea Escape, click y bot\u00f3n X. Solo se cierra program\u00e1ticamente con remove() o update() con duration.' },
         { name: 'showCloseButton', value: "true", desc: 'El bot\u00f3n X aparece pero no funciona mientras persistent sea true. \u00datil para indicar visualmente que normalmente se podr\u00eda cerrar.' }
+      ]
+    },
+    demoHas: {
+      title: 'has(id)',
+      code: `var task = blip.add({\n  type: 'info',\n  icon: 'info',\n  title: 'Notificacion de prueba',\n  subtitle: 'Comprobando has()...',\n  duration: 5000\n});\n\nsetTimeout(() => {\n  if (blip.has(task.id)) {\n    blip.update(task.id, {\n      type: 'success',\n      title: 'Existe',\n      subtitle: 'has() devuelve true'\n    });\n  }\n}, 1500);\n\nsetTimeout(() => {\n  blip.remove(task.id);\n  blip.add({\n    type: 'warning',\n    title: 'Eliminada',\n    subtitle: 'has() ahora devuelve ' + blip.has(task.id),\n    duration: 3000\n  });\n}, 3500);`,
+      props: [
+        { name: 'id', value: "string", desc: 'ID de la notificación a comprobar. Devuelve true si existe en la cola, false en caso contrario.' }
       ]
     },
     demoContentActions: {

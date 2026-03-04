@@ -452,6 +452,37 @@ class meBlip {
         border: 1px solid var(--meblip-island-border);
       }
 
+      /* Preview icon: icono anticipado centrado en la isla durante la animacion de entrada */
+      .meblip-icon-preview {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 24px;
+        height: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        color: var(--meblip-accent);
+        opacity: 0;
+        transition: opacity 0.25s ease, top 0.45s cubic-bezier(0.2, 0.8, 0.2, 1), left 0.45s cubic-bezier(0.2, 0.8, 0.2, 1);
+        z-index: 12;
+        pointer-events: none;
+      }
+      .meblip-icon-preview.is-visible {
+        opacity: 1;
+      }
+      .meblip-icon-preview svg {
+        width: 100%;
+        height: 100%;
+        fill: none;
+        stroke: currentColor;
+        stroke-width: 2.2;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+
       /* ACCIONES RAPIDAS - Botones de accion dentro de la notificacion */
       .meblip-actions {
         display: flex;
@@ -978,6 +1009,11 @@ class meBlip {
     this.content.className = "meblip-content";
     this.island.appendChild(this.content);
 
+    // Preview icon: elemento para mostrar icono anticipado durante la animacion de entrada
+    this.iconPreview = document.createElement("div");
+    this.iconPreview.className = "meblip-icon-preview";
+    this.island.appendChild(this.iconPreview);
+
     if (this.root) {
       this.root.appendChild(this.stackContainer);
       this.root.appendChild(this.island);
@@ -1197,6 +1233,16 @@ class meBlip {
       if (p.duration && (!a.waitToDisplay || this.activeId === id)) this._setTimer(id, p.duration);
       this._refresh();
     }
+  }
+
+  /**
+   * Comprueba si existe una actividad con el ID dado en la cola.
+   *
+   * @param {string} id - ID de la actividad a buscar.
+   * @returns {boolean} true si la actividad existe, false en caso contrario.
+   */
+  has(id) {
+    return this.activities.some(a => a.id === id);
   }
 
   /**
@@ -1817,6 +1863,18 @@ class meBlip {
         this.island.classList.add('is-visible');
       }
 
+      // Preview icon: mostrar icono anticipado en el circulo
+      const resolvedIconPreview = data.icon ? (this.icons[data.icon] || data.icon) : null;
+      if (resolvedIconPreview && this.iconPreview) {
+        const previewColor = data.iconColor ? (this.typeColors[data.iconColor] || data.iconColor) : null;
+        this.iconPreview.innerHTML = resolvedIconPreview;
+        if (previewColor) this.iconPreview.style.color = previewColor;
+        else this.iconPreview.style.color = '';
+        setTimeout(() => {
+          if (this.iconPreview) this.iconPreview.classList.add('is-visible');
+        }, 300);
+      }
+
       setTimeout(() => {
         this._applyContent(data);
         if (data.confetti || (this.autoConfetti && data.type === 'success')) {
@@ -2011,6 +2069,30 @@ class meBlip {
       setTimeout(() => {
         if (this.isClosing || !this.content) return;
         this.content.classList.add('is-active');
+        // Animar preview icon hacia posicion del icono real, luego fade-out
+        if (this.iconPreview && this.iconPreview.classList.contains('is-visible')) {
+          const headerIcon = this.content.querySelector('.meblip-icon');
+          if (headerIcon) {
+            const iconRect = headerIcon.getBoundingClientRect();
+            const islandRect = this.island.getBoundingClientRect();
+            const targetTop = (iconRect.top - islandRect.top) + (iconRect.height / 2) - 8;
+            const targetLeft = (iconRect.left - islandRect.left) + (iconRect.width / 2);
+            this.iconPreview.style.top = `${targetTop}px`;
+            this.iconPreview.style.left = `${targetLeft}px`;
+          }
+          setTimeout(() => {
+            if (this.iconPreview) {
+              this.iconPreview.classList.remove('is-visible');
+              setTimeout(() => {
+                if (this.iconPreview) {
+                  this.iconPreview.innerHTML = '';
+                  this.iconPreview.style.top = '';
+                  this.iconPreview.style.left = '';
+                }
+              }, 250);
+            }
+          }, 400);
+        }
         const bar = this.content.querySelector('.meblip-progress-bar');
         if (bar) bar.style.width = `${(data.progress || 0) * 100}%`;
         // Callback onShow: se dispara una sola vez cuando la actividad se muestra por primera vez
