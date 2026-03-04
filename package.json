@@ -1,0 +1,49 @@
+{
+  "name": "meblip",
+  "version": "1.0.0",
+  "description": "Componente de notificaciones tipo Dynamic Island con animaciones spring, colas inteligentes, temas, formularios y verificacion. Sin dependencias.",
+  "main": "meBlip.js",
+  "module": "meBlip.mjs",
+  "exports": {
+    ".": {
+      "import": "./meBlip.mjs",
+      "require": "./meBlip.js",
+      "default": "./meBlip.js"
+    },
+    "./react": {
+      "import": "./react/index.mjs",
+      "require": "./react/index.js"
+    }
+  },
+  "types": "types/meBlip.d.ts",
+  "files": [
+    "meBlip.js",
+    "meBlip.mjs",
+    "react/",
+    "types/",
+    "LICENSE",
+    "README.md"
+  ],
+  "keywords": [
+    "notification",
+    "dynamic-island",
+    "toast",
+    "ui",
+    "animation",
+    "react"
+  ],
+  "author": "Marcos Esperon",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/marcosesperon/meBlip"
+  },
+  "peerDependencies": {
+    "react": ">=16.8.0",
+    "react-dom": ">=16.8.0"
+  },
+  "peerDependenciesMeta": {
+    "react": { "optional": true },
+    "react-dom": { "optional": true }
+  }
+}

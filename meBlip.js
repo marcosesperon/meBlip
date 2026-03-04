@@ -2549,3 +2549,8 @@ class meBlip {
     loop();
   }
 }
+
+// Module exports
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = meBlip;
+}
