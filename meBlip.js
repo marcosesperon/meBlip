@@ -2352,7 +2352,7 @@ class meBlip {
    */
   _resolveWidth(val) {
     if (val === 'compact') return null;
-    if (val === 'normal') return 400;
+    if (val === 'normal') return Math.min(400, window.innerWidth - 32);
     if (val === 'wide') return window.innerWidth - 32;
     const tmp = document.createElement('div');
     tmp.style.cssText = `position:absolute;visibility:hidden;width:${val};`;
