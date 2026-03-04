@@ -1,0 +1,2544 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>meBlip — Dynamic Island Notifications</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+
+/* ── Reset & Base ─────────────────────────────── */
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background: #0a0a0f;
+  color: #e4e4e7;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition: background 0.4s ease, color 0.4s ease;
+}
+
+body.light-mode {
+  background: #f4f4f5;
+  color: #18181b;
+}
+
+::selection { background: rgba(59, 130, 246, 0.3); }
+
+a { color: inherit; text-decoration: none; }
+
+/* ── Header ───────────────────────────────────── */
+
+.page-header {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 56px;
+  background: rgba(10, 10, 15, 0.8);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  z-index: 50;
+  transition: background 0.4s ease, border-color 0.4s ease;
+}
+
+body.light-mode .page-header {
+  background: rgba(244, 244, 245, 0.85);
+  border-bottom-color: rgba(0, 0, 0, 0.08);
+}
+
+.header-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: -0.02em;
+}
+
+.brand-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #3b82f6;
+  box-shadow: 0 0 8px rgba(59, 130, 246, 0.5);
+}
+
+.header-links {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.header-links a {
+  font-size: 13px;
+  font-weight: 500;
+  color: #a1a1aa;
+  transition: color 0.2s;
+}
+.header-links a:hover { color: #e4e4e7; }
+body.light-mode .header-links a { color: #71717a; }
+body.light-mode .header-links a:hover { color: #18181b; }
+
+.bmc-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #ffdd00;
+  color: #000 !important;
+  padding: 6px 12px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 700;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 2px 8px rgba(255, 221, 0, 0.2);
+}
+.bmc-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(255, 221, 0, 0.3); }
+.bmc-btn:active { transform: scale(0.96); }
+.bmc-btn svg { width: 14px; height: 14px; }
+
+/* ── Hero ─────────────────────────────────────── */
+
+.hero {
+  padding: 112px 24px 40px;
+  text-align: center;
+  max-width: 680px;
+  margin: 0 auto;
+}
+
+.hero h1 {
+  font-size: 52px;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1.1;
+  background: linear-gradient(135deg, #ffffff 0%, #a1a1aa 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+body.light-mode .hero h1 {
+  background: linear-gradient(135deg, #18181b 0%, #71717a 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+.hero p {
+  font-size: 17px;
+  color: #71717a;
+  margin-top: 16px;
+  line-height: 1.7;
+}
+
+.hero-badges {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 20px;
+}
+
+.badge {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #a1a1aa;
+}
+
+body.light-mode .badge {
+  background: rgba(0, 0, 0, 0.04);
+  border-color: rgba(0, 0, 0, 0.08);
+  color: #71717a;
+}
+
+/* ── Config Bar ───────────────────────────────── */
+
+.config-bar {
+  position: sticky;
+  top: 56px;
+  z-index: 40;
+  background: rgba(10, 10, 15, 0.88);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 14px 24px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.4s ease, border-color 0.4s ease;
+}
+
+body.light-mode .config-bar {
+  background: rgba(244, 244, 245, 0.9);
+  border-top-color: rgba(0, 0, 0, 0.06);
+  border-bottom-color: rgba(0, 0, 0, 0.06);
+}
+
+.config-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.config-group label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #52525b;
+  font-weight: 600;
+  margin-right: 4px;
+  white-space: nowrap;
+}
+
+.config-pill {
+  padding: 5px 10px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #a1a1aa;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+.config-pill:hover { background: rgba(255, 255, 255, 0.1); color: #e4e4e7; }
+.config-pill.active { background: #3b82f6; color: #fff; border-color: #3b82f6; }
+
+body.light-mode .config-pill {
+  background: rgba(0, 0, 0, 0.04);
+  border-color: rgba(0, 0, 0, 0.08);
+  color: #71717a;
+}
+body.light-mode .config-pill:hover { background: rgba(0, 0, 0, 0.08); color: #18181b; }
+body.light-mode .config-pill.active { background: #3b82f6; color: #fff; border-color: #3b82f6; }
+
+.close-btn {
+  padding: 5px 14px;
+  border-radius: 8px;
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  color: #ef4444;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-left: 8px;
+}
+.close-btn:hover { background: rgba(239, 68, 68, 0.25); }
+
+/* ── Demo Stage ───────────────────────────────── */
+
+.demo-stage {
+  min-height: 280px;
+  margin: 32px auto;
+  max-width: 960px;
+  border-radius: 24px;
+  background: radial-gradient(ellipse at 50% 40%, rgba(59, 130, 246, 0.05) 0%, transparent 70%);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+body.light-mode .demo-stage {
+  background: radial-gradient(ellipse at 50% 40%, rgba(59, 130, 246, 0.06) 0%, transparent 70%);
+  border-color: rgba(0, 0, 0, 0.04);
+}
+
+/* ── Demo Categories ──────────────────────────── */
+
+.demos-container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 24px 80px;
+}
+
+.demo-category {
+  margin-bottom: 48px;
+}
+
+.demo-category-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.demo-category-header h2 {
+  font-size: 18px;
+  font-weight: 700;
+  color: #e4e4e7;
+}
+
+body.light-mode .demo-category-header h2 { color: #18181b; }
+
+.demo-category-badge {
+  font-size: 10px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.demo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 12px;
+}
+
+.demo-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 16px;
+  padding: 20px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  position: relative;
+}
+.demo-card:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.12);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+.demo-card:active {
+  transform: translateY(0) scale(0.98);
+  transition-duration: 0.1s;
+}
+
+body.light-mode .demo-card {
+  background: rgba(0, 0, 0, 0.02);
+  border-color: rgba(0, 0, 0, 0.06);
+}
+body.light-mode .demo-card:hover {
+  background: #fff;
+  border-color: rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+}
+
+.demo-card-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.demo-card-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #e4e4e7;
+}
+
+body.light-mode .demo-card-title { color: #18181b; }
+
+.demo-card-desc {
+  font-size: 12px;
+  color: #52525b;
+  line-height: 1.5;
+}
+
+body.light-mode .demo-card-desc { color: #71717a; }
+
+/* ── Category Color Themes ────────────────────── */
+
+.cat-basic .demo-category-badge { background: rgba(34, 197, 94, 0.12); color: #4ade80; }
+body.light-mode .cat-basic .demo-category-badge { background: rgba(34, 197, 94, 0.1); color: #16a34a; }
+
+.cat-animations .demo-category-badge { background: rgba(168, 85, 247, 0.12); color: #c084fc; }
+body.light-mode .cat-animations .demo-category-badge { background: rgba(168, 85, 247, 0.1); color: #9333ea; }
+
+.cat-ai .demo-category-badge { background: rgba(6, 182, 212, 0.12); color: #22d3ee; }
+body.light-mode .cat-ai .demo-category-badge { background: rgba(6, 182, 212, 0.1); color: #0891b2; }
+
+.cat-progress .demo-category-badge { background: rgba(59, 130, 246, 0.12); color: #60a5fa; }
+body.light-mode .cat-progress .demo-category-badge { background: rgba(59, 130, 246, 0.1); color: #2563eb; }
+
+.cat-actions .demo-category-badge { background: rgba(249, 115, 22, 0.12); color: #fb923c; }
+body.light-mode .cat-actions .demo-category-badge { background: rgba(249, 115, 22, 0.1); color: #ea580c; }
+
+.cat-queue .demo-category-badge { background: rgba(236, 72, 153, 0.12); color: #f472b6; }
+body.light-mode .cat-queue .demo-category-badge { background: rgba(236, 72, 153, 0.1); color: #db2777; }
+
+.cat-advanced .demo-category-badge { background: rgba(250, 204, 21, 0.12); color: #facc15; }
+body.light-mode .cat-advanced .demo-category-badge { background: rgba(250, 204, 21, 0.1); color: #ca8a04; }
+
+.cat-verify .demo-category-badge { background: rgba(245, 158, 11, 0.12); color: #fbbf24; }
+body.light-mode .cat-verify .demo-category-badge { background: rgba(245, 158, 11, 0.1); color: #d97706; }
+
+.cat-form .demo-category-badge { background: rgba(139, 92, 246, 0.12); color: #a78bfa; }
+body.light-mode .cat-form .demo-category-badge { background: rgba(139, 92, 246, 0.1); color: #7c3aed; }
+
+.cat-upload .demo-category-badge { background: rgba(6, 182, 212, 0.12); color: #22d3ee; }
+body.light-mode .cat-upload .demo-category-badge { background: rgba(6, 182, 212, 0.1); color: #0891b2; }
+
+/* ── Footer ───────────────────────────────────── */
+
+.page-footer {
+  text-align: center;
+  padding: 32px 24px 48px;
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
+  color: #3f3f46;
+  font-size: 13px;
+}
+
+body.light-mode .page-footer {
+  border-top-color: rgba(0, 0, 0, 0.06);
+  color: #a1a1aa;
+}
+
+.page-footer a {
+  color: #71717a;
+  transition: color 0.2s;
+}
+.page-footer a:hover { color: #e4e4e7; }
+body.light-mode .page-footer a:hover { color: #18181b; }
+
+/* ── Responsive ───────────────────────────────── */
+
+@media (max-width: 768px) {
+  .hero { padding: 100px 20px 32px; }
+  .hero h1 { font-size: 36px; }
+  .hero p { font-size: 15px; }
+  .config-bar { gap: 12px; padding: 12px 16px; }
+  .config-group { flex-wrap: wrap; justify-content: center; }
+  .demo-grid { grid-template-columns: repeat(2, 1fr); }
+  .demo-stage { min-height: 200px; margin: 20px 16px; }
+  .demos-container { padding: 0 16px 60px; }
+}
+
+@media (max-width: 480px) {
+  .hero h1 { font-size: 28px; }
+  .demo-grid { grid-template-columns: 1fr; }
+  .config-bar { position: relative; top: auto; }
+  .header-links .github-link { display: none; }
+}
+
+/* ── Info Drawer ─────────────────────────────── */
+.demo-card-info {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.08);
+  color: #71717a;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.2s ease, background 0.2s ease, color 0.2s ease;
+  padding: 0;
+  z-index: 2;
+}
+.demo-card:hover .demo-card-info { opacity: 1; }
+.demo-card-info:hover { background: rgba(255, 255, 255, 0.15); color: #a1a1aa; }
+body.light-mode .demo-card-info { background: rgba(0, 0, 0, 0.05); color: #a1a1aa; }
+body.light-mode .demo-card-info:hover { background: rgba(0, 0, 0, 0.1); color: #52525b; }
+
+#info-drawer-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 9998;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+#info-drawer-overlay.is-open { opacity: 1; pointer-events: auto; }
+
+#info-drawer-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 50vw;
+  max-width: 100vw;
+  height: 100vh;
+  z-index: 9999;
+  background: #18181b;
+  border-left: 1px solid rgba(255, 255, 255, 0.08);
+  transform: translateX(100%);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+#info-drawer-panel.is-open { transform: translateX(0); }
+body.light-mode #info-drawer-panel { background: #ffffff; border-left-color: rgba(0, 0, 0, 0.08); }
+
+.info-drawer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  flex-shrink: 0;
+}
+body.light-mode .info-drawer-header { border-bottom-color: rgba(0, 0, 0, 0.06); }
+
+.info-drawer-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #e4e4e7;
+}
+body.light-mode .info-drawer-title { color: #18181b; }
+
+.info-drawer-close {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: none;
+  background: rgba(255, 255, 255, 0.06);
+  color: #a1a1aa;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s ease;
+}
+.info-drawer-close:hover { background: rgba(255, 255, 255, 0.12); }
+body.light-mode .info-drawer-close { background: rgba(0, 0, 0, 0.04); color: #71717a; }
+body.light-mode .info-drawer-close:hover { background: rgba(0, 0, 0, 0.08); }
+
+.info-drawer-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.info-drawer-section-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #71717a;
+  margin-bottom: 8px;
+}
+
+.info-drawer-code {
+  background: #0f0f11;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+  padding: 16px;
+  overflow-x: auto;
+  font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: #d4d4d8;
+  white-space: pre;
+  tab-size: 2;
+}
+body.light-mode .info-drawer-code { background: #f4f4f5; border-color: rgba(0, 0, 0, 0.06); color: #27272a; }
+
+.info-drawer-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;
+}
+.info-drawer-table th {
+  text-align: left;
+  font-weight: 600;
+  color: #a1a1aa;
+  padding: 8px 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+body.light-mode .info-drawer-table th { color: #71717a; border-bottom-color: rgba(0, 0, 0, 0.06); }
+.info-drawer-table td {
+  padding: 8px 10px;
+  color: #d4d4d8;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  vertical-align: top;
+}
+body.light-mode .info-drawer-table td { color: #27272a; border-bottom-color: rgba(0, 0, 0, 0.04); }
+.info-drawer-table td:first-child {
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  font-size: 12px;
+  color: #60a5fa;
+  white-space: nowrap;
+}
+body.light-mode .info-drawer-table td:first-child { color: #2563eb; }
+.info-drawer-table td:nth-child(2) {
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  font-size: 12px;
+  color: #a78bfa;
+}
+body.light-mode .info-drawer-table td:nth-child(2) { color: #7c3aed; }
+.info-drawer-table td:last-child { color: #71717a; }
+
+@media (max-width: 768px) {
+  #info-drawer-panel { width: 100vw; }
+}
+
+</style>
+</head>
+
+<body class="light-mode">
+
+<!-- ── Header ──────────────────────────────────── -->
+<header class="page-header">
+  <div class="header-brand">
+    <span class="brand-dot"></span>
+    meBlip
+  </div>
+  <div class="header-links">
+    <a href="https://github.com/marcosesperon/meBlip" target="_blank" rel="noopener" class="github-link">GitHub</a>
+    <a class="bmc-btn" href="https://buymeacoffee.com/marcosesperon" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>
+      Buy me a coffee
+    </a>
+  </div>
+</header>
+
+<!-- ── Hero ─────────────────────────────────────── -->
+<section class="hero">
+  <h1>meBlip</h1>
+  <p>Notificaciones tipo Dynamic Island para la web. Zero dependencias. Spring physics. Accesible.</p>
+  <div class="hero-badges">
+    <span class="badge">v1.0</span>
+    <span class="badge">MIT</span>
+    <span class="badge">Zero deps</span>
+  </div>
+</section>
+
+<!-- ── Config Bar ───────────────────────────────── -->
+<div class="config-bar">
+  <div class="config-group">
+    <label>Ubicaci&oacute;n</label>
+    <button class="config-pill" onclick="changePosition('top-left', this)">Arr. Izq</button>
+    <button class="config-pill active" onclick="changePosition('top-center', this)">Arr. Centro</button>
+    <button class="config-pill" onclick="changePosition('top-right', this)">Arr. Der</button>
+    <button class="config-pill" onclick="changePosition('center', this)">Centro</button>
+    <button class="config-pill" onclick="changePosition('bottom-left', this)">Ab. Izq</button>
+    <button class="config-pill" onclick="changePosition('bottom-center', this)">Ab. Centro</button>
+    <button class="config-pill" onclick="changePosition('bottom-right', this)">Ab. Der</button>
+  </div>
+  <div class="config-group">
+    <label>Tema</label>
+    <button class="config-pill active" onclick="changeTheme('dark', this)">Oscuro</button>
+    <button class="config-pill" onclick="changeTheme('light', this)">Claro</button>
+    <button class="config-pill" onclick="changeTheme('system', this)">Auto</button>
+  </div>
+  <div class="config-group">
+    <label>Apilamiento</label>
+    <button class="config-pill active" onclick="changeStackStyle('3d', this)">3D</button>
+    <button class="config-pill" onclick="changeStackStyle('fan', this)">Abanico</button>
+    <button class="config-pill" onclick="changeStackStyle('counter', this)">Contador</button>
+  </div>
+  <div class="config-group">
+    <label>Ancho</label>
+    <button class="config-pill" onclick="changeIslandWidth('compact', this)">Compacto</button>
+    <button class="config-pill active" onclick="changeIslandWidth('normal', this)">Normal</button>
+    <button class="config-pill" onclick="changeIslandWidth('wide', this)">Ampliado</button>
+  </div>
+  <button class="close-btn" onclick="blip.remove(blip.activeId)">Cerrar Actual (ESC)</button>
+</div>
+
+<!-- ── Init Code ──────────────────────────────── -->
+<div class="demos-container">
+  <section class="demo-category" style="margin: 16px auto 8px;">
+    <div class="demo-category-header">
+      <h2>Inicializaci&oacute;n</h2>
+    </div>
+    <pre class="info-drawer-code" style="margin: 0;">const blip= new meBlip({
+  position: 'top-center',
+  theme: 'dark',
+  typeColors: {
+    premium: '#8b5cf6',
+    light: '#facc15'
+  },
+  icons: {
+    premium: '&lt;svg ...&gt;...&lt;/svg&gt;',
+    heart: '&lt;svg ...&gt;...&lt;/svg&gt;'
+  }
+});</pre>
+    <div class="demo-category-header" style="margin-top: 20px;">
+      <h2>Config Helpers</h2>
+    </div>
+    <pre class="info-drawer-code" style="margin: 0;">// Cambiar posici&oacute;n
+blip.setPosition('top-center');
+// Opciones: 'top-left', 'top-center', 'top-right',
+//           'center', 'bottom-left', 'bottom-center', 'bottom-right'
+
+// Cambiar tema
+blip.setTheme('dark');
+// Opciones: 'dark', 'light', 'system'
+
+// Cambiar estilo de apilamiento
+blip.setStackStyle('3d');
+// Opciones: '3d', 'fan', 'counter'
+
+// Cambiar ancho de la isla
+blip.setIslandWidth('normal');
+// Opciones: 'compact', 'normal', 'wide'</pre>
+  </section>
+</div>
+
+<!-- ── Demo Categories ─────────────────────────── -->
+<div class="demos-container">
+
+  <!-- 1. Básico -->
+  <section class="demo-category cat-basic">
+    <div class="demo-category-header">
+      <h2>B&aacute;sico</h2>
+      <span class="demo-category-badge">5 demos</span>
+    </div>
+    <div class="demo-grid">
+      <div class="demo-card" onclick="demoMinimal()">
+        <div class="demo-card-icon" style="background: rgba(161,161,170,0.12); color: #a1a1aa;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        </div>
+        <div class="demo-card-title">M&iacute;nima</div>
+        <div class="demo-card-desc">Solo t&iacute;tulo, sin icono ni subt&iacute;tulo</div>
+      </div>
+      <div class="demo-card" onclick="demoSuccess()">
+        <div class="demo-card-icon" style="background: rgba(34,197,94,0.12); color: #22c55e;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <div class="demo-card-title">&Eacute;xito</div>
+        <div class="demo-card-desc">Notificaci&oacute;n de &eacute;xito simple que se cierra en 3 segundos</div>
+      </div>
+      <div class="demo-card" onclick="demoError()">
+        <div class="demo-card-icon" style="background: rgba(239,68,68,0.12); color: #ef4444;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </div>
+        <div class="demo-card-title">Error</div>
+        <div class="demo-card-desc">Notificaci&oacute;n de error b&aacute;sica, 3 segundos</div>
+      </div>
+      <div class="demo-card" onclick="demoInfo()">
+        <div class="demo-card-icon" style="background: rgba(59,130,246,0.12); color: #3b82f6;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+        </div>
+        <div class="demo-card-title">Informaci&oacute;n</div>
+        <div class="demo-card-desc">Aviso informativo con duraci&oacute;n de 4 segundos</div>
+      </div>
+      <div class="demo-card" onclick="demoWarning()">
+        <div class="demo-card-icon" style="background: rgba(245,158,11,0.12); color: #f59e0b;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        </div>
+        <div class="demo-card-title">Aviso</div>
+        <div class="demo-card-desc">Alerta de seguridad con sonido, no se cierra en automático</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. Animaciones -->
+  <section class="demo-category cat-animations">
+    <div class="demo-category-header">
+      <h2>Animaciones</h2>
+      <span class="demo-category-badge">12 demos</span>
+    </div>
+    <div class="demo-grid">
+      <div class="demo-card" onclick="demoSuccessPulse()">
+        <div class="demo-card-icon" style="background: rgba(168,85,247,0.12); color: #a855f7;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+        </div>
+        <div class="demo-card-title">&Eacute;xito con Pulso</div>
+        <div class="demo-card-desc">Animaci&oacute;n de escala suave al aparecer la notificaci&oacute;n</div>
+      </div>
+      <div class="demo-card" onclick="demoErrorShake()">
+        <div class="demo-card-icon" style="background: rgba(168,85,247,0.12); color: #a855f7;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+        </div>
+        <div class="demo-card-title">Error con Shake</div>
+        <div class="demo-card-desc">Vibraci&oacute;n lateral al mostrar un error</div>
+      </div>
+      <div class="demo-card" onclick="demoBounce()">
+        <div class="demo-card-icon" style="background: rgba(245,158,11,0.12); color: #f59e0b;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"/><polyline points="5 12 12 5 19 12"/></svg>
+        </div>
+        <div class="demo-card-title">Bounce</div>
+        <div class="demo-card-desc">Rebote vertical suave, ahora default para warnings</div>
+      </div>
+      <div class="demo-card" onclick="demoGlow()">
+        <div class="demo-card-icon" style="background: rgba(59,130,246,0.12); color: #3b82f6;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        </div>
+        <div class="demo-card-title">Glow</div>
+        <div class="demo-card-desc">Resplandor pulsante del borde, ahora default para info</div>
+      </div>
+      <div class="demo-card" onclick="demoBreathe()">
+        <div class="demo-card-icon" style="background: rgba(6,182,212,0.12); color: #06b6d4;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 15l-6-6-6 6"/></svg>
+        </div>
+        <div class="demo-card-title">Breathe</div>
+        <div class="demo-card-desc">Respiraci&oacute;n lenta infinita, ahora default para thinking</div>
+      </div>
+      <div class="demo-card" onclick="demoHeartbeat()">
+        <div class="demo-card-icon" style="background: rgba(239,68,68,0.12); color: #ef4444;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        </div>
+        <div class="demo-card-title">Heartbeat</div>
+        <div class="demo-card-desc">Doble pulso r&aacute;pido como latido de coraz&oacute;n</div>
+      </div>
+      <div class="demo-card" onclick="demoWobble()">
+        <div class="demo-card-icon" style="background: rgba(168,85,247,0.12); color: #a855f7;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+        </div>
+        <div class="demo-card-title">Wobble</div>
+        <div class="demo-card-desc">Deformaci&oacute;n el&aacute;stica tipo gelatina</div>
+      </div>
+      <div class="demo-card" onclick="demoRipple()">
+        <div class="demo-card-icon" style="background: rgba(34,197,94,0.12); color: #22c55e;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="7" opacity="0.5"/><circle cx="12" cy="12" r="10" opacity="0.25"/></svg>
+        </div>
+        <div class="demo-card-title">Ripple</div>
+        <div class="demo-card-desc">Onda expansiva desde el borde de la isla</div>
+      </div>
+      <div class="demo-card" onclick="demoSwing()">
+        <div class="demo-card-icon" style="background: rgba(249,115,22,0.12); color: #f97316;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </div>
+        <div class="demo-card-title">Swing</div>
+        <div class="demo-card-desc">Oscilaci&oacute;n tipo p&eacute;ndulo, ideal para recordatorios</div>
+      </div>
+      <div class="demo-card" onclick="demoTypingDots()">
+        <div class="demo-card-icon" style="background: rgba(6,182,212,0.12); color: #06b6d4;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        </div>
+        <div class="demo-card-title">Typing Dots</div>
+        <div class="demo-card-desc">Tres puntos secuenciales estilo &ldquo;escribiendo&rdquo;</div>
+      </div>
+      <div class="demo-card" onclick="demoProgressOrbit()">
+        <div class="demo-card-icon" style="background: rgba(59,130,246,0.12); color: #3b82f6;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="1" fill="currentColor"/></svg>
+        </div>
+        <div class="demo-card-title">Progress Orbit</div>
+        <div class="demo-card-desc">Puntos orbitando como alternativa al spinner cl&aacute;sico</div>
+      </div>
+      <div class="demo-card" onclick="demoIconColor()">
+        <div class="demo-card-icon" style="background: rgba(168,85,247,0.12); color: #a855f7;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+        </div>
+        <div class="demo-card-title">Icon Color</div>
+        <div class="demo-card-desc">Icono con color personalizado independiente del tipo</div>
+      </div>
+      <div class="demo-card" onclick="demoSlideSpring()">
+        <div class="demo-card-icon" style="background: rgba(236,72,153,0.12); color: #ec4899;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </div>
+        <div class="demo-card-title">Slide Spring</div>
+        <div class="demo-card-desc">Entrada deslizante con rebote el&aacute;stico</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. IA & Estado -->
+  <section class="demo-category cat-ai">
+    <div class="demo-category-header">
+      <h2>IA &amp; Estado</h2>
+      <span class="demo-category-badge">4 demos</span>
+    </div>
+    <div class="demo-grid">
+      <div class="demo-card" onclick="demoLoading()">
+        <div class="demo-card-icon" style="background: rgba(6,182,212,0.12); color: #06b6d4;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"/><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"/></svg>
+        </div>
+        <div class="demo-card-title">Cargando</div>
+        <div class="demo-card-desc">Spinner animado durante 4 segundos</div>
+      </div>
+      <div class="demo-card" onclick="demoThinking()">
+        <div class="demo-card-icon" style="background: rgba(6,182,212,0.12); color: #06b6d4;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a8 8 0 0 0-8 8c0 3.4 2.1 6.3 5 7.5V20h6v-2.5c2.9-1.2 5-4.1 5-7.5a8 8 0 0 0-8-8z"/><line x1="10" y1="22" x2="14" y2="22"/></svg>
+        </div>
+        <div class="demo-card-title">Pensando (IA)</div>
+        <div class="demo-card-desc">Animaci&oacute;n de IA procesando durante 5 segundos</div>
+      </div>
+      <div class="demo-card" onclick="demoSpeaking()">
+        <div class="demo-card-icon" style="background: rgba(6,182,212,0.12); color: #06b6d4;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+        </div>
+        <div class="demo-card-title">Hablando</div>
+        <div class="demo-card-desc">Icono de altavoz con onda durante 3 segundos</div>
+      </div>
+      <div class="demo-card" onclick="demoListening()">
+        <div class="demo-card-icon" style="background: rgba(6,182,212,0.12); color: #06b6d4;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+        </div>
+        <div class="demo-card-title">Escuchando</div>
+        <div class="demo-card-desc">Micr&oacute;fono activo esperando entrada de voz</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. Progreso -->
+  <section class="demo-category cat-progress">
+    <div class="demo-category-header">
+      <h2>Progreso</h2>
+      <span class="demo-category-badge">2 demos</span>
+    </div>
+    <div class="demo-grid">
+      <div class="demo-card" onclick="demoDownload()">
+        <div class="demo-card-icon" style="background: rgba(59,130,246,0.12); color: #3b82f6;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        </div>
+        <div class="demo-card-title">Descarga</div>
+        <div class="demo-card-desc">Barra de progreso al 75%, cierre autom&aacute;tico en 4s</div>
+      </div>
+      <div class="demo-card" onclick="demoUpload()">
+        <div class="demo-card-icon" style="background: rgba(59,130,246,0.12); color: #3b82f6;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        </div>
+        <div class="demo-card-title">Subida en Vivo</div>
+        <div class="demo-card-desc">Progreso interactivo de 0% a 100% en tiempo real</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. Acciones -->
+  <section class="demo-category cat-actions">
+    <div class="demo-category-header">
+      <h2>Acciones</h2>
+      <span class="demo-category-badge">3 demos</span>
+    </div>
+    <div class="demo-grid">
+      <div class="demo-card" onclick="demoAvatar()">
+        <div class="demo-card-icon" style="background: rgba(249,115,22,0.12); color: #f97316;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        </div>
+        <div class="demo-card-title">Con Avatar</div>
+        <div class="demo-card-desc">Imagen circular de perfil con botones de acci&oacute;n</div>
+      </div>
+      <div class="demo-card" onclick="demoActionsSuccess()">
+        <div class="demo-card-icon" style="background: rgba(249,115,22,0.12); color: #f97316;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+        </div>
+        <div class="demo-card-title">&Eacute;xito + Acciones</div>
+        <div class="demo-card-desc">Botones para actuar tras una operaci&oacute;n exitosa</div>
+      </div>
+      <div class="demo-card" onclick="demoActionsError()">
+        <div class="demo-card-icon" style="background: rgba(249,115,22,0.12); color: #f97316;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+        </div>
+        <div class="demo-card-title">Error + Reintentar</div>
+        <div class="demo-card-desc">Overlay bloqueante con opciones de reintentar o cancelar</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6. Cola & Grupos -->
+  <section class="demo-category cat-queue">
+    <div class="demo-category-header">
+      <h2>Cola &amp; Grupos</h2>
+      <span class="demo-category-badge">4 demos</span>
+    </div>
+    <div class="demo-grid">
+      <div class="demo-card" onclick="demoNormalQueue()">
+        <div class="demo-card-icon" style="background: rgba(236,72,153,0.12); color: #ec4899;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+        </div>
+        <div class="demo-card-title">Cola Normal</div>
+        <div class="demo-card-desc">3 notificaciones secuenciales en orden FIFO</div>
+      </div>
+      <div class="demo-card" onclick="demoHighPriority()">
+        <div class="demo-card-icon" style="background: rgba(236,72,153,0.12); color: #ec4899;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        </div>
+        <div class="demo-card-title">Alta Prioridad</div>
+        <div class="demo-card-desc">Salta la cola autom&aacute;ticamente con sonido</div>
+      </div>
+      <div class="demo-card" onclick="demoSmartGroup()">
+        <div class="demo-card-icon" style="background: rgba(236,72,153,0.12); color: #ec4899;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/></svg>
+        </div>
+        <div class="demo-card-title">Smart Group</div>
+        <div class="demo-card-desc">4 items agrupados inteligentemente con progreso promedio</div>
+      </div>
+      <div class="demo-card" onclick="demoWaitToDisplay()">
+        <div class="demo-card-icon" style="background: rgba(236,72,153,0.12); color: #ec4899;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </div>
+        <div class="demo-card-title">Wait to Display</div>
+        <div class="demo-card-desc">La duraci&oacute;n cuenta desde que se muestra, no desde que se a&ntilde;ade a la cola</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7. Avanzado (v2.0) -->
+  <section class="demo-category cat-advanced">
+    <div class="demo-category-header">
+      <h2>Avanzado</h2>
+      <span class="demo-category-badge">18 demos</span>
+    </div>
+    <div class="demo-grid">
+      <div class="demo-card" onclick="demoCustomType()">
+        <div class="demo-card-icon" style="background: rgba(139,92,246,0.12); color: #8b5cf6;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        </div>
+        <div class="demo-card-title">Custom Type</div>
+        <div class="demo-card-desc">Tipo personalizado con color y fondo propios via <code>typeColors</code></div>
+      </div>
+      <div class="demo-card" onclick="demoCustomIcon()">
+        <div class="demo-card-icon" style="background: rgba(244,63,94,0.12); color: #f43f5e;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        </div>
+        <div class="demo-card-title">Custom Icon</div>
+        <div class="demo-card-desc">Icono SVG personalizado pasado via <code>icons</code> en el constructor</div>
+      </div>
+      <div class="demo-card" onclick="demoGlowColor()">
+        <div class="demo-card-icon" style="background: rgba(244,63,94,0.12); color: #f43f5e;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/></svg>
+        </div>
+        <div class="demo-card-title">Glow Color</div>
+        <div class="demo-card-desc">Animaci&oacute;n glow con color de shadow personalizado</div>
+      </div>
+      <div class="demo-card" onclick="demoAutoContrast()">
+        <div class="demo-card-icon" style="background: rgba(250,204,21,0.12); color: #facc15;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        </div>
+        <div class="demo-card-title">Auto Contraste</div>
+        <div class="demo-card-desc">Fondo claro con texto oscuro autom&aacute;tico (luminancia WCAG)</div>
+      </div>
+      <div class="demo-card" onclick="demoHtmlSubtitle()">
+        <div class="demo-card-icon" style="background: rgba(250,204,21,0.12); color: #facc15;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+        </div>
+        <div class="demo-card-title">HTML Subtitle</div>
+        <div class="demo-card-desc">Subt&iacute;tulo con <strong>negrita</strong>, enlaces y c&oacute;digo</div>
+      </div>
+      <div class="demo-card" onclick="demoMorphing()">
+        <div class="demo-card-icon" style="background: rgba(250,204,21,0.12); color: #facc15;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4"/><path d="m16.2 7.8 2.9-2.9"/><path d="M18 12h4"/><path d="m16.2 16.2 2.9 2.9"/><path d="M12 18v4"/><path d="m4.9 19.1 2.9-2.9"/><path d="M2 12h4"/><path d="m4.9 4.9 2.9 2.9"/></svg>
+        </div>
+        <div class="demo-card-title">Morphing</div>
+        <div class="demo-card-desc">Transici&oacute;n suave de loading a success con cambio de color e icono</div>
+      </div>
+      <div class="demo-card" onclick="demoExitFade()">
+        <div class="demo-card-icon" style="background: rgba(250,204,21,0.12); color: #facc15;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+        </div>
+        <div class="demo-card-title">Exit Fade</div>
+        <div class="demo-card-desc">Animaci&oacute;n de salida con desvanecimiento</div>
+      </div>
+      <div class="demo-card" onclick="demoExitShrink()">
+        <div class="demo-card-icon" style="background: rgba(250,204,21,0.12); color: #facc15;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>
+        </div>
+        <div class="demo-card-title">Exit Shrink</div>
+        <div class="demo-card-desc">Salida con rebote el&aacute;stico invertido</div>
+      </div>
+      <div class="demo-card" onclick="demoCountdown()">
+        <div class="demo-card-icon" style="background: rgba(250,204,21,0.12); color: #facc15;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </div>
+        <div class="demo-card-title">Countdown</div>
+        <div class="demo-card-desc">Barra inferior que muestra el tiempo restante (hover para pausar)</div>
+      </div>
+      <div class="demo-card" onclick="demoUndo()">
+        <div class="demo-card-icon" style="background: rgba(250,204,21,0.12); color: #facc15;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+        </div>
+        <div class="demo-card-title">Undo</div>
+        <div class="demo-card-desc">Patr&oacute;n deshacer tipo Gmail con countdown</div>
+      </div>
+      <div class="demo-card" onclick="demoChain()">
+        <div class="demo-card-icon" style="background: rgba(250,204,21,0.12); color: #facc15;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+        </div>
+        <div class="demo-card-title">Chain</div>
+        <div class="demo-card-desc">Secuencia de 3 pasos: conectar &rarr; descargar &rarr; listo</div>
+      </div>
+      <div class="demo-card" onclick="demoConfetti()">
+        <div class="demo-card-icon" style="background: rgba(250,204,21,0.12); color: #facc15;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5.8 11.3 2 22l10.7-3.79"/><path d="M4 3h.01"/><path d="M22 8h.01"/><path d="M15 2h.01"/><path d="M22 20h.01"/><path d="m22 2-2.24.75a2.9 2.9 0 0 0-1.96 3.12v0c.1.86-.57 1.63-1.45 1.63h-.38c-.86 0-1.6.6-1.76 1.44L14 10"/><path d="m22 13-.82-.33c-.86-.34-1.82.2-1.98 1.11v0c-.11.7-.72 1.22-1.43 1.22H17"/><path d="m11 2 .33.82c.34.86-.2 1.82-1.11 1.98v0C9.52 4.9 9 5.52 9 6.23V7"/></svg>
+        </div>
+        <div class="demo-card-title">Confetti</div>
+        <div class="demo-card-desc">Explosi&oacute;n de part&iacute;culas al mostrar un &eacute;xito</div>
+      </div>
+      <div class="demo-card" onclick="demoPosition()">
+        <div class="demo-card-icon" style="background: rgba(59,130,246,0.12); color: #3b82f6;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        </div>
+        <div class="demo-card-title">Posici&oacute;n Override</div>
+        <div class="demo-card-desc">Notificaci&oacute;n que aparece en otra posici&oacute;n y luego restaura</div>
+      </div>
+      <div class="demo-card" onclick="demoWidthCompact()">
+        <div class="demo-card-icon" style="background: rgba(6,182,212,0.12); color: #06b6d4;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 3H3v18h18V3z"/><path d="m15 9-3 3-3-3"/><path d="m9 15 3-3 3 3"/></svg>
+        </div>
+        <div class="demo-card-title">Ancho Compacto</div>
+        <div class="demo-card-desc">Override <code>islandWidth: 'compact'</code> solo para esta notificaci&oacute;n</div>
+      </div>
+      <div class="demo-card" onclick="demoWidthWide()">
+        <div class="demo-card-icon" style="background: rgba(6,182,212,0.12); color: #06b6d4;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 3H3v18h18V3z"/><path d="m9 9-3 3 3 3"/><path d="m15 9 3 3-3 3"/></svg>
+        </div>
+        <div class="demo-card-title">Ancho Ampliado</div>
+        <div class="demo-card-desc">Override <code>islandWidth: 'wide'</code> solo para esta notificaci&oacute;n</div>
+      </div>
+      <div class="demo-card" onclick="demoContentStats()">
+        <div class="demo-card-icon" style="background: rgba(139,92,246,0.12); color: #8b5cf6;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>
+        </div>
+        <div class="demo-card-title">Contenido HTML</div>
+        <div class="demo-card-desc">Estad&iacute;sticas con <code>content</code> HTML personalizado</div>
+      </div>
+      <div class="demo-card" onclick="demoContentActions()">
+        <div class="demo-card-icon" style="background: rgba(139,92,246,0.12); color: #8b5cf6;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+        </div>
+        <div class="demo-card-title">Content + Actions</div>
+        <div class="demo-card-desc">HTML personalizado con botones de acci&oacute;n</div>
+      </div>
+      <div class="demo-card" onclick="demoPersistent()">
+        <div class="demo-card-icon" style="background: rgba(239,68,68,0.12); color: #ef4444;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        </div>
+        <div class="demo-card-title">Persistent</div>
+        <div class="demo-card-desc">No se puede cerrar con Escape ni click, solo program&aacute;ticamente</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8. Verificacion (v4.0) -->
+  <section class="demo-category cat-verify">
+    <div class="demo-category-header">
+      <h2>Verificaci&oacute;n</h2>
+      <span class="demo-category-badge">8 demos</span>
+    </div>
+    <div class="demo-grid">
+      <div class="demo-card" onclick="demoVerifyBasic()">
+        <div class="demo-card-icon" style="background: rgba(245,158,11,0.12); color: #f59e0b;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        </div>
+        <div class="demo-card-title">B&aacute;sico</div>
+        <div class="demo-card-desc">C&oacute;digo alfanum&eacute;rico de 4 caracteres generado autom&aacute;ticamente</div>
+      </div>
+      <div class="demo-card" onclick="demoVerifyNumeric()">
+        <div class="demo-card-icon" style="background: rgba(245,158,11,0.12); color: #f59e0b;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M8 10h.01"/><path d="M12 10h.01"/><path d="M16 10h.01"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/></svg>
+        </div>
+        <div class="demo-card-title">Num&eacute;rico</div>
+        <div class="demo-card-desc">C&oacute;digo de 6 d&iacute;gitos num&eacute;ricos con teclado <code>tel</code></div>
+      </div>
+      <div class="demo-card" onclick="demoVerifyCustomCode()">
+        <div class="demo-card-icon" style="background: rgba(245,158,11,0.12); color: #f59e0b;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+        </div>
+        <div class="demo-card-title">C&oacute;digo Custom</div>
+        <div class="demo-card-desc">C&oacute;digo fijo definido por el desarrollador: <code>ABC123</code></div>
+      </div>
+      <div class="demo-card" onclick="demoVerifyCaseSensitive()">
+        <div class="demo-card-icon" style="background: rgba(245,158,11,0.12); color: #f59e0b;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 14h-5"/><path d="M21 10h-5"/><path d="m3 16 4-8 4 8"/><path d="M5.5 14h5"/></svg>
+        </div>
+        <div class="demo-card-title">Case Sensitive</div>
+        <div class="demo-card-desc">Distingue may&uacute;sculas y min&uacute;sculas al validar</div>
+      </div>
+      <div class="demo-card" onclick="demoVerifyCallbacks()">
+        <div class="demo-card-icon" style="background: rgba(245,158,11,0.12); color: #f59e0b;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+        </div>
+        <div class="demo-card-title">Callbacks</div>
+        <div class="demo-card-desc">Callbacks <code>onVerify</code>, <code>onFail</code> y <code>onCancel</code> con feedback</div>
+      </div>
+      <div class="demo-card" onclick="demoVerifyStyled()">
+        <div class="demo-card-icon" style="background: rgba(245,158,11,0.12); color: #f59e0b;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </div>
+        <div class="demo-card-title">Styled</div>
+        <div class="demo-card-desc">Verificaci&oacute;n con tipo <code>error</code>, icono y close button</div>
+      </div>
+      <div class="demo-card" onclick="demoVerifyInput()">
+        <div class="demo-card-icon" style="background: rgba(59,130,246,0.12); color: #3b82f6;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+        </div>
+        <div class="demo-card-title">Input SMS</div>
+        <div class="demo-card-desc">Modo <code>input</code>: c&oacute;digo ciego de 6 d&iacute;gitos con bot&oacute;n Confirmar</div>
+      </div>
+      <div class="demo-card" onclick="demoVerifyInputAlpha()">
+        <div class="demo-card-icon" style="background: rgba(59,130,246,0.12); color: #3b82f6;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/><circle cx="12" cy="16" r="1"/></svg>
+        </div>
+        <div class="demo-card-title">Input Token</div>
+        <div class="demo-card-desc">Modo <code>input</code>: token alfanum&eacute;rico de 4 caracteres con bot&oacute;n custom</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 9. Formularios (v5.0) -->
+  <section class="demo-category cat-form">
+    <div class="demo-category-header">
+      <h2>Formularios</h2>
+      <span class="demo-category-badge">4 demos</span>
+    </div>
+    <div class="demo-grid">
+      <div class="demo-card" onclick="demoFormBasic()">
+        <div class="demo-card-icon" style="background: rgba(59,130,246,0.12); color: #3b82f6;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
+        </div>
+        <div class="demo-card-title">B&aacute;sico</div>
+        <div class="demo-card-desc">Formulario de contacto con nombre y email</div>
+      </div>
+      <div class="demo-card" onclick="demoFormSelect()">
+        <div class="demo-card-icon" style="background: rgba(245,158,11,0.12); color: #f59e0b;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        </div>
+        <div class="demo-card-title">Con Select</div>
+        <div class="demo-card-desc">Encuesta con <code>select</code> y <code>textarea</code></div>
+      </div>
+      <div class="demo-card" onclick="demoFormComplete()">
+        <div class="demo-card-icon" style="background: rgba(34,197,94,0.12); color: #22c55e;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+        </div>
+        <div class="demo-card-title">Completo</div>
+        <div class="demo-card-desc">Registro con text, email, tel y select</div>
+      </div>
+      <div class="demo-card" onclick="demoFormFeedback()">
+        <div class="demo-card-icon" style="background: rgba(239,68,68,0.12); color: #ef4444;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        </div>
+        <div class="demo-card-title">Feedback</div>
+        <div class="demo-card-desc">Reporte con textarea, campos required y labels custom</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 10. Subida de ficheros (v6.0) -->
+  <section class="demo-category cat-upload">
+    <div class="demo-category-header">
+      <h2>Subida de ficheros</h2>
+      <span class="demo-category-badge">5 demos</span>
+    </div>
+    <div class="demo-grid">
+      <div class="demo-card" onclick="demoUploadBasic()">
+        <div class="demo-card-icon" style="background: rgba(6,182,212,0.12); color: #06b6d4;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        </div>
+        <div class="demo-card-title">B&aacute;sico</div>
+        <div class="demo-card-desc">Subida de un &uacute;nico archivo sin restricciones</div>
+      </div>
+      <div class="demo-card" onclick="demoUploadMultiple()">
+        <div class="demo-card-icon" style="background: rgba(59,130,246,0.12); color: #3b82f6;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+        </div>
+        <div class="demo-card-title">M&uacute;ltiple</div>
+        <div class="demo-card-desc">Varios archivos con <code>multiple: true</code></div>
+      </div>
+      <div class="demo-card" onclick="demoUploadImages()">
+        <div class="demo-card-icon" style="background: rgba(245,158,11,0.12); color: #f59e0b;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+        </div>
+        <div class="demo-card-title">Solo im&aacute;genes</div>
+        <div class="demo-card-desc">Filtrado por <code>accept: 'image/*'</code> y l&iacute;mite de tama&ntilde;o</div>
+      </div>
+      <div class="demo-card" onclick="demoUploadPDFs()">
+        <div class="demo-card-icon" style="background: rgba(34,197,94,0.12); color: #22c55e;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        </div>
+        <div class="demo-card-title">PDFs m&uacute;ltiples</div>
+        <div class="demo-card-desc">Extensi&oacute;n <code>.pdf</code> + <code>multiple</code> + l&iacute;mite 10 MB</div>
+      </div>
+      <div class="demo-card" onclick="demoUploadServer()">
+        <div class="demo-card-icon" style="background: rgba(139,92,246,0.12); color: #8b5cf6;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+        </div>
+        <div class="demo-card-title">Enviar al servidor</div>
+        <div class="demo-card-desc">Patr&oacute;n <code>FormData</code> + <code>fetch</code> para subir ficheros</div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<!-- ── Footer ──────────────────────────────────── -->
+<footer class="page-footer">
+  <p>Creado por <a href="https://buymeacoffee.com/marcosesperon" target="_blank" rel="noopener">Marcos Esper&oacute;n</a> &middot; MIT License</p>
+</footer>
+
+<!-- ── Scripts ─────────────────────────────────── -->
+<script src="./meBlip.js"></script>
+<script>
+
+  /* ── Instancia ──────────────────────────────── */
+  const blip= new meBlip({
+    position: 'top-center',
+    theme: 'dark',
+    typeColors: {
+      premium: '#8b5cf6',
+      light: '#facc15'
+    },
+    icons: {
+      premium: '<svg aria-hidden="true" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>',
+      heart: '<svg aria-hidden="true" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>'
+    }
+  });
+
+  /* ── Config helpers ─────────────────────────── */
+
+  function updateActive(btn) {
+    btn.closest('.config-group').querySelectorAll('.config-pill').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+
+  function changePosition(pos, btn) {
+    blip.setPosition(pos);
+    updateActive(btn);
+  }
+
+  function changeTheme(theme, btn) {
+    blip.setTheme(theme);
+    updateActive(btn);
+    const resolved = theme === 'system'
+      ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+      : theme;
+    document.body.classList.toggle('light-mode', resolved === 'dark');
+  }
+
+  function changeStackStyle(style, btn) {
+    blip.setStackStyle(style);
+    updateActive(btn);
+  }
+
+  function changeIslandWidth(width, btn) {
+    blip.setIslandWidth(width);
+    updateActive(btn);
+  }
+
+  /* ── 1. Básico ──────────────────────────────── */
+
+  function demoMinimal() {
+    blip.add({ type: 'generic', title: 'Notificación recibida' });
+  }
+
+  function demoSuccess() {
+    blip.add({ type: 'success', icon: 'success', title: 'Tarea Completada', subtitle: 'Todo se procesó correctamente', duration: 3000 });
+  }
+
+  function demoError() {
+    blip.add({ type: 'error', icon: 'error', title: 'Error Simple', subtitle: 'Ha ocurrido un problema', duration: 3000 });
+  }
+
+  function demoInfo() {
+    blip.add({ type: 'info', icon: 'info', title: 'Información', subtitle: 'Sistema actualizado a v2.0', duration: 4000 });
+  }
+
+  function demoWarning() {
+    blip.add({ type: 'warning', icon: 'warning', title: 'Aviso de Seguridad', subtitle: 'Inicio de sesión extraño', showCloseButton: true, soundUrl: 'https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3' });
+  }
+
+  /* ── 2. Animaciones ─────────────────────────── */
+
+  function demoSuccessPulse() {
+    blip.add({ icon: 'success', iconColor: 'success', title: 'Operación Exitosa', subtitle: 'Con animación de pulso', animation: 'pulse', duration: 3000 });
+  }
+
+  function demoErrorShake() {
+    blip.add({ icon: 'error', iconColor: 'error', title: 'Error de Red', subtitle: 'Con vibración lateral', animation: 'shake', duration: 3000 });
+  }
+
+  function demoBounce() {
+    blip.add({ icon: 'warning', iconColor: 'warning', title: 'Bounce', subtitle: 'Rebote vertical para warnings', animation: 'bounce', duration: 3000 });
+  }
+
+  function demoGlow() {
+    blip.add({ icon: 'info', iconColor: 'info', title: 'Glow', subtitle: 'Resplandor pulsante del borde', animation: 'glow', duration: 3000 });
+  }
+
+  function demoBreathe() {
+    blip.add({ type: 'thinking', icon: 'thinking', title: 'Breathe', subtitle: 'Respiración lenta infinita...', animation: 'breathe', duration: 5000 });
+  }
+
+  function demoHeartbeat() {
+    blip.add({ type: 'generic', animation: 'heartbeat', title: 'Heartbeat', subtitle: 'Doble pulso rápido', duration: 3000 });
+  }
+
+  function demoWobble() {
+    blip.add({ type: 'generic', animation: 'wobble', title: 'Wobble', subtitle: 'Deformación tipo gelatina', duration: 3000 });
+  }
+
+  function demoRipple() {
+    blip.add({ type: 'generic', icon: 'success', animation: 'ripple', title: 'Ripple', subtitle: 'Onda expansiva desde el borde', duration: 3000 });
+  }
+
+  function demoSwing() {
+    blip.add({ type: 'generic', animation: 'swing', title: 'Swing', subtitle: 'Oscilación tipo péndulo', duration: 3000 });
+  }
+
+  function demoTypingDots() {
+    blip.add({ type: 'generic', icon: 'typingDots', title: 'Escribiendo', subtitle: 'El asistente está escribiendo...', duration: 4000 });
+  }
+
+  function demoProgressOrbit() {
+    blip.add({ icon: 'progressOrbit', title: 'Procesando', subtitle: 'Órbita de puntos alternativa', duration: 4000 });
+  }
+
+  function demoIconColor() {
+    blip.add({ type: 'generic', icon: 'success', iconColor: '#a855f7', title: 'Color Personalizado', subtitle: 'Icono success en púrpura', duration: 3000 });
+  }
+
+  function demoSlideSpring() {
+    blip.add({ icon: 'info', entryAnimation: 'slide-spring', title: 'Slide Spring', subtitle: 'Entrada deslizante con rebote', duration: 3000 });
+  }
+
+  /* ── 3. IA & Estado ─────────────────────────── */
+
+  function demoLoading() {
+    blip.add({ type: 'loading', icon: 'loading', title: 'Cargando Entorno', subtitle: 'Preparando componentes...', duration: 4000 });
+  }
+
+  function demoThinking() {
+    blip.add({ type: 'thinking', icon: 'thinking', title: 'IA pensando', subtitle: 'Analizando requerimientos...', duration: 5000 });
+  }
+
+  function demoSpeaking() {
+    blip.add({ type: 'generic', icon: 'speaking', title: 'Asistente', subtitle: 'Hablando ahora...', duration: 3000 });
+  }
+
+  function demoListening() {
+    blip.add({ type: 'warning', icon: 'listening', title: 'Escuchando', subtitle: 'Dime qué necesitas', duration: 4000 });
+  }
+
+  /* ── 4. Progreso ────────────────────────────── */
+
+  function demoDownload() {
+    blip.add({ type: 'info', icon: 'download', title: 'Descargando Assets', subtitle: 'package_final.zip', progress: 0.75, duration: 4000 });
+  }
+
+  function demoUpload() {
+    const task = blip.add({ type: 'generic', icon: 'upload', title: 'Subiendo Video', subtitle: '0%', progress: 0 });
+    let p = 0;
+    const itv = setInterval(() => {
+      p += 0.2;
+      if (p >= 1) { clearInterval(itv); blip.update(task.id, { progress: 1, subtitle: 'Completado', type: 'success', icon: 'success', duration: 2000 }); }
+      else blip.update(task.id, { progress: p, subtitle: `${Math.round(p * 100)}%` });
+    }, 700);
+  }
+
+  /* ── 5. Acciones ────────────────────────────── */
+
+  function demoAvatar() {
+    blip.add({
+      type: 'generic', title: 'Nueva mención', subtitle: '@juan_perez te ha etiquetado',
+      avatarUrl: 'https://i.pravatar.cc/100?u=juan', duration: 5000,
+      actions: [
+        { label: 'Responder', type: 'primary', icon: '<svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>', onClick: () => console.log('Abriendo chat...') },
+        { label: 'Visto', onClick: (ctx) => blip.remove(ctx.activityId) }
+      ]
+    });
+  }
+
+  function demoActionsSuccess() {
+    blip.add({
+      type: 'success', icon: 'success', title: 'Archivo exportado', subtitle: '¿Deseas abrir la carpeta?', duration: 5000,
+      actions: [
+        { label: 'Ver Carpeta', type: 'primary', icon: '<svg viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>', onClick: () => console.log('Abriendo carpeta...') },
+        { label: 'Descartar', onClick: (ctx) => blip.remove(ctx.activityId) }
+      ]
+    });
+  }
+
+  function demoActionsError() {
+    blip.add({
+      type: 'error', icon: 'error', title: 'Error de conexión', subtitle: 'No se pudo sincronizar', isBlocking: true,
+      actions: [
+        { label: 'Reintentar', type: 'primary', onClick: () => demoSuccess() },
+        { label: 'Cancelar', onClick: (ctx) => blip.remove(ctx.activityId) }
+      ]
+    });
+  }
+
+  /* ── 6. Cola & Grupos ───────────────────────── */
+
+  function demoNormalQueue() {
+    blip.add({ type: 'info', icon: 'info', title: 'Cola 1', duration: 1500 });
+    blip.add({ type: 'info', icon: 'info', title: 'Cola 2', duration: 1500, waitToDisplay: true });
+    blip.add({ type: 'info', icon: 'info', title: 'Cola 3', duration: 1500, waitToDisplay: true });
+  }
+
+  function demoWaitToDisplay() {
+    blip.add({ type: 'info', icon: 'info', title: 'Primera', subtitle: 'Estoy ocupando la isla 2s', duration: 2000 });
+    blip.add({ type: 'success', icon: 'success', title: 'Esperé mi turno', subtitle: 'Mis 3s empiezan ahora que me ves', duration: 3000, waitToDisplay: true, showCountdown: true });
+  }
+
+  function demoHighPriority() {
+    blip.add({ type: 'info', icon: 'info', title: 'Tarea en curso...', duration: 5000 });
+    setTimeout(() => {
+      blip.add({
+        type: 'error', icon: 'error', priority: 'high', title: 'PRIORIDAD ALTA',
+        subtitle: 'He saltado la cola automáticamente', duration: 4000,
+        soundUrl: 'https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3'
+      });
+    }, 1000);
+  }
+
+  function demoSmartGroup() {
+    for (let i = 1; i <= 4; i++) {
+      setTimeout(() => {
+        blip.add({
+          groupId: 'upload-batch', groupTitle: 'Subiendo {n} archivos',
+          type: 'loading', icon: 'loading', title: 'Subiendo archivo...',
+          subtitle: `Fichero_${i}.pdf`, progress: i * 0.2, duration: 3000
+        });
+      }, i * 400);
+    }
+  }
+
+  /* ── 7. Avanzado (v2.0) ──────────────────────── */
+
+  function demoHtmlSubtitle() {
+    blip.add({
+      type: 'info', icon: 'info', title: 'Nueva version',
+      subtitle: 'Incluye <strong>mejoras criticas</strong>. <a href="#" onclick="event.stopPropagation()">Ver cambios</a>',
+      duration: 5000
+    });
+  }
+
+  function demoMorphing() {
+    const task = blip.add({ type: 'loading', icon: 'loading', title: 'Procesando', subtitle: 'Analizando datos...' });
+    setTimeout(() => blip.update(task.id, { type: 'success', icon: 'success', title: 'Completado', subtitle: 'Analisis finalizado', duration: 2000 }), 3000);
+  }
+
+  function demoExitFade() {
+    blip.add({ type: 'success', icon: 'success', title: 'Exit Fade', subtitle: 'Se desvanece al cerrar', duration: 2000, exitAnimation: 'fade' });
+  }
+
+  function demoExitShrink() {
+    blip.add({ type: 'info', icon: 'info', title: 'Exit Shrink', subtitle: 'Rebote elastico inverso', duration: 2000, exitAnimation: 'shrink-bounce' });
+  }
+
+  function demoCountdown() {
+    blip.add({ type: 'info', icon: 'info', title: 'Countdown', subtitle: 'Observa la barra inferior (hover para pausar)', duration: 5000, showCountdown: true });
+  }
+
+  function demoUndo() {
+    blip.addUndo({
+      type: 'warning', icon: 'warning', title: 'Elemento eliminado',
+      subtitle: '1 archivo movido a la papelera',
+      undoDuration: 5000,
+      onUndo: () => console.log('Accion deshecha!'),
+      onConfirm: () => console.log('Accion confirmada - archivo eliminado')
+    });
+  }
+
+  function demoChain() {
+    blip.chain([
+      { type: 'loading', icon: 'loading', title: 'Paso 1', subtitle: 'Conectando al servidor...', duration: 2000 },
+      { type: 'loading', icon: 'download', title: 'Paso 2', subtitle: 'Descargando datos...', duration: 2000 },
+      { type: 'success', icon: 'success', title: 'Completado', subtitle: 'Todo listo', duration: 2000, exitAnimation: 'fade' }
+    ]);
+  }
+
+  function demoConfetti() {
+    blip.add({ type: 'success', icon: 'success', title: 'Increible!', subtitle: 'Celebrando con confetti', duration: 3000, confetti: true });
+  }
+
+  function demoCustomType() {
+    blip.add({ type: 'premium', icon: 'premium', title: 'Premium Activado', subtitle: 'Tipo personalizado con fondo purpura', duration: 3000 });
+  }
+
+  function demoCustomIcon() {
+    blip.add({ type: 'generic', icon: 'heart', iconColor: '#f43f5e', title: 'Te gusta esto', subtitle: 'Icono corazon añadido via constructor', duration: 3000 });
+  }
+
+  function demoGlowColor() {
+    blip.add({ icon: 'info', title: 'Glow Rosa', subtitle: 'Shadow personalizado con glowColor', animation: 'glow', glowColor: '#f43f5e', duration: 3000 });
+  }
+
+  function demoAutoContrast() {
+    blip.add({ type: 'light', icon: 'info', title: 'Fondo Claro', subtitle: 'Texto oscuro calculado automaticamente', duration: 3000 });
+  }
+
+  function demoPosition() {
+    blip.add({ type: 'info', icon: 'info', title: 'Posicion Override', subtitle: 'Aparezco en bottom-center', position: 'bottom-center', duration: 3000 });
+  }
+
+  function demoWidthCompact() {
+    blip.add({ type: 'info', icon: 'info', title: 'Compacto', subtitle: 'Solo esta notificacion', islandWidth: 'compact', duration: 3000 });
+  }
+
+  function demoWidthWide() {
+    blip.add({ type: 'info', icon: 'info', title: 'Ancho ampliado', subtitle: 'Esta notificacion usa todo el ancho disponible', islandWidth: 'wide', duration: 3000 });
+  }
+
+  function demoContentStats() {
+    blip.add({
+      icon: 'info',
+      title: 'Estadisticas',
+      subtitle: 'Resumen del dia',
+      content: '<div style="display:flex;gap:16px;justify-content:center;padding:4px 0"><div style="text-align:center"><div style="font-size:20px;font-weight:700;color:#22c55e">142</div><div style="font-size:10px;opacity:0.6">Visitas</div></div><div style="text-align:center"><div style="font-size:20px;font-weight:700;color:#3b82f6">28</div><div style="font-size:10px;opacity:0.6">Registros</div></div><div style="text-align:center"><div style="font-size:20px;font-weight:700;color:#f59e0b">4.8</div><div style="font-size:10px;opacity:0.6">Rating</div></div></div>',
+      duration: 5000
+    });
+  }
+
+  function demoContentActions() {
+    blip.add({
+      type: 'warning', icon: 'warning',
+      title: 'Nueva version',
+      subtitle: 'v6.1.0 disponible',
+      content: '<div style="font-size:11px;opacity:0.7;padding:2px 0">Incluye mejoras de rendimiento y correccion de errores criticos.</div>',
+      actions: [
+        { label: 'Actualizar', type: 'primary', onClick: function(ctx) { blip.remove(ctx.activityId); } },
+        { label: 'Mas tarde', onClick: function(ctx) { blip.remove(ctx.activityId); } }
+      ]
+    });
+  }
+
+  function demoPersistent() {
+    var task = blip.add({
+      type: 'loading', icon: 'loading',
+      title: 'Proceso critico',
+      subtitle: 'No se puede interrumpir...',
+      persistent: true,
+      showCloseButton: true
+    });
+    setTimeout(function() {
+      blip.update(task.id, {
+        type: 'success', icon: 'success',
+        title: 'Completado',
+        subtitle: 'El proceso ha finalizado',
+        persistent: false,
+        duration: 2000
+      });
+    }, 3000);
+  }
+
+  /* ── 8. Verificacion (v4.0) ─────────────────── */
+
+  async function demoVerifyBasic() {
+    var result = await blip.addVerify({
+      type: 'warning',
+      icon: 'warning',
+      title: 'Confirmar accion',
+      subtitle: 'Introduce el codigo para continuar'
+    });
+    if (result.status === 'verified') {
+      blip.add({ type: 'success', icon: 'success', title: 'Verificado', subtitle: 'Codigo correcto', duration: 2000 });
+    } else {
+      blip.add({ type: 'error', icon: 'error', title: 'Cancelado', subtitle: 'Verificacion cancelada', duration: 2000 });
+    }
+  }
+
+  async function demoVerifyNumeric() {
+    var result = await blip.addVerify({
+      type: 'info',
+      icon: 'info',
+      title: 'Codigo de seguridad',
+      subtitle: 'Introduce los 6 digitos',
+      codeLength: 6,
+      codeType: 'numeric'
+    });
+    if (result.status === 'verified') {
+      blip.add({ type: 'success', icon: 'success', title: 'Verificado', subtitle: 'Codigo numerico correcto', duration: 2000 });
+    }
+  }
+
+  async function demoVerifyCustomCode() {
+    var result = await blip.addVerify({
+      type: 'info',
+      icon: 'info',
+      title: 'Codigo predefinido',
+      subtitle: 'Introduce el codigo mostrado',
+      code: 'ABC123'
+    });
+    if (result.status === 'verified') {
+      blip.add({ type: 'success', icon: 'success', title: 'Correcto', subtitle: 'ABC123 verificado', duration: 2000 });
+    }
+  }
+
+  async function demoVerifyCaseSensitive() {
+    var result = await blip.addVerify({
+      type: 'warning',
+      icon: 'warning',
+      title: 'Case Sensitive',
+      subtitle: 'Respeta mayusculas y minusculas',
+      codeLength: 4,
+      caseSensitive: true
+    });
+    if (result.status === 'verified') {
+      blip.add({ type: 'success', icon: 'success', title: 'Verificado', subtitle: 'Coincidencia exacta', duration: 2000 });
+    }
+  }
+
+  async function demoVerifyCallbacks() {
+    await blip.addVerify({
+      type: 'warning',
+      icon: 'warning',
+      title: 'Con Callbacks',
+      subtitle: 'Prueba a fallar y acertar',
+      codeLength: 3,
+      codeType: 'numeric',
+      onVerify: () => console.log('onVerify: codigo correcto'),
+      onFail: () => console.log('onFail: codigo incorrecto'),
+      onCancel: () => console.log('onCancel: cancelado')
+    });
+  }
+
+  async function demoVerifyStyled() {
+    var result = await blip.addVerify({
+      type: 'error',
+      icon: 'error',
+      title: 'Accion irreversible',
+      subtitle: 'Verifica para eliminar tu cuenta',
+      showCloseButton: true,
+      codeLength: 5,
+      cancelLabel: 'No, volver'
+    });
+    if (result.status === 'verified') {
+      blip.add({ type: 'success', icon: 'success', title: 'Cuenta eliminada', duration: 2000 });
+    } else {
+      blip.add({ type: 'info', icon: 'info', title: 'Operacion cancelada', duration: 2000 });
+    }
+  }
+
+  async function demoVerifyInput() {
+    var result = await blip.addVerify({
+      type: 'info',
+      icon: 'info',
+      title: 'Verificacion SMS',
+      subtitle: 'Introduce el codigo que te hemos enviado',
+      mode: 'input',
+      codeLength: 6,
+      codeType: 'numeric'
+    });
+    if (result.status === 'submitted') {
+      blip.add({ type: 'success', icon: 'success', title: 'Codigo enviado', subtitle: 'Codigo: ' + result.code, duration: 2000 });
+    } else {
+      blip.add({ type: 'error', icon: 'error', title: 'Cancelado', duration: 2000 });
+    }
+  }
+
+  async function demoVerifyInputAlpha() {
+    var result = await blip.addVerify({
+      type: 'warning',
+      icon: 'warning',
+      title: 'Token de acceso',
+      subtitle: 'Introduce tu token de 4 caracteres',
+      mode: 'input',
+      codeLength: 4,
+      codeType: 'alphanumeric',
+      confirmLabel: 'Validar'
+    });
+    if (result.status === 'submitted') {
+      blip.add({ type: 'info', icon: 'info', title: 'Token recibido', subtitle: result.code, duration: 2000 });
+    } else {
+      blip.add({ type: 'error', icon: 'error', title: 'Cancelado', duration: 2000 });
+    }
+  }
+
+  /* ── 9. Formularios (v5.0) ──────────────────── */
+
+  async function demoFormBasic() {
+    var result = await blip.addForm({
+      type: 'info',
+      icon: 'info',
+      title: 'Contacto',
+      subtitle: 'Dejanos tus datos',
+      fields: [
+        { type: 'text', label: 'Nombre', required: true, placeholder: 'Tu nombre' },
+        { type: 'email', label: 'Email', required: true, placeholder: 'tu@email.com' }
+      ]
+    });
+    if (result.status === 'submitted') {
+      blip.add({ type: 'success', icon: 'success', title: 'Datos recibidos', subtitle: result.data.nombre, duration: 2000 });
+    } else {
+      blip.add({ type: 'error', icon: 'error', title: 'Cancelado', duration: 2000 });
+    }
+  }
+
+  async function demoFormSelect() {
+    var result = await blip.addForm({
+      type: 'warning',
+      icon: 'warning',
+      title: 'Encuesta rapida',
+      subtitle: 'Una pregunta rapida',
+      fields: [
+        { type: 'select', label: 'Experiencia', options: [['good', 'Buena'], ['ok', 'Regular'], ['bad', 'Mala']], required: true, placeholder: 'Selecciona...' },
+        { type: 'textarea', label: 'Comentario', rows: 3, placeholder: 'Opcional...' }
+      ],
+      confirmLabel: 'Enviar'
+    });
+    if (result.status === 'submitted') {
+      blip.add({ type: 'info', icon: 'info', title: 'Respuesta', subtitle: result.data.experiencia, duration: 2000 });
+    } else {
+      blip.add({ type: 'error', icon: 'error', title: 'Cancelado', duration: 2000 });
+    }
+  }
+
+  async function demoFormComplete() {
+    var result = await blip.addForm({
+      type: 'success',
+      icon: 'success',
+      title: 'Registro',
+      subtitle: 'Completa tu perfil',
+      fields: [
+        { type: 'text', label: 'Nombre', required: true },
+        { type: 'email', label: 'Email', required: true },
+        { type: 'tel', label: 'Telefono' },
+        { type: 'select', label: 'Pais', options: [['ES', 'Espana'], ['MX', 'Mexico'], ['AR', 'Argentina'], ['CO', 'Colombia'], ['CL', 'Chile']], required: true, placeholder: 'Selecciona pais' }
+      ],
+      confirmLabel: 'Registrar'
+    });
+    if (result.status === 'submitted') {
+      blip.add({ type: 'success', icon: 'success', title: 'Registrado', subtitle: 'Bienvenido ' + result.data.nombre, duration: 2000 });
+    } else {
+      blip.add({ type: 'error', icon: 'error', title: 'Cancelado', duration: 2000 });
+    }
+  }
+
+  async function demoFormFeedback() {
+    var result = await blip.addForm({
+      type: 'error',
+      icon: 'error',
+      title: 'Reportar problema',
+      subtitle: 'Describe el error encontrado',
+      fields: [
+        { type: 'text', label: 'Asunto', required: true, placeholder: 'Resumen breve' },
+        { type: 'textarea', label: 'Descripcion', required: true, rows: 3, placeholder: 'Describe el problema...' },
+        { type: 'email', label: 'Email de contacto', placeholder: 'Para respuesta' }
+      ],
+      confirmLabel: 'Reportar',
+      cancelLabel: 'Descartar'
+    });
+    if (result.status === 'submitted') {
+      blip.add({ type: 'success', icon: 'success', title: 'Reporte enviado', subtitle: result.data.asunto, duration: 2000 });
+    } else {
+      blip.add({ type: 'error', icon: 'error', title: 'Cancelado', duration: 2000 });
+    }
+  }
+
+  /* ── 10. Subida de ficheros (v6.0) ─────────── */
+
+  async function demoUploadBasic() {
+    var result = await blip.addUpload({
+      type: 'info',
+      icon: 'upload',
+      title: 'Subir archivo',
+      subtitle: 'Selecciona un archivo'
+    });
+    if (result.status === 'submitted') {
+      blip.add({ type: 'success', icon: 'success', title: 'Subido', subtitle: result.files[0].name, duration: 2000 });
+    }
+  }
+
+  async function demoUploadMultiple() {
+    var result = await blip.addUpload({
+      type: 'info',
+      icon: 'upload',
+      title: 'Subir documentos',
+      subtitle: 'Puedes subir varios archivos',
+      multiple: true,
+      confirmLabel: 'Enviar todo'
+    });
+    if (result.status === 'submitted') {
+      blip.add({ type: 'success', icon: 'success', title: 'Subidos', subtitle: result.files.length + ' archivos', duration: 2000 });
+    }
+  }
+
+  async function demoUploadImages() {
+    var result = await blip.addUpload({
+      type: 'warning',
+      icon: 'upload',
+      title: 'Subir imagen',
+      subtitle: 'Solo imagenes permitidas',
+      accept: 'image/*',
+      maxSize: 2 * 1024 * 1024
+    });
+    if (result.status === 'submitted') {
+      blip.add({ type: 'success', icon: 'success', title: 'Imagen subida', subtitle: result.files[0].name, duration: 2000 });
+    }
+  }
+
+  async function demoUploadPDFs() {
+    var result = await blip.addUpload({
+      type: 'success',
+      icon: 'upload',
+      title: 'Documentacion',
+      subtitle: 'Sube tus PDFs',
+      multiple: true,
+      accept: '.pdf',
+      maxSize: 10 * 1024 * 1024,
+      confirmLabel: 'Adjuntar'
+    });
+    if (result.status === 'submitted') {
+      blip.add({ type: 'info', icon: 'info', title: 'Adjuntados', subtitle: result.files.map(f => f.name).join(', '), duration: 3000 });
+    }
+  }
+
+  async function demoUploadServer() {
+    var result = await blip.addUpload({
+      type: 'info',
+      icon: 'upload',
+      title: 'Subir al servidor',
+      subtitle: 'Selecciona los archivos a enviar',
+      multiple: true,
+      confirmLabel: 'Enviar'
+    });
+
+    if (result.status === 'submitted') {
+      // --- Esto es lo que haria el desarrollador ---
+      var formData = new FormData();
+      result.files.forEach(function(file) {
+        formData.append('files', file, file.name);
+      });
+
+      // Simulacion: en produccion seria fetch('/api/upload', { method: 'POST', body: formData })
+      var task = blip.add({
+        type: 'loading', icon: 'loading',
+        title: 'Enviando...',
+        subtitle: '0 de ' + result.files.length + ' archivos',
+        progress: 0
+      });
+
+      // Simular progreso
+      for (var i = 0; i < result.files.length; i++) {
+        await new Promise(function(r) { setTimeout(r, 800); });
+        blip.update(task.id, {
+          subtitle: (i + 1) + ' de ' + result.files.length + ' archivos',
+          progress: (i + 1) / result.files.length
+        });
+      }
+
+      // Completar
+      blip.update(task.id, {
+        type: 'success', icon: 'success',
+        title: 'Enviados',
+        subtitle: result.files.length + ' archivos subidos al servidor',
+        duration: 3000
+      });
+    }
+  }
+
+  /* ── Info Drawer ───────────────────────────── */
+
+  const demoInfoData = {
+    demoMinimal: {
+      title: 'M\u00ednima',
+      code: `blip.add({\n  type: 'generic',\n  title: 'Notificaci\u00f3n recibida'\n});`,
+      props: [
+        { name: 'type', value: "'generic'", desc: 'Tipo gen\u00e9rico. No aplica color de fondo sem\u00e1ntico.' },
+        { name: 'title', value: "'Notificaci\u00f3n recibida'", desc: 'Texto principal. \u00danica propiedad obligatoria.' }
+      ]
+    },
+    demoSuccess: {
+      title: '\u00c9xito',
+      code: `blip.add({\n  type: 'success',\n  icon: 'success',\n  title: 'Tarea Completada',\n  subtitle: 'Todo se proces\u00f3 correctamente',\n  duration: 3000\n});`,
+      props: [
+        { name: 'type', value: "'success'", desc: 'Tipo success. Aplica fondo verde (#22c55e).' },
+        { name: 'icon', value: "'success'", desc: 'Icono SVG de check predefinido.' },
+        { name: 'title', value: "'Tarea Completada'", desc: 'Texto principal de la notificaci\u00f3n.' },
+        { name: 'subtitle', value: "'Todo se proces\u00f3...'", desc: 'Texto secundario debajo del t\u00edtulo.' },
+        { name: 'duration', value: '3000', desc: 'Se cierra autom\u00e1ticamente tras 3 segundos.' }
+      ]
+    },
+    demoError: {
+      title: 'Error',
+      code: `blip.add({\n  type: 'error',\n  icon: 'error',\n  title: 'Error Simple',\n  subtitle: 'Ha ocurrido un problema',\n  duration: 3000\n});`,
+      props: [
+        { name: 'type', value: "'error'", desc: 'Tipo error. Aplica fondo rojo (#ef4444).' },
+        { name: 'icon', value: "'error'", desc: 'Icono SVG de X predefinido.' },
+        { name: 'title', value: "'Error Simple'", desc: 'Texto principal.' },
+        { name: 'subtitle', value: "'Ha ocurrido...'", desc: 'Texto secundario.' },
+        { name: 'duration', value: '3000', desc: 'Auto-cierre en 3 segundos.' }
+      ]
+    },
+    demoInfo: {
+      title: 'Informaci\u00f3n',
+      code: `blip.add({\n  type: 'info',\n  icon: 'info',\n  title: 'Informaci\u00f3n',\n  subtitle: 'Sistema actualizado a v2.0',\n  duration: 4000\n});`,
+      props: [
+        { name: 'type', value: "'info'", desc: 'Tipo info. Aplica fondo azul (#3b82f6).' },
+        { name: 'icon', value: "'info'", desc: 'Icono SVG de informaci\u00f3n predefinido.' },
+        { name: 'title', value: "'Informaci\u00f3n'", desc: 'Texto principal.' },
+        { name: 'subtitle', value: "'Sistema actualizado...'", desc: 'Texto secundario.' },
+        { name: 'duration', value: '4000', desc: 'Auto-cierre en 4 segundos.' }
+      ]
+    },
+    demoWarning: {
+      title: 'Aviso',
+      code: `blip.add({\n  type: 'warning',\n  icon: 'warning',\n  title: 'Aviso de Seguridad',\n  subtitle: 'Inicio de sesi\u00f3n extra\u00f1o',\n  showCloseButton: true,\n  soundUrl: 'https://...preview.mp3'\n});`,
+      props: [
+        { name: 'type', value: "'warning'", desc: 'Tipo warning. Aplica fondo \u00e1mbar (#f59e0b).' },
+        { name: 'icon', value: "'warning'", desc: 'Icono SVG de alerta predefinido.' },
+        { name: 'showCloseButton', value: 'true', desc: 'Muestra un bot\u00f3n X para cerrar manualmente.' },
+        { name: 'soundUrl', value: "'https://...'", desc: 'URL de audio que se reproduce al mostrarse.' }
+      ]
+    },
+    demoSuccessPulse: {
+      title: '\u00c9xito con Pulso',
+      code: `blip.add({\n  icon: 'success',\n  iconColor: 'success',\n  title: 'Operaci\u00f3n Exitosa',\n  subtitle: 'Con animaci\u00f3n de pulso',\n  animation: 'pulse',\n  duration: 3000\n});`,
+      props: [
+        { name: 'icon', value: "'success'", desc: 'Icono SVG de check.' },
+        { name: 'iconColor', value: "'success'", desc: 'Colorea el icono con el color del tipo success (#22c55e).' },
+        { name: 'animation', value: "'pulse'", desc: 'Escalado suave de confirmaci\u00f3n.' },
+        { name: 'duration', value: '3000', desc: 'Auto-cierre en 3 segundos.' }
+      ]
+    },
+    demoErrorShake: {
+      title: 'Error con Shake',
+      code: `blip.add({\n  icon: 'error',\n  iconColor: 'error',\n  title: 'Error de Red',\n  subtitle: 'Con vibraci\u00f3n lateral',\n  animation: 'shake',\n  duration: 3000\n});`,
+      props: [
+        { name: 'icon', value: "'error'", desc: 'Icono SVG de X.' },
+        { name: 'iconColor', value: "'error'", desc: 'Colorea el icono con el color del tipo error (#ef4444).' },
+        { name: 'animation', value: "'shake'", desc: 'Vibraci\u00f3n lateral agresiva con intensidad decreciente.' },
+        { name: 'duration', value: '3000', desc: 'Auto-cierre en 3 segundos.' }
+      ]
+    },
+    demoBounce: {
+      title: 'Bounce',
+      code: `blip.add({\n  icon: 'warning',\n  iconColor: 'warning',\n  title: 'Bounce',\n  subtitle: 'Rebote vertical para warnings',\n  animation: 'bounce',\n  duration: 3000\n});`,
+      props: [
+        { name: 'animation', value: "'bounce'", desc: 'Rebote vertical que llama la atenci\u00f3n.' },
+        { name: 'iconColor', value: "'warning'", desc: 'Colorea el icono con el color warning (#f59e0b).' }
+      ]
+    },
+    demoGlow: {
+      title: 'Glow',
+      code: `blip.add({\n  icon: 'info',\n  iconColor: 'info',\n  title: 'Glow',\n  subtitle: 'Resplandor pulsante del borde',\n  animation: 'glow',\n  duration: 3000\n});`,
+      props: [
+        { name: 'animation', value: "'glow'", desc: 'Resplandor pulsante del borde con box-shadow.' },
+        { name: 'iconColor', value: "'info'", desc: 'Colorea el icono con el color info (#3b82f6).' }
+      ]
+    },
+    demoBreathe: {
+      title: 'Breathe',
+      code: `blip.add({\n  type: 'thinking',\n  icon: 'thinking',\n  title: 'Breathe',\n  subtitle: 'Respiraci\u00f3n lenta infinita...',\n  animation: 'breathe',\n  duration: 5000\n});`,
+      props: [
+        { name: 'type', value: "'thinking'", desc: 'Tipo thinking. Sin color de fondo espec\u00edfico.' },
+        { name: 'animation', value: "'breathe'", desc: 'Respiraci\u00f3n lenta infinita con escala y opacidad.' },
+        { name: 'duration', value: '5000', desc: 'Se cierra tras 5 segundos.' }
+      ]
+    },
+    demoHeartbeat: {
+      title: 'Heartbeat',
+      code: `blip.add({\n  type: 'generic',\n  animation: 'heartbeat',\n  title: 'Heartbeat',\n  subtitle: 'Doble pulso r\u00e1pido',\n  duration: 3000\n});`,
+      props: [
+        { name: 'animation', value: "'heartbeat'", desc: 'Doble pulso r\u00e1pido tipo latido de coraz\u00f3n.' }
+      ]
+    },
+    demoWobble: {
+      title: 'Wobble',
+      code: `blip.add({\n  type: 'generic',\n  animation: 'wobble',\n  title: 'Wobble',\n  subtitle: 'Deformaci\u00f3n tipo gelatina',\n  duration: 3000\n});`,
+      props: [
+        { name: 'animation', value: "'wobble'", desc: 'Deformaci\u00f3n el\u00e1stica pronunciada tipo gelatina.' }
+      ]
+    },
+    demoRipple: {
+      title: 'Ripple',
+      code: `blip.add({\n  type: 'generic',\n  icon: 'success',\n  animation: 'ripple',\n  title: 'Ripple',\n  subtitle: 'Onda expansiva desde el borde',\n  duration: 3000\n});`,
+      props: [
+        { name: 'animation', value: "'ripple'", desc: 'Onda expansiva desde el borde de la isla.' }
+      ]
+    },
+    demoSwing: {
+      title: 'Swing',
+      code: `blip.add({\n  type: 'generic',\n  animation: 'swing',\n  title: 'Swing',\n  subtitle: 'Oscilaci\u00f3n tipo p\u00e9ndulo',\n  duration: 3000\n});`,
+      props: [
+        { name: 'animation', value: "'swing'", desc: 'Oscilaci\u00f3n tipo p\u00e9ndulo con transform-origin en top center.' }
+      ]
+    },
+    demoTypingDots: {
+      title: 'Typing Dots',
+      code: `blip.add({\n  type: 'generic',\n  icon: 'typingDots',\n  title: 'Escribiendo',\n  subtitle: 'El asistente est\u00e1 escribiendo...',\n  duration: 4000\n});`,
+      props: [
+        { name: 'icon', value: "'typingDots'", desc: 'Icono animado de tres puntos rebotando.' }
+      ]
+    },
+    demoProgressOrbit: {
+      title: 'Progress Orbit',
+      code: `blip.add({\n  icon: 'progressOrbit',\n  title: 'Procesando',\n  subtitle: '\u00d3rbita de puntos alternativa',\n  duration: 4000\n});`,
+      props: [
+        { name: 'icon', value: "'progressOrbit'", desc: 'Icono animado de \u00f3rbita de puntos giratorios.' }
+      ]
+    },
+    demoIconColor: {
+      title: 'Icon Color',
+      code: `blip.add({\n  type: 'generic',\n  icon: 'success',\n  iconColor: '#a855f7',\n  title: 'Color Personalizado',\n  subtitle: 'Icono success en p\u00farpura',\n  duration: 3000\n});`,
+      props: [
+        { name: 'iconColor', value: "'#a855f7'", desc: 'Color hex aplicado al icono SVG. Acepta nombre de tipo o hex directo.' },
+        { name: 'icon', value: "'success'", desc: 'El icono de check, pero coloreado en p\u00farpura por iconColor.' }
+      ]
+    },
+    demoSlideSpring: {
+      title: 'Slide Spring',
+      code: `blip.add({\n  icon: 'info',\n  entryAnimation: 'slide-spring',\n  title: 'Slide Spring',\n  subtitle: 'Entrada deslizante con rebote',\n  duration: 3000\n});`,
+      props: [
+        { name: 'entryAnimation', value: "'slide-spring'", desc: 'La isla entra desliz\u00e1ndose con rebote el\u00e1stico en vez del scale cl\u00e1sico.' }
+      ]
+    },
+    demoLoading: {
+      title: 'Cargando',
+      code: `blip.add({\n  type: 'loading',\n  icon: 'loading',\n  title: 'Cargando Entorno',\n  subtitle: 'Preparando componentes...',\n  duration: 4000\n});`,
+      props: [
+        { name: 'type', value: "'loading'", desc: 'Tipo loading. Sin color de fondo sem\u00e1ntico.' },
+        { name: 'icon', value: "'loading'", desc: 'Spinner animado predefinido.' }
+      ]
+    },
+    demoThinking: {
+      title: 'Pensando (IA)',
+      code: `blip.add({\n  type: 'thinking',\n  icon: 'thinking',\n  title: 'IA pensando',\n  subtitle: 'Analizando requerimientos...',\n  duration: 5000\n});`,
+      props: [
+        { name: 'type', value: "'thinking'", desc: 'Tipo thinking para estados de IA.' },
+        { name: 'icon', value: "'thinking'", desc: 'Icono animado de cerebro/pensamiento.' }
+      ]
+    },
+    demoSpeaking: {
+      title: 'Hablando',
+      code: `blip.add({\n  type: 'generic',\n  icon: 'speaking',\n  title: 'Asistente',\n  subtitle: 'Hablando ahora...',\n  duration: 3000\n});`,
+      props: [
+        { name: 'icon', value: "'speaking'", desc: 'Icono animado de ondas de sonido.' }
+      ]
+    },
+    demoListening: {
+      title: 'Escuchando',
+      code: `blip.add({\n  type: 'warning',\n  icon: 'listening',\n  title: 'Escuchando',\n  subtitle: 'Dime qu\u00e9 necesitas',\n  duration: 4000\n});`,
+      props: [
+        { name: 'type', value: "'warning'", desc: 'Tipo warning para el fondo \u00e1mbar.' },
+        { name: 'icon', value: "'listening'", desc: 'Icono animado de micr\u00f3fono con pulso.' }
+      ]
+    },
+    demoDownload: {
+      title: 'Descarga',
+      code: `blip.add({\n  type: 'info',\n  icon: 'download',\n  title: 'Descargando Assets',\n  subtitle: 'package_final.zip',\n  progress: 0.75,\n  duration: 4000\n});`,
+      props: [
+        { name: 'progress', value: '0.75', desc: 'Barra de progreso al 75%. Valor entre 0 y 1.' },
+        { name: 'icon', value: "'download'", desc: 'Icono de flecha de descarga.' }
+      ]
+    },
+    demoUpload: {
+      title: 'Subida en Vivo',
+      code: `const task = blip.add({\n  type: 'generic',\n  icon: 'upload',\n  title: 'Subiendo Video',\n  subtitle: '0%',\n  progress: 0\n});\n\nsetInterval(() => {\n  p += 0.2;\n  if (p >= 1) {\n    blip.update(task.id, {\n      progress: 1,\n      subtitle: 'Completado',\n      type: 'success',\n      icon: 'success',\n      duration: 2000\n    });\n  } else {\n    blip.update(task.id, {\n      progress: p,\n      subtitle: Math.round(p * 100) + '%'\n    });\n  }\n}, 700);`,
+      props: [
+        { name: 'progress', value: '0 \u2192 1', desc: 'Progreso actualizado en tiempo real via update().' },
+        { name: 'update()', value: 'task.id, patch', desc: 'M\u00e9todo para modificar una actividad activa. Produce morphing visual.' }
+      ]
+    },
+    demoAvatar: {
+      title: 'Con Avatar',
+      code: `blip.add({\n  type: 'generic',\n  title: 'Nueva menci\u00f3n',\n  subtitle: '@juan_perez te ha etiquetado',\n  avatarUrl: 'https://i.pravatar.cc/100',\n  duration: 5000,\n  actions: [\n    { label: 'Responder', type: 'primary',\n      icon: '<svg...>', onClick: () => {} },\n    { label: 'Visto',\n      onClick: ctx => blip.remove(ctx.activityId) }\n  ]\n});`,
+      props: [
+        { name: 'avatarUrl', value: "'https://...'", desc: 'URL de imagen circular que reemplaza al icono SVG.' },
+        { name: 'actions', value: '[...]', desc: 'Array de botones de acci\u00f3n. Cada uno tiene label, type y onClick.' },
+        { name: 'actions[].type', value: "'primary'", desc: 'Estilo del bot\u00f3n. "primary" lo resalta visualmente.' },
+        { name: 'actions[].onClick', value: 'fn(ctx)', desc: 'Callback al pulsar. Recibe ctx con activityId.' }
+      ]
+    },
+    demoActionsSuccess: {
+      title: '\u00c9xito + Acciones',
+      code: `blip.add({\n  type: 'success',\n  icon: 'success',\n  title: 'Archivo exportado',\n  subtitle: '\u00bfDeseas abrir la carpeta?',\n  duration: 5000,\n  actions: [\n    { label: 'Ver Carpeta', type: 'primary',\n      icon: '<svg...>', onClick: () => {} },\n    { label: 'Descartar',\n      onClick: ctx => blip.remove(ctx.activityId) }\n  ]\n});`,
+      props: [
+        { name: 'actions', value: '[2 botones]', desc: 'Botones de acci\u00f3n combinados con tipo success.' },
+        { name: 'duration', value: '5000', desc: 'M\u00e1s tiempo para que el usuario pulse un bot\u00f3n.' }
+      ]
+    },
+    demoActionsError: {
+      title: 'Error + Reintentar',
+      code: `blip.add({\n  type: 'error',\n  icon: 'error',\n  title: 'Error de conexi\u00f3n',\n  subtitle: 'No se pudo sincronizar',\n  isBlocking: true,\n  actions: [\n    { label: 'Reintentar', type: 'primary',\n      onClick: () => demoSuccess() },\n    { label: 'Cancelar',\n      onClick: ctx => blip.remove(ctx.activityId) }\n  ]\n});`,
+      props: [
+        { name: 'isBlocking', value: 'true', desc: 'Overlay que impide interactuar con el fondo hasta cerrar.' },
+        { name: 'actions', value: '[2 botones]', desc: 'Reintentar lanza una nueva notificaci\u00f3n; Cancelar cierra.' }
+      ]
+    },
+    demoNormalQueue: {
+      title: 'Cola Normal',
+      code: `blip.add({ type: 'info', icon: 'info',\n  title: 'Cola 1', duration: 1500 });\nblip.add({ type: 'info', icon: 'info',\n  title: 'Cola 2', duration: 1500,\n  waitToDisplay: true });\nblip.add({ type: 'info', icon: 'info',\n  title: 'Cola 3', duration: 1500,\n  waitToDisplay: true });`,
+      props: [
+        { name: 'waitToDisplay', value: 'true', desc: 'El timer de duraci\u00f3n no arranca hasta que la actividad se muestra.' },
+        { name: 'Cola FIFO', value: '\u2014', desc: 'Las notificaciones se muestran en orden de llegada, una tras otra.' }
+      ]
+    },
+    demoWaitToDisplay: {
+      title: 'Wait to Display',
+      code: `blip.add({\n  type: 'info', icon: 'info',\n  title: 'Primera',\n  subtitle: 'Estoy ocupando la isla 2s',\n  duration: 2000\n});\nblip.add({\n  type: 'success', icon: 'success',\n  title: 'Esper\u00e9 mi turno',\n  subtitle: 'Mis 3s empiezan ahora que me ves',\n  duration: 3000,\n  waitToDisplay: true,\n  showCountdown: true\n});`,
+      props: [
+        { name: 'waitToDisplay', value: 'true', desc: 'La duraci\u00f3n cuenta desde que se muestra, no desde que se a\u00f1ade a la cola.' },
+        { name: 'showCountdown', value: 'true', desc: 'Barra visual de countdown en la parte inferior de la isla.' }
+      ]
+    },
+    demoHighPriority: {
+      title: 'Alta Prioridad',
+      code: `blip.add({ type: 'info', icon: 'info',\n  title: 'Tarea en curso...', duration: 5000 });\n\nsetTimeout(() => {\n  blip.add({\n    type: 'error', icon: 'error',\n    priority: 'high',\n    title: 'PRIORIDAD ALTA',\n    subtitle: 'He saltado la cola',\n    duration: 4000,\n    soundUrl: 'https://...mp3'\n  });\n}, 1000);`,
+      props: [
+        { name: 'priority', value: "'high'", desc: 'Salta delante de todas las notificaciones en cola.' },
+        { name: 'soundUrl', value: "'https://...'", desc: 'Reproduce un sonido al mostrarse.' }
+      ]
+    },
+    demoSmartGroup: {
+      title: 'Smart Group',
+      code: `for (let i = 1; i <= 4; i++) {\n  setTimeout(() => {\n    blip.add({\n      groupId: 'upload-batch',\n      groupTitle: 'Subiendo {n} archivos',\n      type: 'loading',\n      icon: 'loading',\n      title: 'Subiendo archivo...',\n      subtitle: 'Fichero_' + i + '.pdf',\n      progress: i * 0.2,\n      duration: 3000\n    });\n  }, i * 400);\n}`,
+      props: [
+        { name: 'groupId', value: "'upload-batch'", desc: 'Agrupa actividades bajo un mismo identificador.' },
+        { name: 'groupTitle', value: "'Subiendo {n} archivos'", desc: '{n} se reemplaza por el n\u00famero de items activos en el grupo.' },
+        { name: 'progress', value: 'i * 0.2', desc: 'La isla muestra el promedio de progreso de todos los items del grupo.' }
+      ]
+    },
+    demoHtmlSubtitle: {
+      title: 'HTML Subtitle',
+      code: `blip.add({\n  type: 'info',\n  icon: 'info',\n  title: 'Nueva version',\n  subtitle: 'Incluye <strong>mejoras criticas</strong>.\\n    <a href="#">Ver cambios</a>',\n  duration: 5000\n});`,
+      props: [
+        { name: 'subtitle', value: "'HTML...'", desc: 'Acepta HTML: <strong>, <a>, <code>, etc. Se renderiza directamente.' }
+      ]
+    },
+    demoMorphing: {
+      title: 'Morphing',
+      code: `const task = blip.add({\n  type: 'loading',\n  icon: 'loading',\n  title: 'Procesando',\n  subtitle: 'Analizando datos...'\n});\n\nsetTimeout(() => {\n  blip.update(task.id, {\n    type: 'success',\n    icon: 'success',\n    title: 'Completado',\n    subtitle: 'Analisis finalizado',\n    duration: 2000\n  });\n}, 3000);`,
+      props: [
+        { name: 'update()', value: 'task.id, patch', desc: 'Modifica la actividad activa. Al cambiar type se produce morphing visual.' },
+        { name: 'type (cambio)', value: 'loading \u2192 success', desc: 'El fondo transiciona suavemente del color loading al success.' }
+      ]
+    },
+    demoExitFade: {
+      title: 'Exit Fade',
+      code: `blip.add({\n  type: 'success',\n  icon: 'success',\n  title: 'Exit Fade',\n  subtitle: 'Se desvanece al cerrar',\n  duration: 2000,\n  exitAnimation: 'fade'\n});`,
+      props: [
+        { name: 'exitAnimation', value: "'fade'", desc: 'Desvanecimiento suave con escala descendente al cerrarse.' }
+      ]
+    },
+    demoExitShrink: {
+      title: 'Exit Shrink',
+      code: `blip.add({\n  type: 'info',\n  icon: 'info',\n  title: 'Exit Shrink',\n  subtitle: 'Rebote el\u00e1stico inverso',\n  duration: 2000,\n  exitAnimation: 'shrink-bounce'\n});`,
+      props: [
+        { name: 'exitAnimation', value: "'shrink-bounce'", desc: 'Rebote el\u00e1stico inverso al cerrarse la isla.' }
+      ]
+    },
+    demoCountdown: {
+      title: 'Countdown',
+      code: `blip.add({\n  type: 'info',\n  icon: 'info',\n  title: 'Countdown',\n  subtitle: 'Observa la barra inferior\\n    (hover para pausar)',\n  duration: 5000,\n  showCountdown: true\n});`,
+      props: [
+        { name: 'showCountdown', value: 'true', desc: 'Barra visual de countdown en la parte inferior. Se pausa con hover.' },
+        { name: 'duration', value: '5000', desc: 'La barra se vac\u00eda progresivamente durante 5 segundos.' }
+      ]
+    },
+    demoUndo: {
+      title: 'Undo',
+      code: `blip.addUndo({\n  type: 'warning',\n  icon: 'warning',\n  title: 'Elemento eliminado',\n  subtitle: '1 archivo movido a la papelera',\n  undoDuration: 5000,\n  onUndo: () => console.log('Deshecho!'),\n  onConfirm: () => console.log('Confirmado')\n});`,
+      props: [
+        { name: 'addUndo()', value: '\u2014', desc: 'M\u00e9todo especial que muestra un bot\u00f3n "Deshacer" con countdown.' },
+        { name: 'undoDuration', value: '5000', desc: 'Tiempo para deshacer antes de confirmar la acci\u00f3n.' },
+        { name: 'onUndo', value: 'fn()', desc: 'Callback si el usuario pulsa Deshacer.' },
+        { name: 'onConfirm', value: 'fn()', desc: 'Callback si el tiempo expira sin deshacer.' }
+      ]
+    },
+    demoChain: {
+      title: 'Chain',
+      code: `blip.chain([\n  { type: 'loading',\n    icon: 'loading',\n    title: 'Paso 1',\n    subtitle: 'Conectando...',\n    duration: 2000 },\n  { type: 'loading',\n    icon: 'download',\n    title: 'Paso 2',\n    subtitle: 'Descargando...',\n    duration: 2000 },\n  { type: 'success',\n    icon: 'success',\n    title: 'Completado',\n    subtitle: 'Todo listo',\n    duration: 2000,\n    exitAnimation: 'fade' }\n]);`,
+      props: [
+        { name: 'chain()', value: '[configs]', desc: 'Ejecuta un array de notificaciones secuencialmente, una tras otra.' },
+        { name: 'exitAnimation', value: "'fade'", desc: 'Solo la \u00faltima tiene exit animation.' }
+      ]
+    },
+    demoConfetti: {
+      title: 'Confetti',
+      code: `blip.add({\n  type: 'success',\n  icon: 'success',\n  title: 'Increible!',\n  subtitle: 'Celebrando con confetti',\n  duration: 3000,\n  confetti: true\n});`,
+      props: [
+        { name: 'confetti', value: 'true', desc: 'Lanza part\u00edculas de confetti al mostrarse la notificaci\u00f3n.' }
+      ]
+    },
+    demoCustomType: {
+      title: 'Custom Type',
+      code: `// Constructor:\n// typeColors: { premium: '#8b5cf6' }\n// icons: { premium: '<svg>...</svg>' }\n\nblip.add({\n  type: 'premium',\n  icon: 'premium',\n  title: 'Premium Activado',\n  subtitle: 'Tipo personalizado con fondo p\u00farpura',\n  duration: 3000\n});`,
+      props: [
+        { name: 'type', value: "'premium'", desc: 'Tipo custom definido en el constructor via typeColors.' },
+        { name: 'typeColors', value: "{ premium: '#8b5cf6' }", desc: 'Se pasa en el constructor para registrar el color del tipo.' },
+        { name: 'icons', value: '{ premium: SVG }', desc: 'Se pasa en el constructor para registrar el icono del tipo.' }
+      ]
+    },
+    demoCustomIcon: {
+      title: 'Custom Icon',
+      code: `// Constructor:\n// icons: { heart: '<svg>...</svg>' }\n\nblip.add({\n  type: 'generic',\n  icon: 'heart',\n  iconColor: '#f43f5e',\n  title: 'Te gusta esto',\n  subtitle: 'Icono coraz\u00f3n a\u00f1adido via constructor',\n  duration: 3000\n});`,
+      props: [
+        { name: 'icon', value: "'heart'", desc: 'Icono SVG custom registrado en el constructor.' },
+        { name: 'iconColor', value: "'#f43f5e'", desc: 'Color hex aplicado directamente al icono.' }
+      ]
+    },
+    demoGlowColor: {
+      title: 'Glow Color',
+      code: `blip.add({\n  icon: 'info',\n  title: 'Glow Rosa',\n  subtitle: 'Shadow personalizado con glowColor',\n  animation: 'glow',\n  glowColor: '#f43f5e',\n  duration: 3000\n});`,
+      props: [
+        { name: 'animation', value: "'glow'", desc: 'Resplandor pulsante del borde.' },
+        { name: 'glowColor', value: "'#f43f5e'", desc: 'Color del shadow en la animaci\u00f3n glow. Acepta tipo o hex.' }
+      ]
+    },
+    demoAutoContrast: {
+      title: 'Auto Contraste',
+      code: `// Constructor:\n// typeColors: { light: '#facc15' }\n\nblip.add({\n  type: 'light',\n  icon: 'info',\n  title: 'Fondo Claro',\n  subtitle: 'Texto oscuro calculado autom\u00e1ticamente',\n  duration: 3000\n});`,
+      props: [
+        { name: 'type', value: "'light'", desc: 'Tipo custom con color claro (#facc15).' },
+        { name: 'Auto-contraste', value: 'autom\u00e1tico', desc: 'Texto, bordes y botones se adaptan a la luminancia del fondo (WCAG Rec. 601).' }
+      ]
+    },
+    demoPosition: {
+      title: 'Posici\u00f3n Override',
+      code: `blip.add({\n  type: 'info',\n  icon: 'info',\n  title: 'Posici\u00f3n Override',\n  subtitle: 'Aparezco en bottom-center',\n  position: 'bottom-center',\n  duration: 3000\n});`,
+      props: [
+        { name: 'position', value: "'bottom-center'", desc: 'Override de posici\u00f3n para esta notificaci\u00f3n. La isla se mueve animadamente y restaura la posici\u00f3n global al cerrarse.' }
+      ]
+    },
+    demoWidthCompact: {
+      title: 'Ancho Compacto',
+      code: `blip.add({\n  type: 'info',\n  icon: 'info',\n  title: 'Compacto',\n  subtitle: 'Solo esta notificacion',\n  islandWidth: 'compact',\n  duration: 3000\n});`,
+      props: [
+        { name: 'islandWidth', value: "'compact'", desc: 'Override de ancho para esta notificaci\u00f3n. Se ajusta al contenido sin ancho fijo. Al cerrarse, restaura el ancho global.' }
+      ]
+    },
+    demoWidthWide: {
+      title: 'Ancho Ampliado',
+      code: `blip.add({\n  type: 'info',\n  icon: 'info',\n  title: 'Ancho ampliado',\n  subtitle: 'Esta notificacion usa todo el ancho disponible',\n  islandWidth: 'wide',\n  duration: 3000\n});`,
+      props: [
+        { name: 'islandWidth', value: "'wide'", desc: 'Override de ancho para esta notificaci\u00f3n. Ocupa todo el ancho de la ventana menos 32px. Valores: compact, normal, wide o cualquier CSS.' }
+      ]
+    },
+    demoContentStats: {
+      title: 'Contenido HTML',
+      code: `blip.add({\n  type: 'info',\n  icon: 'info',\n  title: 'Estadisticas',\n  subtitle: 'Resumen del dia',\n  content: '<div style="display:flex;gap:16px;...">\\n' +\n    '  <div style="text-align:center">\\n' +\n    '    <div style="font-size:20px;font-weight:700;color:#22c55e">142</div>\\n' +\n    '    <div style="font-size:10px;opacity:0.6">Visitas</div>\\n' +\n    '  </div>...\\n' +\n    '</div>',\n  duration: 5000\n});`,
+      props: [
+        { name: 'content', value: "string (HTML)", desc: 'HTML personalizado que se renderiza entre el header y las acciones. Permite inyectar contenido libre: estadísticas, widgets, etc.' }
+      ]
+    },
+    demoPersistent: {
+      title: 'Persistent',
+      code: `var task = blip.add({\n  type: 'loading',\n  icon: 'loading',\n  title: 'Proceso critico',\n  subtitle: 'No se puede interrumpir...',\n  persistent: true,\n  showCloseButton: true\n});\n\n// Tras completar, desactivar persistent\nsetTimeout(() => {\n  blip.update(task.id, {\n    type: 'success',\n    persistent: false,\n    duration: 2000\n  });\n}, 3000);`,
+      props: [
+        { name: 'persistent', value: "true", desc: 'Bloquea Escape, click y bot\u00f3n X. Solo se cierra program\u00e1ticamente con remove() o update() con duration.' },
+        { name: 'showCloseButton', value: "true", desc: 'El bot\u00f3n X aparece pero no funciona mientras persistent sea true. \u00datil para indicar visualmente que normalmente se podr\u00eda cerrar.' }
+      ]
+    },
+    demoContentActions: {
+      title: 'Content + Actions',
+      code: `blip.add({\n  type: 'warning',\n  icon: 'warning',\n  title: 'Nueva version',\n  subtitle: 'v6.1.0 disponible',\n  content: '<div style="font-size:11px;opacity:0.7">Incluye mejoras...</div>',\n  actions: [\n    { label: 'Actualizar', type: 'primary',\n      onClick: (ctx) => blip.remove(ctx.activityId) },\n    { label: 'Mas tarde',\n      onClick: (ctx) => blip.remove(ctx.activityId) }\n  ]\n});`,
+      props: [
+        { name: 'content', value: "string (HTML)", desc: 'Coexiste con actions, verify, form y upload. Se renderiza siempre entre el header y la zona interactiva.' },
+        { name: 'actions', value: "array", desc: 'Botones de acción que aparecen debajo del content.' }
+      ]
+    },
+    demoVerifyBasic: {
+      title: 'Verify B\u00e1sico',
+      code: `var result = await blip.addVerify({\n  type: 'warning',\n  icon: 'warning',\n  title: 'Confirmar accion',\n  subtitle: 'Introduce el codigo para continuar'\n});\n// result.status: 'verified' | 'cancelled'\n// result.code: el codigo mostrado`,
+      props: [
+        { name: 'codeLength', value: '4 (defecto)', desc: 'Longitud del c\u00f3digo auto-generado.' },
+        { name: 'codeType', value: "'alphanumeric' (defecto)", desc: "D\u00edgitos y letras may\u00fasculas." }
+      ]
+    },
+    demoVerifyNumeric: {
+      title: 'Verify Num\u00e9rico',
+      code: `var result = await blip.addVerify({\n  type: 'info',\n  icon: 'info',\n  title: 'Codigo de seguridad',\n  subtitle: 'Introduce los 6 digitos',\n  codeLength: 6,\n  codeType: 'numeric'\n});`,
+      props: [
+        { name: 'codeLength', value: '6', desc: 'C\u00f3digo de 6 caracteres.' },
+        { name: 'codeType', value: "'numeric'", desc: 'Solo d\u00edgitos 0-9. El input usa type=tel para teclado num\u00e9rico en m\u00f3vil.' }
+      ]
+    },
+    demoVerifyCustomCode: {
+      title: 'C\u00f3digo Custom',
+      code: `var result = await blip.addVerify({\n  type: 'info',\n  icon: 'info',\n  title: 'Codigo predefinido',\n  subtitle: 'Introduce el codigo mostrado',\n  code: 'ABC123'\n});`,
+      props: [
+        { name: 'code', value: "'ABC123'", desc: 'C\u00f3digo fijo definido por el desarrollador. La longitud se deduce autom\u00e1ticamente.' }
+      ]
+    },
+    demoVerifyCaseSensitive: {
+      title: 'Case Sensitive',
+      code: `var result = await blip.addVerify({\n  type: 'warning',\n  icon: 'warning',\n  title: 'Case Sensitive',\n  subtitle: 'Respeta mayusculas y minusculas',\n  codeLength: 4,\n  caseSensitive: true\n});`,
+      props: [
+        { name: 'caseSensitive', value: 'true', desc: 'Distingue may\u00fasculas de min\u00fasculas. Por defecto false (ignora case).' }
+      ]
+    },
+    demoVerifyCallbacks: {
+      title: 'Callbacks',
+      code: `await blip.addVerify({\n  type: 'warning',\n  icon: 'warning',\n  title: 'Con Callbacks',\n  subtitle: 'Prueba a fallar y acertar',\n  codeLength: 3,\n  codeType: 'numeric',\n  onVerify: () => console.log('correcto'),\n  onFail: () => console.log('incorrecto'),\n  onCancel: () => console.log('cancelado')\n});`,
+      props: [
+        { name: 'onVerify', value: 'function', desc: 'Se ejecuta cuando el c\u00f3digo introducido es correcto.' },
+        { name: 'onFail', value: 'function', desc: 'Se ejecuta cada vez que el usuario introduce un c\u00f3digo incorrecto.' },
+        { name: 'onCancel', value: 'function', desc: 'Se ejecuta si el usuario pulsa el bot\u00f3n cancelar.' }
+      ]
+    },
+    demoVerifyStyled: {
+      title: 'Verify Styled',
+      code: `var result = await blip.addVerify({\n  type: 'error',\n  icon: 'error',\n  title: 'Accion irreversible',\n  subtitle: 'Verifica para eliminar tu cuenta',\n  showCloseButton: true,\n  codeLength: 5,\n  cancelLabel: 'No, volver'\n});`,
+      props: [
+        { name: 'type', value: "'error'", desc: 'Fondo rojo sem\u00e1ntico para acci\u00f3n peligrosa.' },
+        { name: 'showCloseButton', value: 'true', desc: 'Bot\u00f3n X en la esquina para cerrar (resuelve como cancelled).' },
+        { name: 'codeLength', value: '5', desc: 'C\u00f3digo de 5 caracteres para mayor seguridad.' },
+        { name: 'cancelLabel', value: "'No, volver'", desc: 'Texto personalizado del bot\u00f3n cancelar.' }
+      ]
+    },
+    demoVerifyInput: {
+      title: 'Input SMS',
+      code: `var result = await blip.addVerify({\n  type: 'info',\n  icon: 'info',\n  title: 'Verificacion SMS',\n  subtitle: 'Introduce el codigo que te hemos enviado',\n  mode: 'input',\n  codeLength: 6,\n  codeType: 'numeric'\n});\n// result.status: 'submitted' | 'cancelled'\n// result.code: el codigo introducido`,
+      props: [
+        { name: 'mode', value: "'input'", desc: 'Modo ciego: no muestra c\u00f3digo, el usuario lo introduce y pulsa Confirmar.' },
+        { name: 'codeLength', value: '6', desc: 'N\u00famero de campos de entrada.' },
+        { name: 'codeType', value: "'numeric'", desc: 'Solo d\u00edgitos. Teclado num\u00e9rico en m\u00f3vil.' }
+      ]
+    },
+    demoVerifyInputAlpha: {
+      title: 'Input Token',
+      code: `var result = await blip.addVerify({\n  type: 'warning',\n  icon: 'warning',\n  title: 'Token de acceso',\n  subtitle: 'Introduce tu token de 4 caracteres',\n  mode: 'input',\n  codeLength: 4,\n  codeType: 'alphanumeric',\n  confirmLabel: 'Validar'\n});`,
+      props: [
+        { name: 'mode', value: "'input'", desc: 'Modo ciego: c\u00f3digo introducido por el usuario.' },
+        { name: 'codeLength', value: '4', desc: 'Token de 4 caracteres.' },
+        { name: 'confirmLabel', value: "'Validar'", desc: 'Texto personalizado del bot\u00f3n de confirmaci\u00f3n (por defecto Confirmar).' }
+      ]
+    },
+    demoFormBasic: {
+      title: 'Formulario B\u00e1sico',
+      code: `var result = await blip.addForm({\n  type: 'info',\n  icon: 'info',\n  title: 'Contacto',\n  subtitle: 'Dejanos tus datos',\n  fields: [\n    { type: 'text', label: 'Nombre', required: true, placeholder: 'Tu nombre' },\n    { type: 'email', label: 'Email', required: true, placeholder: 'tu@email.com' }\n  ]\n});\n// result.status: 'submitted' | 'cancelled'\n// result.data: { nombre: '...', email: '...' }`,
+      props: [
+        { name: 'fields', value: '[...]', desc: 'Array de campos del formulario. Cada campo define type, label, required y placeholder.' },
+        { name: 'fields[].type', value: "'text'", desc: 'Tipo HTML del input: text, email, tel, number, password, url, date, select, textarea.' },
+        { name: 'fields[].required', value: 'true', desc: 'Campo obligatorio. Muestra * y valida antes de enviar.' }
+      ]
+    },
+    demoFormSelect: {
+      title: 'Con Select',
+      code: `var result = await blip.addForm({\n  type: 'warning',\n  icon: 'warning',\n  title: 'Encuesta rapida',\n  subtitle: 'Una pregunta rapida',\n  fields: [\n    { type: 'select', label: 'Experiencia',\n      options: [['good', 'Buena'], ['ok', 'Regular'], ['bad', 'Mala']],\n      required: true, placeholder: 'Selecciona...' },\n    { type: 'textarea', label: 'Comentario', rows: 3, placeholder: 'Opcional...' }\n  ],\n  confirmLabel: 'Enviar'\n});`,
+      props: [
+        { name: 'fields[].options', value: "[['good', 'Buena'], ...]", desc: 'Cada opci\u00f3n puede ser un string o un array [valor, etiqueta].' },
+        { name: 'fields[].rows', value: '3', desc: 'N\u00famero de filas visibles del textarea (por defecto 2).' },
+        { name: 'fields[].type', value: "'textarea'", desc: '\u00c1rea de texto multil\u00ednea. Enter inserta salto de l\u00ednea.' }
+      ]
+    },
+    demoFormComplete: {
+      title: 'Formulario Completo',
+      code: `var result = await blip.addForm({\n  type: 'success',\n  icon: 'success',\n  title: 'Registro',\n  subtitle: 'Completa tu perfil',\n  fields: [\n    { type: 'text', label: 'Nombre', required: true },\n    { type: 'email', label: 'Email', required: true },\n    { type: 'tel', label: 'Telefono' },\n    { type: 'select', label: 'Pais',\n      options: [['ES', 'Espana'], ['MX', 'Mexico'], ['AR', 'Argentina'], ...],\n      required: true, placeholder: 'Selecciona pais' }\n  ],\n  confirmLabel: 'Registrar'\n});\n// result.data.pais → 'ES' (valor), no 'Espana' (etiqueta)`,
+      props: [
+        { name: 'fields[].options', value: "[['ES', 'Espana'], ...]", desc: 'Array [valor, etiqueta]: el value enviado es el c\u00f3digo, la etiqueta es lo visible.' },
+        { name: 'confirmLabel', value: "'Registrar'", desc: 'Texto personalizado del bot\u00f3n de confirmaci\u00f3n.' },
+        { name: 'fields[].placeholder', value: "'Selecciona pais'", desc: 'En selects, se muestra como opci\u00f3n deshabilitada inicial.' }
+      ]
+    },
+    demoFormFeedback: {
+      title: 'Feedback',
+      code: `var result = await blip.addForm({\n  type: 'error',\n  icon: 'error',\n  title: 'Reportar problema',\n  subtitle: 'Describe el error encontrado',\n  fields: [\n    { type: 'text', label: 'Asunto', required: true, placeholder: 'Resumen breve' },\n    { type: 'textarea', label: 'Descripcion', required: true,\n      rows: 3, placeholder: 'Describe el problema...' },\n    { type: 'email', label: 'Email de contacto', placeholder: 'Para respuesta' }\n  ],\n  confirmLabel: 'Reportar',\n  cancelLabel: 'Descartar'\n});`,
+      props: [
+        { name: 'fields[].rows', value: '3', desc: 'Textarea con 3 filas visibles (por defecto 2).' },
+        { name: 'cancelLabel', value: "'Descartar'", desc: 'Texto personalizado del bot\u00f3n de cancelaci\u00f3n (por defecto Cancelar).' },
+        { name: 'confirmLabel', value: "'Reportar'", desc: 'Acci\u00f3n principal personalizada.' }
+      ]
+    },
+    demoUploadBasic: {
+      title: 'Upload B\u00e1sico',
+      code: `var result = await blip.addUpload({\n  type: 'info',\n  icon: 'upload',\n  title: 'Subir archivo',\n  subtitle: 'Selecciona un archivo'\n});\n// result.status: 'submitted' | 'cancelled'\n// result.files: [File] | null`,
+      props: [
+        { name: 'type', value: "'info'", desc: 'Tipo de notificaci\u00f3n (color del borde).' },
+        { name: 'icon', value: "'upload'", desc: 'Icono predefinido de subida.' },
+        { name: 'multiple', value: 'false', desc: 'Por defecto solo permite un fichero.' }
+      ]
+    },
+    demoUploadMultiple: {
+      title: 'Upload M\u00faltiple',
+      code: `var result = await blip.addUpload({\n  type: 'info',\n  icon: 'upload',\n  title: 'Subir documentos',\n  subtitle: 'Puedes subir varios archivos',\n  multiple: true,\n  confirmLabel: 'Enviar todo'\n});`,
+      props: [
+        { name: 'multiple', value: 'true', desc: 'Permite seleccionar y arrastrar m\u00faltiples ficheros.' },
+        { name: 'confirmLabel', value: "'Enviar todo'", desc: 'Texto personalizado del bot\u00f3n de confirmaci\u00f3n (por defecto Subir).' }
+      ]
+    },
+    demoUploadImages: {
+      title: 'Solo Im\u00e1genes',
+      code: `var result = await blip.addUpload({\n  type: 'warning',\n  icon: 'upload',\n  title: 'Subir imagen',\n  subtitle: 'Solo imagenes permitidas',\n  accept: 'image/*',\n  maxSize: 2 * 1024 * 1024\n});`,
+      props: [
+        { name: 'accept', value: "'image/*'", desc: 'Filtra por MIME type. Acepta extensiones (.pdf), wildcards (image/*) o tipos exactos.' },
+        { name: 'maxSize', value: '2097152', desc: 'Tama\u00f1o m\u00e1ximo por fichero en bytes (2 MB). Ficheros mayores se rechazan con shake.' }
+      ]
+    },
+    demoUploadPDFs: {
+      title: 'PDFs M\u00faltiples',
+      code: `var result = await blip.addUpload({\n  type: 'success',\n  icon: 'upload',\n  title: 'Documentacion',\n  subtitle: 'Sube tus PDFs',\n  multiple: true,\n  accept: '.pdf',\n  maxSize: 10 * 1024 * 1024,\n  confirmLabel: 'Adjuntar'\n});`,
+      props: [
+        { name: 'accept', value: "'.pdf'", desc: 'Filtra por extensi\u00f3n. Solo se aceptan archivos .pdf.' },
+        { name: 'maxSize', value: '10485760', desc: 'L\u00edmite de 10 MB por fichero.' },
+        { name: 'multiple', value: 'true', desc: 'Permite adjuntar varios PDFs.' }
+      ]
+    },
+    demoUploadServer: {
+      title: 'Enviar al Servidor',
+      code: `var result = await blip.addUpload({\n  type: 'info', icon: 'upload',\n  title: 'Subir al servidor',\n  subtitle: 'Selecciona los archivos a enviar',\n  multiple: true\n});\n\nif (result.status === 'submitted') {\n  // Construir FormData con los ficheros\n  var formData = new FormData();\n  result.files.forEach(function(file) {\n    formData.append('files', file, file.name);\n  });\n\n  // Enviar al backend\n  var response = await fetch('/api/upload', {\n    method: 'POST',\n    body: formData\n  });\n}`,
+      props: [
+        { name: 'result.files', value: '[File, ...]', desc: 'Array de objetos File nativos del navegador. Cada File tiene name, size, type y lastModified.' },
+        { name: 'FormData', value: 'new FormData()', desc: 'API nativa para construir el body de un POST multipart/form-data.' },
+        { name: 'formData.append()', value: "('files', file, file.name)", desc: 'A\u00f1ade cada File al FormData. El primer arg es el nombre del campo, el tercero el filename.' }
+      ]
+    }
+  };
+
+  function showInfo(name) {
+    const info = demoInfoData[name];
+    if (!info) return;
+    document.getElementById('info-drawer-title').textContent = info.title;
+    document.getElementById('info-drawer-code').textContent = info.code;
+    let rows = '<tr><th>Propiedad</th><th>Valor</th><th>Descripci\u00f3n</th></tr>';
+    info.props.forEach(p => {
+      rows += `<tr><td>${p.name}</td><td>${p.value}</td><td>${p.desc}</td></tr>`;
+    });
+    document.getElementById('info-drawer-props').innerHTML = rows;
+    document.getElementById('info-drawer-overlay').classList.add('is-open');
+    document.getElementById('info-drawer-panel').classList.add('is-open');
+  }
+
+  function closeInfo() {
+    document.getElementById('info-drawer-overlay').classList.remove('is-open');
+    document.getElementById('info-drawer-panel').classList.remove('is-open');
+  }
+
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeInfo(); });
+
+  // Insertar botones info automaticamente en cada demo-card
+  document.querySelectorAll('.demo-card[onclick]').forEach(card => {
+    const match = card.getAttribute('onclick').match(/^(\w+)\(/);
+    if (match && demoInfoData[match[1]]) {
+      const btn = document.createElement('button');
+      btn.className = 'demo-card-info';
+      btn.setAttribute('onclick', `event.stopPropagation(); showInfo('${match[1]}')`);
+      btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>';
+      card.appendChild(btn);
+    }
+  });
+
+</script>
+
+<!-- Info Drawer -->
+<div id="info-drawer-overlay" onclick="closeInfo()"></div>
+<div id="info-drawer-panel">
+  <div class="info-drawer-header">
+    <span id="info-drawer-title" class="info-drawer-title"></span>
+    <button class="info-drawer-close" onclick="closeInfo()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+  <div class="info-drawer-body">
+    <div>
+      <div class="info-drawer-section-label">C&oacute;digo</div>
+      <pre class="info-drawer-code"><code id="info-drawer-code"></code></pre>
+    </div>
+    <div>
+      <div class="info-drawer-section-label">Propiedades</div>
+      <table class="info-drawer-table" id="info-drawer-props"></table>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
+</body>
+</html>
