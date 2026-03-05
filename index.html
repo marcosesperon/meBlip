@@ -1017,7 +1017,7 @@ blip.setIslandWidth('normal');
   <section class="demo-category cat-advanced">
     <div class="demo-category-header">
       <h2>Avanzado</h2>
-      <span class="demo-category-badge">20 demos</span>
+      <span class="demo-category-badge">21 demos</span>
     </div>
     <div class="demo-grid">
       <div class="demo-card" onclick="demoCustomType()">
@@ -1159,6 +1159,13 @@ blip.setIslandWidth('normal');
         </div>
         <div class="demo-card-title">.remove()</div>
         <div class="demo-card-desc">Cierra una notificaci&oacute;n directamente desde el objeto devuelto por <code>add()</code></div>
+      </div>
+      <div class="demo-card" onclick="demoRemoveGroup()">
+        <div class="demo-card-icon" style="background: rgba(59,130,246,0.12); color: #3b82f6;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/><rect x="2" y="2" width="20" height="8" rx="2" opacity="0.3"/></svg>
+        </div>
+        <div class="demo-card-title">removeGroup()</div>
+        <div class="demo-card-desc">Cierra todas las notificaciones de un grupo por su <code>groupId</code></div>
       </div>
     </div>
   </section>
@@ -1716,6 +1723,26 @@ blip.setIslandWidth('normal');
         duration: 3000
       });
     }, 2000);
+  }
+
+  function demoRemoveGroup() {
+    for (let i = 1; i <= 3; i++) {
+      blip.add({
+        groupId: 'demo-remove-group', groupTitle: 'Procesando {n} tareas',
+        type: 'loading', icon: 'loading', title: 'Tarea en curso...',
+        subtitle: `Tarea_${i}`
+      });
+    }
+
+    setTimeout(function() {
+      blip.removeGroup('demo-remove-group');
+      blip.add({
+        type: 'success', icon: 'success',
+        title: 'Grupo cerrado',
+        subtitle: 'removeGroup() ejecutado correctamente',
+        duration: 3000
+      });
+    }, 2500);
   }
 
   /* ── 8. Verificacion (v4.0) ─────────────────── */
@@ -2429,6 +2456,13 @@ blip.setIslandWidth('normal');
       code: `var task = blip.add({\n  type: 'info',\n  icon: 'info',\n  title: 'Cierre con .remove()',\n  subtitle: 'Se cerrara en 2s via task.remove()'\n});\n\nsetTimeout(() => {\n  task.remove();\n}, 2000);`,
       props: [
         { name: 'remove()', value: "method", desc: 'Cierra la notificación inmediatamente. Equivale a blip.remove(task.id). No lanza error si ya fue cerrada.' }
+      ]
+    },
+    demoRemoveGroup: {
+      title: 'removeGroup()',
+      code: `for (let i = 1; i <= 3; i++) {\n  blip.add({\n    groupId: 'demo-remove-group',\n    groupTitle: 'Procesando {n} tareas',\n    type: 'loading',\n    icon: 'loading',\n    title: 'Tarea en curso...',\n    subtitle: 'Tarea_' + i\n  });\n}\n\nsetTimeout(() => {\n  blip.removeGroup('demo-remove-group');\n}, 2500);`,
+      props: [
+        { name: 'removeGroup()', value: "groupId: string", desc: 'Cierra todas las actividades que pertenecen al grupo. Reutiliza remove() internamente.' }
       ]
     },
     demoContentActions: {

@@ -1327,6 +1327,16 @@ class meBlip {
   }
 
   /**
+   * Elimina todas las actividades que pertenecen a un grupo.
+   *
+   * @param {string} groupId - ID del grupo a eliminar.
+   */
+  removeGroup(groupId) {
+    const ids = this.activities.filter(a => a.groupId === groupId).map(a => a.id);
+    ids.forEach(id => this.remove(id));
+  }
+
+  /**
    * Patron Undo: muestra una notificacion con boton Deshacer y countdown.
    * Si el usuario pulsa Deshacer, llama onUndo(). Si el timer expira, llama onConfirm().
    *

@@ -179,6 +179,7 @@ Anade una actividad a la cola. Devuelve una **Promesa** que se resuelve con `{ i
 | `update([id], patch)` | Modifica una actividad. Si se omite el `id`, se actua sobre la notificacion activa. Util para actualizar progreso, subtitulo, tipo, etc. Produce morphing visual si se cambia el `type`. |
 | `has(id)` | Comprueba si existe una actividad con el ID dado en la cola. Devuelve `true` si existe, `false` en caso contrario. |
 | `remove([id])` | Cierra y elimina una actividad inmediatamente. Si se omite el `id`, se elimina la notificacion activa. |
+| `removeGroup(groupId)` | Cierra todas las actividades que pertenecen a un grupo. Reutiliza `remove()` internamente para cada actividad del grupo. |
 | `addUndo(config)` | Patron undo: muestra una notificacion con boton de deshacer y countdown. Ver seccion dedicada. |
 | `addVerify(config)` | Patron verify: muestra una notificacion con codigo de verificacion que el usuario debe introducir. Ver seccion dedicada. |
 | `addForm(config)` | Patron form: muestra una notificacion con formulario interactivo cuyos campos se definen en un array. Ver seccion dedicada. |
@@ -269,6 +270,9 @@ var uploadData = { groupId: 'up-1', groupTitle: 'Subiendo {n} fotos...', type: '
 blip.add({ ...uploadData, progress: 0.2 });
 blip.add({ ...uploadData, progress: 0.5 });
 blip.add({ ...uploadData, progress: 0.8 });
+
+// Cerrar todas las notificaciones del grupo de golpe
+blip.removeGroup('up-1');
 ```
 
 ### C. Notificacion con Avatar

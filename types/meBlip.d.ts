@@ -135,6 +135,9 @@ declare class meBlip {
   /** Remove a notification by ID (or the active one) */
   remove(id?: string): void;
 
+  /** Remove all notifications belonging to a group */
+  removeGroup(groupId: string): void;
+
   /** Add an undo-pattern notification */
   addUndo(config: UndoConfig): Promise<{ id: string; status: 'undone' | 'confirmed' }>;
 
