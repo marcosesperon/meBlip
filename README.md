@@ -136,7 +136,7 @@ blip.add({ type: 'premium', icon: 'premium', title: 'Premium', duration: 3000 })
 
 ### 2. Metodo `add(config)`
 
-Anade una actividad a la cola. Devuelve una **Promesa** que se resuelve con `{ id, status: 'closed' }` cuando la notificacion se cierra. La promesa expone una propiedad `id` con el identificador asignado (util cuando no se pasa un `id` explicito).
+Anade una actividad a la cola. Devuelve una **Promesa** que se resuelve con `{ id, status: 'closed' }` cuando la notificacion se cierra. La promesa expone una propiedad `id` con el identificador asignado (util cuando no se pasa un `id` explicito) y un metodo `.remove()` que cierra la notificacion inmediatamente (equivale a `blip.remove(task.id)`).
 
 | Propiedad | Tipo | Descripcion |
 |-----------|------|-------------|

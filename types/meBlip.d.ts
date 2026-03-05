@@ -51,6 +51,7 @@ interface ActivityConfig {
 
 interface ActivityPromise extends Promise<{ id: string; status: string }> {
   id: string;
+  remove(): void;
 }
 
 interface UndoConfig extends ActivityConfig {

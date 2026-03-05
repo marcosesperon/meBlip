@@ -1260,6 +1260,7 @@ class meBlip {
     // Devolver promesa que se resolvera cuando la actividad se cierre
     const promise = new Promise(resolve => this.resolvers.set(id, resolve));
     promise.id = id;
+    promise.remove = () => this.remove(id);
     if (activity.duration && !activity.waitToDisplay) this._setTimer(id, activity.duration);
     this._refresh();
     return promise;
