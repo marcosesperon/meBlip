@@ -181,6 +181,7 @@ class meBlip {
         z-index: 9999;
         perspective: 1000px;
         display: flex;
+        pointer-events: none;
         transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
       }
 
@@ -214,7 +215,7 @@ class meBlip {
       .meblip-island {
         position: relative;
         overflow: hidden;
-        pointer-events: auto;
+        pointer-events: none;
         transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.4s ease;
         transform: scale(0);
         opacity: 0;
@@ -229,6 +230,7 @@ class meBlip {
       .meblip-island.is-visible {
         transform: scale(1);
         opacity: 1;
+        pointer-events: auto;
       }
 
       .meblip-island.is-clickable { cursor: pointer; }
@@ -472,6 +474,10 @@ class meBlip {
       }
       .meblip-icon-preview.is-visible {
         opacity: 1;
+      }
+      .meblip-content.is-active ~ .meblip-icon-preview {
+        top: 24px;
+        left: 28px;
       }
       .meblip-icon-preview svg {
         width: 100%;
@@ -838,6 +844,7 @@ class meBlip {
 
       .meblip-title {
         font-size: 14px;
+        line-height: 24px;
         font-weight: 600;
         white-space: nowrap;
       }
@@ -2069,26 +2076,13 @@ class meBlip {
       setTimeout(() => {
         if (this.isClosing || !this.content) return;
         this.content.classList.add('is-active');
-        // Animar preview icon hacia posicion del icono real, luego fade-out
+        // Animar preview icon hacia posicion del icono real (via CSS sibling selector), luego fade-out
         if (this.iconPreview && this.iconPreview.classList.contains('is-visible')) {
-          const headerIcon = this.content.querySelector('.meblip-icon');
-          if (headerIcon) {
-            const iconRect = headerIcon.getBoundingClientRect();
-            const islandRect = this.island.getBoundingClientRect();
-            const targetTop = (iconRect.top - islandRect.top) + (iconRect.height / 2) - 8;
-            const targetLeft = (iconRect.left - islandRect.left) + (iconRect.width / 2);
-            this.iconPreview.style.top = `${targetTop}px`;
-            this.iconPreview.style.left = `${targetLeft}px`;
-          }
           setTimeout(() => {
             if (this.iconPreview) {
               this.iconPreview.classList.remove('is-visible');
               setTimeout(() => {
-                if (this.iconPreview) {
-                  this.iconPreview.innerHTML = '';
-                  this.iconPreview.style.top = '';
-                  this.iconPreview.style.left = '';
-                }
+                if (this.iconPreview) this.iconPreview.innerHTML = '';
               }, 250);
             }
           }, 400);
