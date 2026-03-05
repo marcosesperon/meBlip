@@ -2,6 +2,7 @@ type Position = 'top-left' | 'top-center' | 'top-right' | 'center' | 'bottom-lef
 type Theme = 'dark' | 'light' | 'system';
 type StackStyle = '3d' | 'fan' | 'counter';
 type IslandWidth = 'compact' | 'normal' | 'wide' | string;
+type ReducedMotion = boolean | 'system';
 type Priority = 'low' | 'normal' | 'high';
 type ActivityType = 'success' | 'error' | 'info' | 'warning' | 'upload' | 'download' | 'loading' | 'thinking' | 'speaking' | 'listening' | string;
 type Animation = 'shake' | 'pulse' | 'bounce' | 'glow' | 'breathe' | 'heartbeat' | 'wobble' | 'ripple' | 'swing';
@@ -13,6 +14,7 @@ interface MeBlipOptions {
   stackStyle?: StackStyle;
   islandWidth?: IslandWidth;
   autoConfetti?: boolean;
+  reducedMotion?: ReducedMotion;
   typeColors?: Partial<Record<ActivityType, string>>;
   icons?: Record<string, string>;
 }
@@ -116,6 +118,9 @@ declare class meBlip {
   /** Set the default island width */
   setIslandWidth(width: IslandWidth): void;
 
+  /** Set reduced motion mode */
+  setReducedMotion(value: ReducedMotion): void;
+
   /** Add a notification to the queue */
   add(config: ActivityConfig): ActivityPromise;
 
@@ -165,6 +170,7 @@ export type {
   ActivityType,
   Animation,
   ExitAnimation,
+  ReducedMotion,
 };
 
 // React hook

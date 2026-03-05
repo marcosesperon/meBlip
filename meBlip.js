@@ -44,6 +44,8 @@ class meBlip {
     this.stackStyle = options.stackStyle || '3d'; // '3d', 'fan', 'counter'
     this.islandWidth = options.islandWidth || 'normal'; // 'compact', 'normal', 'wide' o valor CSS
     this.autoConfetti = options.autoConfetti || false;
+    this.reducedMotion = options.reducedMotion || false;
+    this._reducedMotionActive = false;
 
     // Mapa de prioridades: las actividades de mayor valor se muestran primero
     this.priorityMap = { 'low': 0, 'normal': 1, 'high': 2 };
@@ -103,6 +105,7 @@ class meBlip {
     this._injectStyles();
     this._createDOM();
     this._initThemeListener();
+    this._initReducedMotionListener();
     this.setPosition(this.position);
     this.setTheme(this.theme);
     this._startLoop();
@@ -899,6 +902,25 @@ class meBlip {
       @keyframes meblip-countdown-shrink { from { width: 100%; } to { width: 0%; } }
       .meblip-island.is-paused .meblip-countdown { animation-play-state: paused; }
 
+      /* Reduced motion */
+      #meblip-island-root.meblip-reduced-motion *,
+      #meblip-island-root.meblip-reduced-motion *::before,
+      #meblip-island-root.meblip-reduced-motion *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.05s !important;
+        transition-delay: 0s !important;
+      }
+      #meblip-island-root.meblip-reduced-motion .meblip-island {
+        transition: opacity 0.15s ease !important;
+      }
+      #meblip-island-root.meblip-reduced-motion {
+        transition-duration: 0.1s !important;
+      }
+      #meblip-island-root.meblip-reduced-motion .meblip-countdown.is-running {
+        animation: none !important;
+      }
+
     `;
     document.head.appendChild(style);
   }
@@ -1046,6 +1068,34 @@ class meBlip {
     });
   }
 
+  _initReducedMotionListener() {
+    this._reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    this._reducedMotionQuery.addEventListener('change', () => {
+      if (this.reducedMotion === 'system') this._resolveReducedMotion();
+    });
+    this._resolveReducedMotion();
+  }
+
+  _resolveReducedMotion() {
+    if (this.reducedMotion === 'system') {
+      this._reducedMotionActive = this._reducedMotionQuery?.matches ?? false;
+    } else {
+      this._reducedMotionActive = !!this.reducedMotion;
+    }
+    if (this.root) {
+      this.root.classList.toggle('meblip-reduced-motion', this._reducedMotionActive);
+    }
+  }
+
+  setReducedMotion(value) {
+    this.reducedMotion = value;
+    this._resolveReducedMotion();
+  }
+
+  _delay(normalMs, reducedMs = 10) {
+    return this._reducedMotionActive ? reducedMs : normalMs;
+  }
+
   /**
    * Establece el tema visual del componente.
    *
@@ -1094,7 +1144,7 @@ class meBlip {
     this.position = pos;
     this._currentPosition = pos;
     if (this.root) {
-        this.root.className = `${pos} meblip-theme-${this.activeThemeName}`;
+        this.root.className = `${pos} meblip-theme-${this.activeThemeName}${this._reducedMotionActive ? ' meblip-reduced-motion' : ''}`;
     }
   }
 
@@ -1639,7 +1689,7 @@ class meBlip {
    * Lanza manualmente el efecto de confetti sobre la isla.
    */
   confetti() {
-    this._spawnConfetti();
+    if (!this._reducedMotionActive) this._spawnConfetti();
   }
 
   // ──────────────────────────────────────────────
@@ -1676,7 +1726,7 @@ class meBlip {
     const targetPos = active.position || this.position;
     if (this._currentPosition !== targetPos) {
       this._currentPosition = targetPos;
-      if (this.root) this.root.className = `${targetPos} meblip-theme-${this.activeThemeName}`;
+      if (this.root) this.root.className = `${targetPos} meblip-theme-${this.activeThemeName}${this._reducedMotionActive ? ' meblip-reduced-motion' : ''}`;
     }
     if (active.duration && active.waitToDisplay && !this.timers.has(active.id)) {
       this._setTimer(active.id, active.duration);
@@ -1831,7 +1881,7 @@ class meBlip {
 
     // Animaciones: sistema de lookup con soporte para override via propiedad 'animation'
     this.island.classList.remove(...this.allAnimClasses);
-    if (data.enableAnimations) {
+    if (data.enableAnimations && !this._reducedMotionActive) {
       const anim = data.animation === 'none' ? null : (data.animation || this.defaultAnimations[data.type] || null);
       if (anim) {
         // glowColor: color custom para la animacion glow (acepta nombre de tipo o hex)
@@ -1856,7 +1906,7 @@ class meBlip {
       // Limpiar clases de entrada previas
       this.island.classList.remove('entry-slide-spring-left', 'entry-slide-spring-right', 'entry-slide-spring-down');
 
-      if (data.entryAnimation === 'slide-spring') {
+      if (data.entryAnimation === 'slide-spring' && !this._reducedMotionActive) {
         // Determinar direccion segun posicion de la isla
         let dir = 'down';
         if (this._currentPosition.includes('left')) dir = 'left';
@@ -1872,7 +1922,7 @@ class meBlip {
 
       // Preview icon: mostrar icono anticipado en el circulo
       const resolvedIconPreview = data.icon ? (this.icons[data.icon] || data.icon) : null;
-      if (resolvedIconPreview && this.iconPreview) {
+      if (resolvedIconPreview && this.iconPreview && !this._reducedMotionActive) {
         const previewColor = data.iconColor ? (this.typeColors[data.iconColor] || data.iconColor) : null;
         this.iconPreview.innerHTML = resolvedIconPreview;
         if (previewColor) this.iconPreview.style.color = previewColor;
@@ -1884,14 +1934,14 @@ class meBlip {
 
       setTimeout(() => {
         this._applyContent(data);
-        if (data.confetti || (this.autoConfetti && data.type === 'success')) {
-          setTimeout(() => this._spawnConfetti(), 200);
+        if (!this._reducedMotionActive && (data.confetti || (this.autoConfetti && data.type === 'success'))) {
+          setTimeout(() => this._spawnConfetti(), this._delay(200));
         }
-      }, 400);
+      }, this._delay(400, 50));
     } else {
       this._applyContent(data);
-      if (data.confetti || (this.autoConfetti && data.type === 'success')) {
-        setTimeout(() => this._spawnConfetti(), 200);
+      if (!this._reducedMotionActive && (data.confetti || (this.autoConfetti && data.type === 'success'))) {
+        setTimeout(() => this._spawnConfetti(), this._delay(200));
       }
     }
   }
@@ -2467,7 +2517,7 @@ class meBlip {
       if (exitAnimation && exitAnimation !== 'none') {
         void this.island.offsetWidth;
         this.island.classList.add(`exit-${exitAnimation}`);
-        const dur = exitAnimation === 'shrink-bounce' ? 400 : 300;
+        const dur = exitAnimation === 'shrink-bounce' ? this._delay(400) : this._delay(300);
         setTimeout(() => {
           if (this.isClosing && this.island) {
             this.island.classList.remove(...this.allExitClasses);
@@ -2475,7 +2525,7 @@ class meBlip {
           }
         }, dur);
       } else {
-        setTimeout(() => { if (this.isClosing) { this.targetWidth = this.minWidth; this.targetHeight = this.minHeight; } }, 200);
+        setTimeout(() => { if (this.isClosing) { this.targetWidth = this.minWidth; this.targetHeight = this.minHeight; } }, this._delay(200));
       }
     }
     this.stackCount = 0;
@@ -2578,7 +2628,11 @@ class meBlip {
       if (!this.island || !this.svg) return;
 
       // Animar dimensiones con spring: primero ancho, luego alto
-      if (Math.abs(this.width - this.targetWidth) > 0.1 || Math.abs(this.height - this.targetHeight) > 0.1) {
+      if (this._reducedMotionActive) {
+        this.width = this.targetWidth;
+        this.height = this.targetHeight;
+        this.vw = 0; this.vh = 0;
+      } else if (Math.abs(this.width - this.targetWidth) > 0.1 || Math.abs(this.height - this.targetHeight) > 0.1) {
         if (Math.abs(this.width - this.targetWidth) > 0.5) {
           const res = spring(this.width, this.targetWidth, this.vw, this.springCfg);
           this.width = res.v; this.vw = res.vel;

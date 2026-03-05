@@ -684,6 +684,12 @@ body.light-mode .info-drawer-table td:nth-child(2) { color: #7c3aed; }
     <button class="config-pill active" onclick="changeIslandWidth('normal', this)">Normal</button>
     <button class="config-pill" onclick="changeIslandWidth('wide', this)">Ampliado</button>
   </div>
+  <div class="config-group">
+    <label>Movimiento</label>
+    <button class="config-pill active" onclick="changeReducedMotion(false, this)">Normal</button>
+    <button class="config-pill" onclick="changeReducedMotion(true, this)">Reducido</button>
+    <button class="config-pill" onclick="changeReducedMotion('system', this)">Auto</button>
+  </div>
   <button class="close-btn" onclick="blip.remove(blip.activeId)">Cerrar Actual (ESC)</button>
 </div>
 
@@ -1352,6 +1358,11 @@ blip.setIslandWidth('normal');
 
   function changeIslandWidth(width, btn) {
     blip.setIslandWidth(width);
+    updateActive(btn);
+  }
+
+  function changeReducedMotion(value, btn) {
+    blip.setReducedMotion(value);
     updateActive(btn);
   }
 

@@ -114,6 +114,7 @@ Referencia de la API
 | `stackStyle` | `string` | `'3d'` | Estilo de las capas apiladas: `'3d'` (perspectiva clasica), `'fan'` (abanico) o `'counter'` (badge numerico) |
 | `islandWidth` | `string` | `'normal'` | Ancho de la isla: `'compact'` (ajustado al contenido), `'normal'` (400px), `'wide'` (100% - 2rem) o cualquier valor CSS (`'600px'`, `'80%'`, `'20rem'`). |
 | `autoConfetti` | `boolean` | `false` | Si es `true`, lanza confetti automaticamente en cada notificacion de tipo `success` |
+| `reducedMotion` | `boolean\|string` | `false` | Reduce o desactiva animaciones. `true` activa el modo reducido, `'system'` respeta `prefers-reduced-motion` del SO (con listener en vivo), `false` mantiene el comportamiento completo. |
 | `typeColors` | `object` | `{}` | Sobreescribe o extiende los colores por tipo. Las claves son nombres de tipo y los valores colores hex. Ej: `{ success: '#00ff88', premium: '#8b5cf6' }`. |
 | `icons` | `object` | `{}` | Sobreescribe o extiende los iconos SVG integrados. Las claves son nombres de tipo y los valores HTML SVG. Ej: `{ success: '<svg>...</svg>', custom: '<svg>...</svg>' }`. |
 
@@ -188,6 +189,7 @@ Anade una actividad a la cola. Devuelve una **Promesa** que se resuelve con `{ i
 | `setPosition(pos)` | Mueve la isla a otra posicion de la pantalla. |
 | `setStackStyle(style)` | Cambia el estilo de apilamiento: `'3d'`, `'fan'` o `'counter'`. |
 | `setIslandWidth(width)` | Cambia el ancho de la isla: `'compact'`, `'normal'`, `'wide'` o valor CSS arbitrario. |
+| `setReducedMotion(value)` | Cambia el modo de movimiento reducido en runtime: `true`, `false` o `'system'`. |
 
 ### 4. Propiedad `icons`
 
