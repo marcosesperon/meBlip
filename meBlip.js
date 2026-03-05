@@ -1801,6 +1801,27 @@ class meBlip {
     if (active.closeOnClick && !active.persistent) this.remove(active.id);
   }
 
+  /**
+   * Activa o desactiva el atributo `inert` en todos los hijos directos de `<body>`
+   * excepto la isla y el overlay. Esto bloquea la interaccion por teclado (Tab, escritura)
+   * mientras una notificacion bloqueante esta activa.
+   *
+   * @param {boolean} inert - `true` para bloquear, `false` para desbloquear.
+   * @private
+   */
+  _setPageInert(inert) {
+    if (inert) this._previouslyFocused = document.activeElement;
+    for (const el of document.body.children) {
+      if (el === this.root || el === this.overlay) continue;
+      el.inert = inert;
+    }
+    if (inert) this.island.focus();
+    else if (this._previouslyFocused) {
+      this._previouslyFocused.focus();
+      this._previouslyFocused = null;
+    }
+  }
+
   // ──────────────────────────────────────────────
   //  RENDERIZADO DE CONTENIDO
   // ──────────────────────────────────────────────
@@ -1821,8 +1842,13 @@ class meBlip {
 
     // Gestionar overlay bloqueante
     if (this.overlay) {
-      if (data.isBlocking) this.overlay.classList.add('is-active');
-      else if (this.stackCount === 0) this.overlay.classList.remove('is-active');
+      if (data.isBlocking) {
+        this.overlay.classList.add('is-active');
+        this._setPageInert(true);
+      } else if (this.stackCount === 0) {
+        this.overlay.classList.remove('is-active');
+        this._setPageInert(false);
+      }
     }
 
     // Gestión del Contador de Apilamiento (Badge)
@@ -2647,7 +2673,10 @@ class meBlip {
       if (this.isClosing && this.isAtMinSize()) {
           this.isClosing = false; this.isVisible = false;
           this.island.classList.remove('is-visible');
-          if (this.overlay) this.overlay.classList.remove('is-active');
+          if (this.overlay) {
+            this.overlay.classList.remove('is-active');
+            this._setPageInert(false);
+          }
       }
 
       // Aplicar dimensiones al DOM
