@@ -143,6 +143,9 @@ class meBlip {
       #meblip-blocking-overlay.is-active {
         display: block;
       }
+      #meblip-blocking-overlay.meblip-highlighted {
+        background-color: rgba(42, 46, 52, .56);
+      }
 
       /* Variables para Tema Oscuro */
       .meblip-theme-dark {
@@ -174,6 +177,7 @@ class meBlip {
       #meblip-island-root {
         --meblip-island-blur: 18px;
         --meblip-island-radius: 18px;
+        --meblip-box-shadow-highlighted: 0 0 0 1px #151515, 0 0 0 8px rgba(0, 0, 0, 0.05), 0 25.6px 57.6px 0 rgba(0, 0, 0, 0.22),0 4.8px 14.4px 0 rgba(0,0,0,.18);
 
         /* Colores semanticos de estado */
         --meblip-color-generic-dark: #ffffff;
@@ -237,6 +241,10 @@ class meBlip {
         transform: scale(1);
         opacity: 1;
         pointer-events: auto;
+      }
+
+      #meblip-island-root.meblip-highlighted .meblip-island.is-visible{
+        box-shadow: var(--meblip-box-shadow-highlighted);
       }
 
       .meblip-island.is-clickable { cursor: pointer; }
@@ -1874,6 +1882,17 @@ class meBlip {
       }
     }
 
+    // Gestionar className custom
+    if (this._currentClassName) {
+      this.root.classList.remove(this._currentClassName);
+      if (this.overlay) this.overlay.classList.remove(this._currentClassName);
+    }
+    this._currentClassName = data.className || null;
+    if (this._currentClassName) {
+      this.root.classList.add(this._currentClassName);
+      if (this.overlay) this.overlay.classList.add(this._currentClassName);
+    }
+
     // Gestión del Contador de Apilamiento (Badge)
     if (this.stackBadge) {
       if (this.stackStyle === 'counter' && queueCount > 0) {
@@ -2586,6 +2605,13 @@ class meBlip {
         setTimeout(() => { if (this.isClosing) { this.targetWidth = this.minWidth; this.targetHeight = this.minHeight; } }, this._delay(200));
       }
     }
+    // Limpiar className custom
+    if (this._currentClassName) {
+      if (this.root) this.root.classList.remove(this._currentClassName);
+      if (this.overlay) this.overlay.classList.remove(this._currentClassName);
+      this._currentClassName = null;
+    }
+
     this.stackCount = 0;
   }
 
@@ -2707,6 +2733,12 @@ class meBlip {
           if (this.overlay) {
             this.overlay.classList.remove('is-active');
             this._setPageInert(false);
+          }
+          // Limpiar className custom (fallback)
+          if (this._currentClassName) {
+            if (this.root) this.root.classList.remove(this._currentClassName);
+            if (this.overlay) this.overlay.classList.remove(this._currentClassName);
+            this._currentClassName = null;
           }
       }
 

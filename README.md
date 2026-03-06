@@ -171,6 +171,7 @@ Anade una actividad a la cola. Devuelve una **Promesa** que se resuelve con `{ i
 | `content` | `string` | HTML personalizado que se renderiza entre el header y las acciones. Permite inyectar contenido libre (estadisticas, widgets, etc.). Coexiste con `actions`, `verify`, `form` y `upload`. |
 | `islandWidth` | `string` | Override del ancho para esta notificacion. Mismos valores que en el constructor. |
 | `soundUrl` | `string` | URL de un archivo de audio para reproducir al activarse. |
+| `className` | `string` | Clase CSS personalizada que se aplica a `#meblip-island-root` y `#meblip-blocking-overlay` mientras la notificacion esta visible. Se retira automaticamente al cerrarse o cambiar de notificacion. El componente incluye la clase built-in `'meblip-highlighted'`. |
 
 ### 3. Metodos de Control
 
@@ -691,6 +692,20 @@ blip.add({
     { label: 'Actualizar', type: 'primary', onClick: (ctx) => blip.remove(ctx.activityId) },
     { label: 'Mas tarde', onClick: (ctx) => blip.remove(ctx.activityId) }
   ]
+});
+```
+
+### X. Clase CSS Personalizada
+
+```javascript
+// Usar la clase built-in 'meblip-highlighted' para destacar la isla
+blip.add({
+  type: 'info',
+  icon: 'info',
+  title: 'Notificacion Destacada',
+  subtitle: 'Estilo visual diferenciado con className',
+  className: 'meblip-highlighted',
+  duration: 5000
 });
 ```
 

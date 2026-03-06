@@ -43,6 +43,7 @@ interface ActivityConfig {
   groupTitle?: string;
   groupCount?: number;
   blocking?: boolean;
+  className?: string;
   actions?: ActionConfig[];
   waitToDisplay?: boolean;
   onShow?: (ctx: { id: string; type?: string }) => void;

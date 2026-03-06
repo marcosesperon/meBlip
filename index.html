@@ -1017,7 +1017,7 @@ blip.setIslandWidth('normal');
   <section class="demo-category cat-advanced">
     <div class="demo-category-header">
       <h2>Avanzado</h2>
-      <span class="demo-category-badge">21 demos</span>
+      <span class="demo-category-badge">22 demos</span>
     </div>
     <div class="demo-grid">
       <div class="demo-card" onclick="demoCustomType()">
@@ -1166,6 +1166,13 @@ blip.setIslandWidth('normal');
         </div>
         <div class="demo-card-title">removeGroup()</div>
         <div class="demo-card-desc">Cierra todas las notificaciones de un grupo por su <code>groupId</code></div>
+      </div>
+      <div class="demo-card" onclick="demoClassName()">
+        <div class="demo-card-icon" style="background: rgba(250,204,21,0.12); color: #facc15;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 7h-9"/><path d="M14 17H5"/><circle cx="17" cy="17" r="3"/><circle cx="7" cy="7" r="3"/></svg>
+        </div>
+        <div class="demo-card-title">className</div>
+        <div class="demo-card-desc">Aplica clase CSS personalizada a la isla y al overlay</div>
       </div>
     </div>
   </section>
@@ -1743,6 +1750,10 @@ blip.setIslandWidth('normal');
         duration: 3000
       });
     }, 2500);
+  }
+
+  function demoClassName() {
+    blip.add({ type: 'info', icon: 'info', title: 'Destacada', subtitle: 'Clase meblip-highlighted aplicada a isla y overlay', isBlocking: true, className: 'meblip-highlighted' });
   }
 
   /* ── 8. Verificacion (v4.0) ─────────────────── */
@@ -2463,6 +2474,13 @@ blip.setIslandWidth('normal');
       code: `for (let i = 1; i <= 3; i++) {\n  blip.add({\n    groupId: 'demo-remove-group',\n    groupTitle: 'Procesando {n} tareas',\n    type: 'loading',\n    icon: 'loading',\n    title: 'Tarea en curso...',\n    subtitle: 'Tarea_' + i\n  });\n}\n\nsetTimeout(() => {\n  blip.removeGroup('demo-remove-group');\n}, 2500);`,
       props: [
         { name: 'removeGroup()', value: "groupId: string", desc: 'Cierra todas las actividades que pertenecen al grupo. Reutiliza remove() internamente.' }
+      ]
+    },
+    demoClassName: {
+      title: 'className',
+      code: `blip.add({\n  type: 'info',\n  icon: 'info',\n  title: 'Destacada',\n  subtitle: 'Clase meblip-highlighted aplicada a isla y overlay',\n  className: 'meblip-highlighted',\n  duration: 4000\n});`,
+      props: [
+        { name: 'className', value: "'meblip-highlighted'", desc: 'Clase CSS aplicada a #meblip-island-root y #meblip-blocking-overlay. Se retira al cerrarse.' }
       ]
     },
     demoContentActions: {
