@@ -994,6 +994,11 @@ class meBlip {
         const tag = e.target.tagName;
         if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || tag === 'BUTTON') return;
         e.preventDefault();
+        if (e.key === 'Enter') {
+          const active = this.activities.find(a => a.id === this.activeId);
+          const primary = active?.actions?.find(a => a.type === 'primary');
+          if (primary && primary.onClick) { primary.onClick({ activityId: active.id }); return; }
+        }
         this._handleIslandClick(e);
       }
     });
@@ -1003,7 +1008,9 @@ class meBlip {
       if (e.key === 'Escape' && this.isVisible && !this.isClosing && this.activeId) {
         const active = this.activities.find(a => a.id === this.activeId);
         if (active?.persistent) return;
-        this.remove(this.activeId);
+        const dismiss = active?.actions?.find(a => a.type === 'dismiss');
+        if (dismiss && dismiss.onClick) dismiss.onClick({ activityId: active.id });
+        else this.remove(this.activeId);
       }
     });
 

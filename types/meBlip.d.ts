@@ -21,7 +21,7 @@ interface MeBlipOptions {
 
 interface ActionConfig {
   label: string;
-  type?: 'primary' | 'secondary' | 'danger';
+  type?: 'primary' | 'secondary' | 'danger' | 'dismiss';
   icon?: string;
   onClick?: (ctx: { activityId: string }) => void;
 }
