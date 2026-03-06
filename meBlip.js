@@ -2199,14 +2199,10 @@ class meBlip {
         this.content.classList.add('is-active');
         // Animar preview icon hacia posicion del icono real (via CSS sibling selector), luego fade-out
         if (this.iconPreview && this.iconPreview.classList.contains('is-visible')) {
-          setTimeout(() => {
             if (this.iconPreview) {
               this.iconPreview.classList.remove('is-visible');
-              setTimeout(() => {
-                if (this.iconPreview) this.iconPreview.innerHTML = '';
-              }, 250);
+              if (this.iconPreview) this.iconPreview.innerHTML = '';
             }
-          }, 400);
         }
         const bar = this.content.querySelector('.meblip-progress-bar');
         if (bar) bar.style.width = `${(data.progress || 0) * 100}%`;
