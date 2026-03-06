@@ -89,6 +89,7 @@ class meBlip {
     this.timers = new Map();
     this.timerMeta = new Map();
     this.resolvers = new Map();
+    this.promises = new Map();
     this.isPaused = false;
 
     // Estado de animacion: dimensiones actuales, objetivo y velocidades
@@ -99,6 +100,8 @@ class meBlip {
     // Flags de visibilidad
     this.isVisible = false;
     this.isClosing = false;
+    this._contentTimer = null;
+    this._iconPreviewTimer = null;
     this.stackCount = 0;
 
     // Inicializacion
@@ -1235,7 +1238,7 @@ class meBlip {
           enableAnimations: config.enableAnimations !== undefined ? config.enableAnimations : existing.enableAnimations
         };
         this.update(existing.id, patch);
-        return this.resolvers.get(existing.id);
+        return this.promises.get(existing.id);
       }
     }
 
@@ -1261,6 +1264,7 @@ class meBlip {
     const promise = new Promise(resolve => this.resolvers.set(id, resolve));
     promise.id = id;
     promise.remove = () => this.remove(id);
+    this.promises.set(id, promise);
     if (activity.duration && !activity.waitToDisplay) this._setTimer(id, activity.duration);
     this._refresh();
     return promise;
@@ -1291,6 +1295,7 @@ class meBlip {
       if (p.duration && (!a.waitToDisplay || this.activeId === id)) this._setTimer(id, p.duration);
       this._refresh();
     }
+    return this.promises.get(id);
   }
 
   /**
@@ -1321,6 +1326,7 @@ class meBlip {
       this.resolvers.get(id)({ id, status: 'closed' });
       this.resolvers.delete(id);
     }
+    this.promises.delete(id);
     this.activities = this.activities.filter(a => a.id !== id);
     this.activeId = this.activities.length ? this.activities[0].id : null;
     this._refresh();
@@ -1964,18 +1970,20 @@ class meBlip {
         this.iconPreview.innerHTML = resolvedIconPreview;
         if (previewColor) this.iconPreview.style.color = previewColor;
         else this.iconPreview.style.color = '';
-        setTimeout(() => {
+        this._iconPreviewTimer = setTimeout(() => {
           if (this.iconPreview) this.iconPreview.classList.add('is-visible');
         }, 300);
       }
 
-      setTimeout(() => {
+      this._contentTimer = setTimeout(() => {
         this._applyContent(data);
         if (!this._reducedMotionActive && (data.confetti || (this.autoConfetti && data.type === 'success'))) {
           setTimeout(() => this._spawnConfetti(), this._delay(200));
         }
       }, this._delay(400, 50));
     } else {
+      clearTimeout(this._contentTimer);
+      clearTimeout(this._iconPreviewTimer);
       this._applyContent(data);
       if (!this._reducedMotionActive && (data.confetti || (this.autoConfetti && data.type === 'success'))) {
         setTimeout(() => this._spawnConfetti(), this._delay(200));
@@ -2142,7 +2150,7 @@ class meBlip {
     // Transicion completa: ocultar contenido actual, reemplazar y mostrar con animacion
     this.content.classList.remove('is-active');
     setTimeout(() => {
-      if (this.isClosing || !this.content) return;
+      if (this.isClosing || !this.content || data.id !== this.activeId) return;
       this.content.innerHTML = `
         <div class="meblip-header">
           <div class="meblip-header-media">${mediaHTML}</div>
@@ -2161,7 +2169,7 @@ class meBlip {
       `;
       this._measure();
       setTimeout(() => {
-        if (this.isClosing || !this.content) return;
+        if (this.isClosing || !this.content || data.id !== this.activeId) return;
         this.content.classList.add('is-active');
         // Animar preview icon hacia posicion del icono real (via CSS sibling selector), luego fade-out
         if (this.iconPreview && this.iconPreview.classList.contains('is-visible')) {
@@ -2540,6 +2548,12 @@ class meBlip {
    * @private
    */
   _closeIsland(exitAnimation) {
+    clearTimeout(this._contentTimer);
+    clearTimeout(this._iconPreviewTimer);
+    if (this.iconPreview) {
+      this.iconPreview.classList.remove('is-visible');
+      this.iconPreview.innerHTML = '';
+    }
     this.isClosing = true;
     if (this.content) this.content.classList.remove('is-active');
     const countdown = this.island?.querySelector('.meblip-countdown');

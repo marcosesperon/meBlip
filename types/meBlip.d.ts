@@ -126,8 +126,8 @@ declare class meBlip {
   add(config: ActivityConfig): ActivityPromise;
 
   /** Update an existing notification */
-  update(id: string, patch: Partial<ActivityConfig>): void;
-  update(patch: Partial<ActivityConfig>): void;
+  update(id: string, patch: Partial<ActivityConfig>): ActivityPromise | undefined;
+  update(patch: Partial<ActivityConfig>): ActivityPromise | undefined;
 
   /** Check if a notification exists in the queue by ID */
   has(id: string): boolean;
