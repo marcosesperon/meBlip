@@ -115,6 +115,7 @@ Referencia de la API
 | `islandWidth` | `string` | `'normal'` | Ancho de la isla: `'compact'` (ajustado al contenido), `'normal'` (400px), `'wide'` (100% - 2rem) o cualquier valor CSS (`'600px'`, `'80%'`, `'20rem'`). |
 | `autoConfetti` | `boolean` | `false` | Si es `true`, lanza confetti automaticamente en cada notificacion de tipo `success` |
 | `reducedMotion` | `boolean\|string` | `false` | Reduce o desactiva animaciones. `true` activa el modo reducido, `'system'` respeta `prefers-reduced-motion` del SO (con listener en vivo), `false` mantiene el comportamiento completo. |
+| `closeAnimation` | `boolean` | `true` | Controla la animación de cierre de la isla. `true` usa la exit animation normal, `false` aplica un fade rápido (clase `is-closing-fade`) para ocultar el borde residual. |
 | `typeColors` | `object` | `{}` | Sobreescribe o extiende los colores por tipo. Las claves son nombres de tipo y los valores colores hex. Ej: `{ success: '#00ff88', premium: '#8b5cf6' }`. |
 | `icons` | `object` | `{}` | Sobreescribe o extiende los iconos SVG integrados. Las claves son nombres de tipo y los valores HTML SVG. Ej: `{ success: '<svg>...</svg>', custom: '<svg>...</svg>' }`. |
 

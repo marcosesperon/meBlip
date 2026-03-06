@@ -15,6 +15,7 @@ interface MeBlipOptions {
   islandWidth?: IslandWidth;
   autoConfetti?: boolean;
   reducedMotion?: ReducedMotion;
+  closeAnimation?: boolean;
   typeColors?: Partial<Record<ActivityType, string>>;
   icons?: Record<string, string>;
 }

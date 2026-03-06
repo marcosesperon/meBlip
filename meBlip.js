@@ -28,6 +28,7 @@ class meBlip {
    * @param {string} [options.position='top-center'] - Posicion en pantalla
    *   ('top-left'|'top-center'|'top-right'|'center'|'bottom-left'|'bottom-center'|'bottom-right').
    * @param {string} [options.theme='dark'] - Tema visual ('dark'|'light'|'system').
+   * @param {boolean} [options.closeAnimation=true] - Animación de cierre (false usa fade rápido).
    */
   constructor(options = {}) {
     // Dimensiones minimas y maximas de la isla
@@ -44,6 +45,7 @@ class meBlip {
     this.stackStyle = options.stackStyle || '3d'; // '3d', 'fan', 'counter'
     this.islandWidth = options.islandWidth || 'normal'; // 'compact', 'normal', 'wide' o valor CSS
     this.autoConfetti = options.autoConfetti || false;
+    this.closeAnimation = options.closeAnimation !== undefined ? options.closeAnimation : true;
     this.reducedMotion = options.reducedMotion || false;
     this._reducedMotionActive = false;
 
@@ -233,14 +235,15 @@ class meBlip {
         outline: none;
       }
 
-      .meblip-island:focus-visible {
-        box-shadow: 0 0 0 3px var(--meblip-accent);
-      }
-
       .meblip-island.is-visible {
         transform: scale(1);
         opacity: 1;
         pointer-events: auto;
+      }
+
+      .meblip-island.is-visible.is-closing-fade {
+        opacity: 0;
+        transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.15s ease;
       }
 
       #meblip-island-root.meblip-highlighted .meblip-island.is-visible{
@@ -1869,6 +1872,7 @@ class meBlip {
   _updateIslandState(data, queueCount) {
     if (!this.island) return;
     this.isClosing = false;
+    if (!this.closeAnimation) this.island.classList.remove('is-closing-fade');
     this.stackCount = Math.min(queueCount, 5);
 
     // Gestionar overlay bloqueante
@@ -2586,6 +2590,7 @@ class meBlip {
       this.island.classList.remove('anim-breathe', 'entry-slide-spring-left', 'entry-slide-spring-right', 'entry-slide-spring-down', ...this.allExitClasses);
       this.island.style.transform = '';
       this.island.style.opacity = '';
+      if (!this.closeAnimation) this.island.classList.add('is-closing-fade');
 
       if (exitAnimation && exitAnimation !== 'none') {
         void this.island.offsetWidth;
@@ -2726,6 +2731,7 @@ class meBlip {
       if (this.isClosing && this.isAtMinSize()) {
           this.isClosing = false; this.isVisible = false;
           this.island.classList.remove('is-visible');
+          if (!this.closeAnimation) this.island.classList.remove('is-closing-fade');
           if (this.overlay) {
             this.overlay.classList.remove('is-active');
             this._setPageInert(false);
