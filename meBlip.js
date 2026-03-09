@@ -82,6 +82,8 @@ class meBlip {
       listening: `<svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v1a7 7 0 0 1-14 0v-1"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg>`,
       typingDots: `<svg aria-hidden="true" viewBox="0 0 24 24"><circle class="meblip-dot" cx="6" cy="12" r="2.5" fill="currentColor" stroke="none"></circle><circle class="meblip-dot" cx="12" cy="12" r="2.5" fill="currentColor" stroke="none"></circle><circle class="meblip-dot" cx="18" cy="12" r="2.5" fill="currentColor" stroke="none"></circle></svg>`,
       progressOrbit: `<svg aria-hidden="true" viewBox="0 0 24 24"><g class="meblip-orbit-group"><circle cx="12" cy="3" r="2" fill="currentColor" stroke="none" opacity="1"></circle><circle cx="12" cy="3" r="1.5" fill="currentColor" stroke="none" opacity="0.6" transform="rotate(120 12 12)"></circle><circle cx="12" cy="3" r="1" fill="currentColor" stroke="none" opacity="0.3" transform="rotate(240 12 12)"></circle></g></svg>`,
+      location: `<svg aria-hidden="true" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>`,
+      map: `<svg aria-hidden="true" viewBox="0 0 24 24"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon><line x1="8" y1="2" x2="8" y2="18"></line><line x1="16" y1="6" x2="16" y2="22"></line></svg>`,
       ...options.icons
     };
 
@@ -853,6 +855,89 @@ class meBlip {
         margin-top: 4px;
       }
 
+      /* GEOLOCATION */
+      .meblip-geo {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        margin-top: 10px;
+        padding-bottom: 6px;
+        width: 100%;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+
+      .meblip-geo.is-ready {
+        opacity: 1;
+      }
+
+      .meblip-geo-actions {
+        display: flex;
+        gap: 8px;
+        margin-top: 4px;
+      }
+
+      /* MAP */
+      .meblip-map {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        margin-top: 10px;
+        padding-bottom: 6px;
+        width: 100%;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+
+      .meblip-map.is-ready {
+        opacity: 1;
+      }
+
+      .meblip-map-preview {
+        border-radius: 10px;
+        overflow: hidden;
+        position: relative;
+        background: rgba(255,255,255,0.05);
+      }
+
+      .meblip-map-preview canvas {
+        display: block;
+        width: 100%;
+        border-radius: 10px;
+      }
+
+      .meblip-map-marker {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -100%);
+        width: 24px;
+        height: 24px;
+        color: var(--meblip-color-error);
+        filter: drop-shadow(0 1px 2px rgba(0,0,0,0.4));
+        pointer-events: none;
+      }
+
+      .meblip-map-marker svg {
+        width: 100%;
+        height: 100%;
+        fill: currentColor;
+        stroke: #fff;
+        stroke-width: 1;
+      }
+
+      .meblip-map-label {
+        font-size: 11px;
+        color: var(--meblip-text-sub);
+        text-align: center;
+      }
+
+      .meblip-map-actions {
+        display: flex;
+        gap: 8px;
+        margin-top: 4px;
+      }
+
       @keyframes meblip-spin {
         from { transform: rotate(0deg); }
         to { transform: rotate(360deg); }
@@ -1581,6 +1666,41 @@ class meBlip {
   }
 
   /**
+   * Atajo tipo window.prompt(): muestra una notificacion con un unico campo de texto.
+   * Internamente usa addForm() con un campo sin etiqueta.
+   *
+   * @param {Object} [config={}] - Mismas propiedades que add(), mas:
+   * @param {string} [config.placeholder] - Texto de ayuda dentro del campo.
+   * @param {boolean} [config.required=true] - Si el campo es obligatorio. Por defecto true.
+   * @param {string} [config.value] - Valor inicial del campo.
+   * @param {string} [config.confirmLabel='Confirmar'] - Texto del boton confirmar.
+   * @param {string} [config.cancelLabel='Cancelar'] - Texto del boton cancelar.
+   * @param {Function} [config.onCancel] - Callback al cancelar.
+   * @returns {Promise<string|null>} El texto introducido o null si se cancelo.
+   */
+  prompt(config = {}) {
+    const placeholder = config.placeholder || '';
+    const required = config.required !== false;
+    const value = config.value || '';
+
+    const formConfig = {
+      ...config,
+      fields: [{ type: 'text', label: '', placeholder, required, value }]
+    };
+
+    delete formConfig.placeholder;
+    delete formConfig.required;
+    delete formConfig.value;
+
+    return this.addForm(formConfig).then(result => {
+      if (result.status === 'submitted') {
+        return result.data.field_0;
+      }
+      return null;
+    });
+  }
+
+  /**
    * Muestra una notificacion con zona de drop para subir ficheros.
    *
    * @param {Object} config - Mismas propiedades que add(), mas:
@@ -1640,6 +1760,156 @@ class meBlip {
         };
       }
     });
+  }
+
+  /**
+   * Muestra una notificacion que obtiene la geolocalizacion del usuario.
+   * Mientras se obtiene la ubicacion, muestra un indicador de carga.
+   * Al obtenerla o fallar, cierra la notificacion y resuelve la promesa.
+   * Si se indica duration, mantiene la notificacion visible ese tiempo antes de cerrar.
+   *
+   * @param {Object} config - Mismas propiedades que add(), mas:
+   * @param {boolean} [config.highAccuracy=false] - Si true, solicita alta precision (GPS).
+   * @param {number} [config.timeout] - Tiempo maximo en ms para obtener la posicion.
+   * @param {number} [config.maximumAge] - Edad maxima en ms de una posicion cacheada aceptable.
+   * @param {number} [config.duration] - Tiempo en ms que la notificacion permanece visible tras el resultado.
+   * @param {string} [config.cancelLabel='Cancelar'] - Texto del boton cancelar.
+   * @param {Function} [config.onCancel] - Callback al cancelar.
+   * @returns {Promise<{id, status, position, error}>} status: 'located'|'cancelled'|'error'
+   */
+  addGeolocation(config) {
+    const highAccuracy = config.highAccuracy || false;
+    const timeout = config.timeout;
+    const maximumAge = config.maximumAge;
+    const cancelLabel = config.cancelLabel || 'Cancelar';
+    const duration = config.duration;
+
+    let located = false;
+    let geoPosition = null;
+    let geoError = null;
+
+    return new Promise((resolve) => {
+      const actConfig = {
+        ...config,
+        type: config.type || 'loading',
+        icon: config.icon || 'location',
+        title: config.title || 'Ubicacion',
+        subtitle: config.subtitle || 'Obteniendo ubicacion...',
+        _geo: { highAccuracy, timeout, maximumAge, cancelLabel, duration },
+        actions: []
+      };
+
+      delete actConfig.highAccuracy;
+      delete actConfig.timeout;
+      delete actConfig.maximumAge;
+      delete actConfig.cancelLabel;
+      delete actConfig.onCancel;
+      delete actConfig.duration;
+
+      const task = this.add(actConfig);
+
+      this.resolvers.set(task.id, () => {
+        if (located) {
+          resolve({ id: task.id, status: 'located', position: geoPosition, error: null });
+        } else if (geoError) {
+          resolve({ id: task.id, status: 'error', position: null, error: geoError });
+        } else {
+          if (config.onCancel) config.onCancel();
+          resolve({ id: task.id, status: 'cancelled', position: null, error: null });
+        }
+      });
+
+      const activity = this.activities.find(a => a.id === task.id);
+      if (activity) {
+        activity._geoResolve = (position) => {
+          located = true;
+          geoPosition = position;
+          this.remove(task.id);
+        };
+        activity._geoError = (errorMsg) => {
+          geoError = errorMsg;
+        };
+      }
+    });
+  }
+
+  /**
+   * Muestra una notificacion con una previsualizacion de mapa estatico.
+   * Por defecto usa tiles de OpenStreetMap (sin API key).
+   * Permite enviar una URL de tiles personalizada para otros proveedores.
+   *
+   * @param {Object} config - Mismas propiedades que add(), mas:
+   * @param {number} config.lat - Latitud del centro del mapa.
+   * @param {number} config.lng - Longitud del centro del mapa.
+   * @param {number} [config.zoom=15] - Nivel de zoom (1-19).
+   * @param {number} [config.mapWidth=368] - Ancho del mapa en pixeles.
+   * @param {number} [config.mapHeight=160] - Alto del mapa en pixeles.
+   * @param {string} [config.tileUrl] - URL de tiles personalizada con placeholders {z}, {x}, {y}. Por defecto OpenStreetMap.
+   * @param {string} [config.markerLabel] - Texto descriptivo debajo del mapa.
+   * @param {boolean} [config.showMarker=true] - Si true, muestra un marcador en el centro del mapa.
+   * @param {string} [config.cancelLabel='Cerrar'] - Texto del boton cerrar.
+   * @param {Function} [config.onCancel] - Callback al cerrar.
+   * @returns {Promise<{id, status}>} status: 'closed'|'cancelled'
+   */
+  addMap(config) {
+    const lat = config.lat;
+    const lng = config.lng;
+    const zoom = config.zoom || 15;
+    const mapWidth = config.mapWidth || 368;
+    const mapHeight = config.mapHeight || 160;
+    const tileUrl = config.tileUrl || 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
+    const markerLabel = config.markerLabel || '';
+    const showMarker = config.showMarker !== undefined ? config.showMarker : true;
+    const cancelLabel = config.cancelLabel || 'Cerrar';
+
+    return new Promise((resolve) => {
+      const actConfig = {
+        ...config,
+        icon: config.icon || 'map',
+        _map: { lat, lng, zoom, mapWidth, mapHeight, tileUrl, markerLabel, showMarker, cancelLabel },
+        actions: []
+      };
+
+      delete actConfig.lat;
+      delete actConfig.lng;
+      delete actConfig.zoom;
+      delete actConfig.mapWidth;
+      delete actConfig.mapHeight;
+      delete actConfig.tileUrl;
+      delete actConfig.markerLabel;
+      delete actConfig.showMarker;
+      delete actConfig.cancelLabel;
+      delete actConfig.onCancel;
+      delete actConfig.duration;
+
+      const task = this.add(actConfig);
+
+      this.resolvers.set(task.id, () => {
+        if (config.onCancel) config.onCancel();
+        resolve({ id: task.id, status: 'closed' });
+      });
+    });
+  }
+
+  /**
+   * Convierte coordenadas lat/lng/zoom a coordenadas de tile x/y de OpenStreetMap.
+   * @param {number} lat - Latitud.
+   * @param {number} lng - Longitud.
+   * @param {number} zoom - Nivel de zoom.
+   * @returns {{x: number, y: number, fracX: number, fracY: number}} Tile x/y y fracciones dentro del tile.
+   * @private
+   */
+  _latLngToTile(lat, lng, zoom) {
+    const n = Math.pow(2, zoom);
+    const xFloat = (lng + 180) / 360 * n;
+    const latRad = lat * Math.PI / 180;
+    const yFloat = (1 - Math.log(Math.tan(latRad) + 1 / Math.cos(latRad)) / Math.PI) / 2 * n;
+    return {
+      x: Math.floor(xFloat),
+      y: Math.floor(yFloat),
+      fracX: xFloat - Math.floor(xFloat),
+      fracY: yFloat - Math.floor(yFloat)
+    };
   }
 
   /**
@@ -1832,6 +2102,8 @@ class meBlip {
     if (active._verify) return;
     if (active._form) return;
     if (active._upload) return;
+    if (active._geo) return;
+    if (active._map) return;
     if (active.closeOnClick && !active.persistent) this.remove(active.id);
   }
 
@@ -2101,7 +2373,8 @@ class meBlip {
         } else {
           inputHTML = `<input class="meblip-form-input" type="${field.type || 'text'}" data-field="${i}"${ph} value="${val}" autocomplete="off" />`;
         }
-        return `<div class="meblip-form-field"><label class="meblip-form-label">${field.label}${req}</label>${inputHTML}</div>`;
+        const labelHTML = field.label ? `<label class="meblip-form-label">${field.label}${req}</label>` : '';
+        return `<div class="meblip-form-field">${labelHTML}${inputHTML}</div>`;
       }).join('');
 
       formHTML = `
@@ -2137,6 +2410,35 @@ class meBlip {
           <div class="meblip-upload-actions">
             <button class="meblip-action-btn meblip-upload-cancel">${u.cancelLabel}</button>
             <button class="meblip-action-btn primary meblip-upload-confirm" disabled>${u.confirmLabel}</button>
+          </div>
+        </div>`;
+    }
+
+    // Generar HTML de geolocalizacion si existe _geo
+    let geoHTML = '';
+    if (data._geo) {
+      const g = data._geo;
+      geoHTML = `
+        <div class="meblip-geo">
+          <div class="meblip-geo-actions">
+            <button class="meblip-action-btn meblip-geo-cancel">${g.cancelLabel}</button>
+          </div>
+        </div>`;
+    }
+
+    // Generar HTML de mapa si existe _map
+    let mapHTML = '';
+    if (data._map) {
+      const m = data._map;
+      mapHTML = `
+        <div class="meblip-map">
+          <div class="meblip-map-preview" style="height:${m.mapHeight}px">
+            <canvas class="meblip-map-canvas" width="${m.mapWidth}" height="${m.mapHeight}"></canvas>
+            ${m.showMarker ? `<div class="meblip-map-marker"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3" fill="#fff"/></svg></div>` : ''}
+          </div>
+          ${m.markerLabel ? `<div class="meblip-map-label">${m.markerLabel}</div>` : ''}
+          <div class="meblip-map-actions">
+            <button class="meblip-action-btn meblip-map-cancel">${m.cancelLabel}</button>
           </div>
         </div>`;
     }
@@ -2195,7 +2497,7 @@ class meBlip {
             <div class="meblip-progress-bar" style="width:0%"></div>
           </div>` : ""}
         ${data.content ? `<div class="meblip-custom-content">${data.content}</div>` : ''}
-        ${data._verify ? verifyHTML : (data._form ? formHTML : (data._upload ? uploadHTML : actionsHTML))}
+        ${data._verify ? verifyHTML : (data._form ? formHTML : (data._upload ? uploadHTML : (data._geo ? geoHTML : (data._map ? mapHTML : actionsHTML))))}
       `;
       this._measure();
       setTimeout(() => {
@@ -2221,6 +2523,8 @@ class meBlip {
         if (data._verify) this._bindVerifyInputs(data);
         if (data._form) this._bindFormInputs(data);
         if (data._upload) this._bindUploadInputs(data);
+        if (data._geo) this._bindGeoInputs(data);
+        if (data._map) this._bindMapInputs(data);
       }, 50);
     }, 150);
   }
@@ -2506,6 +2810,167 @@ class meBlip {
   }
 
   /**
+   * Vincula eventos de la notificacion de geolocalizacion: obtener posicion
+   * y resolver promesa, o manejar error y cerrar. Boton cancelar.
+   * @param {Object} data - Datos de la actividad con _geo.
+   * @private
+   */
+  _bindGeoInputs(data) {
+    if (!this.content) return;
+    const g = data._geo;
+    const geoEl = this.content.querySelector('.meblip-geo');
+    const cancelBtn = this.content.querySelector('.meblip-geo-cancel');
+
+    let watchId = null;
+
+    const geoOptions = {};
+    if (g.highAccuracy) geoOptions.enableHighAccuracy = true;
+    if (g.timeout !== undefined) geoOptions.timeout = g.timeout;
+    if (g.maximumAge !== undefined) geoOptions.maximumAge = g.maximumAge;
+
+    const onSuccess = (pos) => {
+      if (!this.activities.find(a => a.id === data.id)) return;
+      const c = pos.coords;
+      const position = {
+        latitude: c.latitude,
+        longitude: c.longitude,
+        accuracy: c.accuracy,
+        altitude: c.altitude,
+        altitudeAccuracy: c.altitudeAccuracy,
+        heading: c.heading,
+        speed: c.speed
+      };
+
+      if (g.duration) {
+        this.update(data.id, { type: 'success', icon: 'location' });
+        setTimeout(() => {
+          if (data._geoResolve) data._geoResolve(position);
+        }, g.duration);
+      } else {
+        if (data._geoResolve) data._geoResolve(position);
+      }
+    };
+
+    const onError = (err) => {
+      if (!this.activities.find(a => a.id === data.id)) return;
+      const errorMsg = err.message || 'Error al obtener la ubicacion';
+
+      if (g.duration) {
+        if (data._geoError) data._geoError(errorMsg);
+        this.update(data.id, { type: 'error', icon: 'location' });
+        setTimeout(() => {
+          if (this.activities.find(a => a.id === data.id)) {
+            this.remove(data.id);
+          }
+        }, g.duration);
+      } else {
+        if (data._geoError) data._geoError(errorMsg);
+        this.remove(data.id);
+      }
+    };
+
+    if (navigator.geolocation) {
+      watchId = navigator.geolocation.getCurrentPosition(onSuccess, onError, geoOptions);
+    } else {
+      onError({ message: 'Geolocalizacion no soportada por el navegador' });
+    }
+
+    // Esperar a que la isla termine de expandirse
+    const waitForSpring = () => {
+      if (Math.abs(this.width - this.targetWidth) < 1 && Math.abs(this.height - this.targetHeight) < 1) {
+        if (geoEl) geoEl.classList.add('is-ready');
+      } else {
+        requestAnimationFrame(waitForSpring);
+      }
+    };
+    requestAnimationFrame(waitForSpring);
+
+    if (cancelBtn) {
+      cancelBtn.addEventListener('click', () => {
+        if (watchId !== null && navigator.geolocation) {
+          navigator.geolocation.clearWatch(watchId);
+        }
+        this.remove(data.id);
+      });
+    }
+  }
+
+  /**
+   * Vincula eventos de la previsualizacion de mapa: carga de tiles en canvas,
+   * marcador y boton cerrar.
+   * @param {Object} data - Datos de la actividad con _map.
+   * @private
+   */
+  _bindMapInputs(data) {
+    if (!this.content) return;
+    const m = data._map;
+    const mapEl = this.content.querySelector('.meblip-map');
+    const canvas = this.content.querySelector('.meblip-map-canvas');
+    const cancelBtn = this.content.querySelector('.meblip-map-cancel');
+
+    if (canvas) {
+      const ctx = canvas.getContext('2d');
+
+      // Ajustar mapWidth al ancho real del island si es mayor
+      const contentPadding = 32;
+      const effectiveWidth = Math.max(m.mapWidth, (this.targetWidth || m.mapWidth) - contentPadding);
+      canvas.width = effectiveWidth;
+
+      const tileSize = 256;
+      const tile = this._latLngToTile(m.lat, m.lng, m.zoom);
+
+      // Calcular cuantos tiles necesitamos para cubrir el canvas
+      const tilesX = Math.ceil(effectiveWidth / tileSize) + 1;
+      const tilesY = Math.ceil(m.mapHeight / tileSize) + 1;
+      const offsetX = Math.round(tile.fracX * tileSize - effectiveWidth / 2);
+      const offsetY = Math.round(tile.fracY * tileSize - m.mapHeight / 2);
+
+      // Rango de tiles a cargar
+      const startTX = Math.floor(offsetX / tileSize);
+      const startTY = Math.floor(offsetY / tileSize);
+
+      let loaded = 0;
+      const totalTiles = tilesX * tilesY;
+
+      for (let tx = startTX; tx < startTX + tilesX; tx++) {
+        for (let ty = startTY; ty < startTY + tilesY; ty++) {
+          const img = new Image();
+          img.crossOrigin = 'anonymous';
+          const tileX = tile.x + tx;
+          const tileY = tile.y + ty;
+          const url = m.tileUrl.replace('{z}', m.zoom).replace('{x}', tileX).replace('{y}', tileY);
+          img.onload = () => {
+            const dx = tx * tileSize - offsetX;
+            const dy = ty * tileSize - offsetY;
+            ctx.drawImage(img, dx, dy, tileSize, tileSize);
+            loaded++;
+            if (loaded >= totalTiles) this._measure();
+          };
+          img.onerror = () => {
+            loaded++;
+            if (loaded >= totalTiles) this._measure();
+          };
+          img.src = url;
+        }
+      }
+    }
+
+    // Esperar a que la isla termine de expandirse
+    const waitForSpring = () => {
+      if (Math.abs(this.width - this.targetWidth) < 1 && Math.abs(this.height - this.targetHeight) < 1) {
+        if (mapEl) mapEl.classList.add('is-ready');
+      } else {
+        requestAnimationFrame(waitForSpring);
+      }
+    };
+    requestAnimationFrame(waitForSpring);
+
+    if (cancelBtn) {
+      cancelBtn.addEventListener('click', () => this.remove(data.id));
+    }
+  }
+
+  /**
    * Mide las dimensiones naturales del contenido usando un nodo clon invisible.
    * Calcula el tamano objetivo (targetWidth/targetHeight) al que la isla
    * debe animar, respetando los limites minimo y maximo.
@@ -2525,6 +2990,10 @@ class meBlip {
     if (formGhost) formGhost.classList.add('is-ready');
     const uploadGhost = ghost.querySelector('.meblip-upload');
     if (uploadGhost) uploadGhost.classList.add('is-ready');
+    const geoGhost = ghost.querySelector('.meblip-geo');
+    if (geoGhost) geoGhost.classList.add('is-ready');
+    const mapGhost = ghost.querySelector('.meblip-map');
+    if (mapGhost) mapGhost.classList.add('is-ready');
     if (resolved !== null) {
       ghost.style.cssText = `position:absolute;visibility:hidden;display:block;width:${resolved}px;`;
       document.body.appendChild(ghost);

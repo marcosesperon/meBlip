@@ -185,7 +185,10 @@ Anade una actividad a la cola. Devuelve una **Promesa** que se resuelve con `{ i
 | `addUndo(config)` | Patron undo: muestra una notificacion con boton de deshacer y countdown. Ver seccion dedicada. |
 | `addVerify(config)` | Patron verify: muestra una notificacion con codigo de verificacion que el usuario debe introducir. Ver seccion dedicada. |
 | `addForm(config)` | Patron form: muestra una notificacion con formulario interactivo cuyos campos se definen en un array. Ver seccion dedicada. |
+| `prompt(config)` | Atajo tipo `window.prompt()`: muestra una notificacion con un unico campo de texto. Internamente usa `addForm()`. Ver seccion dedicada. |
 | `addUpload(config)` | Patron upload: muestra una notificacion con zona de drop para subir ficheros. Ver seccion dedicada. |
+| `addGeolocation(config)` | Patron geolocation: solicita la ubicacion del usuario con la API del navegador. Ver seccion dedicada. |
+| `addMap(config)` | Patron map: muestra una previsualizacion de mapa estatico con tiles de OpenStreetMap. Ver seccion dedicada. |
 | `chain(steps)` | Encadena multiples pasos secuenciales en una sola isla con morphing suave. Ver seccion dedicada. |
 | `confetti()` | Lanza el efecto de confetti manualmente sobre la isla. |
 | `setTheme(theme)` | Cambia el tema: `'light'`, `'dark'` o `'system'`. |
@@ -637,6 +640,20 @@ if (result.status === 'submitted') {
 }
 ```
 
+### Prompt
+
+```javascript
+// Pedir un valor al usuario (como window.prompt)
+var nombre = await blip.prompt({
+  title: 'Tu nombre',
+  placeholder: 'Escribe tu nombre...'
+});
+
+if (nombre !== null) {
+  console.log('Hola, ' + nombre);
+}
+```
+
 ### V. Patron Upload (Subida de Ficheros)
 
 ```javascript
@@ -708,6 +725,39 @@ blip.add({
   className: 'meblip-highlighted',
   duration: 5000
 });
+```
+
+### Y. Geolocalizacion
+
+```javascript
+// Obtener la ubicacion del usuario
+var result = await blip.addGeolocation({
+  title: 'Mi ubicacion',
+  subtitle: 'Buscando coordenadas...',
+  highAccuracy: true,
+  timeout: 10000,
+  duration: 2000 // mantener visible 2s tras obtener posicion
+});
+
+if (result.status === 'located') {
+  console.log(result.position.latitude, result.position.longitude);
+}
+```
+
+### Z. Mapa Estatico
+
+```javascript
+// Mostrar un mapa centrado en Madrid
+var result = await blip.addMap({
+  lat: 40.4168,
+  lng: -3.7038,
+  zoom: 16,
+  title: 'Madrid',
+  subtitle: 'Puerta del Sol',
+  markerLabel: 'Puerta del Sol, Madrid'
+});
+
+console.log(result.status); // 'closed'
 ```
 
 ---
@@ -782,6 +832,25 @@ Retorna `Promise<{ id, status, data }>` donde `status` es `'submitted'` o `'canc
 
 ---
 
+Referencia: `prompt(config)`
+-------------------------------
+
+Atajo para mostrar una notificacion con un unico campo de texto, similar a `window.prompt()`. Internamente usa `addForm()` con un campo sin etiqueta.
+
+| Propiedad | Tipo | Descripcion |
+|-----------|------|-------------|
+| `placeholder` | `string` | Texto de ayuda dentro del campo. |
+| `required` | `boolean` | Si el campo es obligatorio. Por defecto `true`. |
+| `value` | `string` | Valor inicial del campo. |
+| `confirmLabel` | `string` | Texto del boton confirmar. Por defecto `'Confirmar'`. |
+| `cancelLabel` | `string` | Texto del boton cancelar. Por defecto `'Cancelar'`. |
+| `onCancel` | `function` | Callback ejecutado si el usuario cancela. |
+| *...resto* | | Acepta todas las propiedades de `add(config)`. |
+
+Retorna `Promise<string | null>`. Devuelve el texto introducido o `null` si se cancelo.
+
+---
+
 Referencia: `addUpload(config)`
 ---------------------------------
 
@@ -799,6 +868,48 @@ Muestra una notificacion con una zona de drop donde el usuario puede arrastrar o
 | *...resto* | | Acepta todas las propiedades de `add(config)`. Las propiedades `actions` y `duration` se gestionan internamente. |
 
 Retorna `Promise<{ id, status, files }>` donde `status` es `'submitted'` o `'cancelled'`, y `files` es un array de objetos `File` o `null` si se cancelo.
+
+---
+
+Referencia: `addGeolocation(config)`
+---------------------------------------
+
+Muestra una notificacion que solicita la ubicacion del usuario mediante la API de Geolocation del navegador. La notificacion se cierra automaticamente al obtener la posicion o al producirse un error, resolviendo la promesa con el resultado. Incluye un boton para cancelar.
+
+| Propiedad | Tipo | Descripcion |
+|-----------|------|-------------|
+| `highAccuracy` | `boolean` | Si `true`, solicita alta precision (GPS). Por defecto `false`. |
+| `timeout` | `number` | Tiempo maximo en ms para obtener la ubicacion. Si se omite, usa el valor por defecto del navegador. |
+| `maximumAge` | `number` | Edad maxima en ms de una ubicacion cacheada aceptable. Si se omite, usa el valor por defecto del navegador. |
+| `duration` | `number` | Tiempo en ms que la notificacion permanece visible tras obtener la posicion o error antes de cerrarse. Si se omite, se cierra inmediatamente. |
+| `cancelLabel` | `string` | Texto del boton cancelar. Por defecto `'Cancelar'`. |
+| `onCancel` | `function` | Callback ejecutado si el usuario pulsa cancelar. |
+| *...resto* | | Acepta todas las propiedades de `add(config)`. La propiedad `actions` se gestiona internamente. |
+
+Retorna `Promise<{ id, status, position, error }>` donde `status` es `'located'`, `'cancelled'` o `'error'`. `position` contiene `latitude`, `longitude`, `accuracy`, `altitude`, `altitudeAccuracy`, `heading` y `speed` (o `null` si no se obtuvo). `error` contiene el mensaje de error (o `null`).
+
+---
+
+Referencia: `addMap(config)`
+-------------------------------
+
+Muestra una notificacion con una previsualizacion de mapa estatico renderizado con tiles. Por defecto usa OpenStreetMap (sin API key). Permite enviar una URL de tiles personalizada para otros proveedores.
+
+| Propiedad | Tipo | Descripcion |
+|-----------|------|-------------|
+| `lat` | `number` | Latitud del centro del mapa. |
+| `lng` | `number` | Longitud del centro del mapa. |
+| `zoom` | `number` | Nivel de zoom (1-19). Por defecto `15`. |
+| `mapWidth` | `number` | Ancho del mapa en pixeles. Por defecto `368`. |
+| `mapHeight` | `number` | Alto del mapa en pixeles. Por defecto `160`. |
+| `tileUrl` | `string` | URL de tiles personalizada con placeholders `{z}`, `{x}`, `{y}`. Por defecto OpenStreetMap. |
+| `markerLabel` | `string` | Texto descriptivo debajo del mapa. |
+| `showMarker` | `boolean` | Si `true`, muestra un marcador en el centro del mapa. Por defecto `true`. |
+| `cancelLabel` | `string` | Texto del boton cerrar. Por defecto `'Cerrar'`. |
+| `onCancel` | `function` | Callback ejecutado al cerrar. |
+| *...resto* | | Acepta todas las propiedades de `add(config)`. Las propiedades `actions` y `duration` se gestionan internamente. |
+
+Retorna `Promise<{ id, status }>` donde `status` es `'closed'` o `'cancelled'`.
 
 ---
 

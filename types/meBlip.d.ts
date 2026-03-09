@@ -96,6 +96,15 @@ interface FormConfig extends ActivityConfig {
   onCancel?: () => void;
 }
 
+interface PromptConfig extends ActivityConfig {
+  placeholder?: string;
+  required?: boolean;
+  value?: string;
+  confirmLabel?: string;
+  cancelLabel?: string;
+  onCancel?: () => void;
+}
+
 interface UploadConfig extends ActivityConfig {
   multiple?: boolean;
   accept?: string;
@@ -103,6 +112,39 @@ interface UploadConfig extends ActivityConfig {
   confirmLabel?: string;
   cancelLabel?: string;
   onSubmit?: (files: File[]) => void;
+  onCancel?: () => void;
+}
+
+interface GeolocationPosition {
+  latitude: number;
+  longitude: number;
+  accuracy: number;
+  altitude: number | null;
+  altitudeAccuracy: number | null;
+  heading: number | null;
+  speed: number | null;
+}
+
+interface GeolocationConfig extends ActivityConfig {
+  highAccuracy?: boolean;
+  timeout?: number;
+  maximumAge?: number;
+  duration?: number;
+  cancelLabel?: string;
+  onCancel?: () => void;
+}
+
+interface MapConfig extends ActivityConfig {
+  lat: number;
+  lng: number;
+  zoom?: number;
+  mapWidth?: number;
+  mapHeight?: number;
+  tileUrl?: string;
+  markerLabel?: string;
+  showMarker?: boolean;
+  cancelLabel?: string;
+  actions?: ActionConfig[];
   onCancel?: () => void;
 }
 
@@ -149,8 +191,17 @@ declare class meBlip {
   /** Add a form notification */
   addForm(config: FormConfig): Promise<{ id: string; status: 'submitted' | 'cancelled'; data: Record<string, string> | null }>;
 
+  /** Show a prompt notification (shortcut for addForm with a single text field) */
+  prompt(config?: PromptConfig): Promise<string | null>;
+
   /** Add a file upload notification */
   addUpload(config: UploadConfig): Promise<{ id: string; status: 'submitted' | 'cancelled'; files: File[] | null }>;
+
+  /** Add a geolocation notification */
+  addGeolocation(config: GeolocationConfig): Promise<{ id: string; status: 'located' | 'cancelled' | 'error'; position: GeolocationPosition | null; error: string | null }>;
+
+  /** Add a static map preview notification */
+  addMap(config: MapConfig): Promise<{ id: string; status: 'closed' | 'cancelled' }>;
 
   /** Launch confetti animation */
   confetti(): void;
@@ -167,7 +218,11 @@ export type {
   VerifyConfig,
   FormField,
   FormConfig,
+  PromptConfig,
   UploadConfig,
+  GeolocationConfig,
+  GeolocationPosition,
+  MapConfig,
   Position,
   Theme,
   StackStyle,
