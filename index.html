@@ -1402,7 +1402,7 @@ blip.setIslandWidth('normal');
   <section class="demo-category cat-map">
     <div class="demo-category-header">
       <h2>Mapa</h2>
-      <span class="demo-category-badge">3 demos</span>
+      <span class="demo-category-badge">4 demos</span>
     </div>
     <div class="demo-grid">
       <div class="demo-card" onclick="demoMapBasic()">
@@ -1425,6 +1425,13 @@ blip.setIslandWidth('normal');
         </div>
         <div class="demo-card-title">Sin marcador</div>
         <div class="demo-card-desc">Solo vista del mapa con <code>showMarker: false</code></div>
+      </div>
+      <div class="demo-card" onclick="demoMapGeo()">
+        <div class="demo-card-icon" style="background: rgba(56,189,248,0.12); color: #38bdf8;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="1"/><path d="M12 2v4"/><path d="M12 18v4"/><path d="M2 12h4"/><path d="M18 12h4"/></svg>
+        </div>
+        <div class="demo-card-title">Geolocalización</div>
+        <div class="demo-card-desc">Obtiene tu ubicación real y muestra el mapa</div>
       </div>
     </div>
   </section>
@@ -2275,6 +2282,27 @@ blip.setIslandWidth('normal');
     });
   }
 
+  async function demoMapGeo() {
+    var result = await blip.addGeolocation({
+      title: 'Localizando…',
+      subtitle: 'Obteniendo tu ubicación',
+      highAccuracy: true,
+      timeout: 10000
+    });
+    if (result.status === 'located') {
+      var pos = result.position;
+      await blip.addMap({
+        lat: pos.latitude,
+        lng: pos.longitude,
+        zoom: 16,
+        title: 'Tu ubicación',
+        markerLabel: pos.latitude.toFixed(4) + ', ' + pos.longitude.toFixed(4)
+      });
+    } else if (result.status === 'error') {
+      blip.add({ type: 'error', icon: 'error', title: 'Error de ubicación', subtitle: result.error, duration: 4000 });
+    }
+  }
+
   /* ── Info Drawer ───────────────────────────── */
 
   const demoInfoData = {
@@ -2925,6 +2953,15 @@ blip.setIslandWidth('normal');
       props: [
         { name: 'showMarker', value: 'false', desc: 'Oculta el marcador del centro. Solo muestra el mapa.' },
         { name: 'zoom', value: '13', desc: 'Zoom alejado para una vista panor\u00e1mica de la ciudad.' }
+      ]
+    },
+    demoMapGeo: {
+      title: 'Geolocalización',
+      code: `// 1. Obtener geolocalización con addGeolocation()\nvar result = await blip.addGeolocation({\n  title: 'Localizando…',\n  subtitle: 'Obteniendo tu ubicación',\n  highAccuracy: true,\n  timeout: 10000\n});\n\n// 2. Si se obtuvo, mostrar mapa\nif (result.status === 'located') {\n  var pos = result.position;\n  await blip.addMap({\n    lat: pos.coords.latitude,\n    lng: pos.coords.longitude,\n    zoom: 16,\n    title: 'Tu ubicación',\n    markerLabel: lat + ', ' + lng\n  });\n}`,
+      props: [
+        { name: 'addGeolocation()', value: 'Promise', desc: 'Muestra notificación con geolocalización integrada. Resuelve con { status, position, error }.' },
+        { name: 'highAccuracy', value: 'true', desc: 'Solicita alta precisión (GPS) al navegador.' },
+        { name: 'result.status', value: "'located' | 'error' | 'cancelled'", desc: 'Estado de la geolocalización al cerrarse la notificación.' }
       ]
     }
   };
