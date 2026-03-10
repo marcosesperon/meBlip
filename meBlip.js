@@ -2626,6 +2626,9 @@ class meBlip {
       });
     }
 
+    // Focus inmediato para móviles (dentro del callstack del tap)
+    inputs[0]?.focus();
+
     // Esperar a que la isla termine de expandirse antes de mostrar inputs y dar foco
     const verifyEl = this.content.querySelector('.meblip-verify');
     const waitForSpring = () => {
@@ -2693,6 +2696,9 @@ class meBlip {
         });
       }
     });
+
+    // Focus inmediato para móviles (dentro del callstack del tap)
+    allInputs[0]?.focus();
 
     // Esperar a que la isla termine de expandirse antes de mostrar campos y dar foco
     const waitForSpring = () => {
