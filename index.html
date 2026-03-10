@@ -417,6 +417,9 @@ body.light-mode .cat-form .demo-category-badge { background: rgba(139, 92, 246, 
 .cat-prompt .demo-category-badge { background: rgba(168, 85, 247, 0.12); color: #c084fc; }
 body.light-mode .cat-prompt .demo-category-badge { background: rgba(168, 85, 247, 0.1); color: #9333ea; }
 
+.cat-scanner .demo-category-badge { background: rgba(234, 88, 12, 0.12); color: #fb923c; }
+body.light-mode .cat-scanner .demo-category-badge { background: rgba(234, 88, 12, 0.1); color: #ea580c; }
+
 .cat-upload .demo-category-badge { background: rgba(6, 182, 212, 0.12); color: #22d3ee; }
 body.light-mode .cat-upload .demo-category-badge { background: rgba(6, 182, 212, 0.1); color: #0891b2; }
 
@@ -657,7 +660,7 @@ body.light-mode .info-drawer-table td:nth-child(2) { color: #7c3aed; }
   <h1>meBlip</h1>
   <p>Componente de notificaciones tipo Dynamic Island con animaciones spring, colas inteligentes, temas, formularios y verificacion. Sin dependencias.</p>
   <div class="hero-badges">
-    <span class="badge">v1.0</span>
+    <span class="badge">v2.0</span>
     <span class="badge">MIT</span>
     <span class="badge">Zero deps</span>
   </div>
@@ -1325,6 +1328,44 @@ blip.setIslandWidth('normal');
         </div>
         <div class="demo-card-title">Con opciones</div>
         <div class="demo-card-desc">C&oacute;digo de acceso con tipo warning y labels custom</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 9c. Scanner (basado en https://github.com/axenox/onscan.js) -->
+  <section class="demo-category cat-scanner">
+    <div class="demo-category-header">
+      <h2>Scanner <small style="font-weight:400;opacity:.55;font-size:.55em;">basado en <a href="https://github.com/axenox/onscan.js" target="_blank" rel="noopener" style="color:inherit;text-decoration:underline;">onscan.js</a></small></h2>
+      <span class="demo-category-badge">4 demos</span>
+    </div>
+    <div class="demo-grid">
+      <div class="demo-card" onclick="demoScannerBasic()">
+        <div class="demo-card-icon" style="background: rgba(234,88,12,0.12); color: #fb923c;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><line x1="7" y1="12" x2="17" y2="12"/></svg>
+        </div>
+        <div class="demo-card-title">B&aacute;sico</div>
+        <div class="demo-card-desc">Prompt con detecci&oacute;n de esc&aacute;ner de c&oacute;digos de barras</div>
+      </div>
+      <div class="demo-card" onclick="demoScannerCustom()">
+        <div class="demo-card-icon" style="background: rgba(59,130,246,0.12); color: #3b82f6;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><line x1="7" y1="8" x2="17" y2="8"/><line x1="7" y1="12" x2="17" y2="12"/><line x1="7" y1="16" x2="17" y2="16"/></svg>
+        </div>
+        <div class="demo-card-title">Con opciones</div>
+        <div class="demo-card-desc">Opciones de esc&aacute;ner personalizadas y listener de eventos</div>
+      </div>
+      <div class="demo-card" onclick="demoScannerDocument()">
+        <div class="demo-card-icon" style="background: rgba(139,92,246,0.12); color: #8b5cf6;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><circle cx="12" cy="12" r="3"/></svg>
+        </div>
+        <div class="demo-card-title">Document mode</div>
+        <div class="demo-card-desc">Sin input visible, escucha eventos en el document</div>
+      </div>
+      <div class="demo-card" onclick="demoScannerError()">
+        <div class="demo-card-icon" style="background: rgba(239,68,68,0.12); color: #ef4444;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        </div>
+        <div class="demo-card-title">Error handling</div>
+        <div class="demo-card-desc">Captura errores de escaneo con onScanError</div>
       </div>
     </div>
   </section>
@@ -2123,6 +2164,90 @@ blip.setIslandWidth('normal');
     }
   }
 
+  /* ── 9c. Scanner ────────────────────────────── */
+
+  async function demoScannerBasic() {
+    var code = await blip.promptScanner({
+      title: 'Escanear codigo',
+      placeholder: 'Pasa el escaner...'
+    });
+    if (code !== null) {
+      blip.add({ type: 'success', icon: 'success', title: 'Codigo: ' + code, duration: 3000 });
+    }
+  }
+
+  async function demoScannerCustom() {
+    document.addEventListener('scan', function onScan(e) {
+      console.log('Evento scan:', e.detail.scanCode);
+      document.removeEventListener('scan', onScan);
+    });
+    var code = await blip.promptScanner({
+      type: 'info',
+      icon: 'info',
+      title: 'Escanear producto',
+      subtitle: 'Pasa el escaner de codigos de barras',
+      placeholder: 'Codigo de barras...',
+      cancelLabel: 'Salir',
+      scanner: {
+        minLength: 4,
+        avgTimeByChar: 50,
+        suffixKeyCodes: [13],
+        timeBeforeScanTest: 0,
+        reactToPaste: true,
+        onScan: function(code) { console.log('onScan:', code); }
+      }
+    });
+    if (code !== null) {
+      blip.add({ type: 'success', icon: 'success', title: 'Producto: ' + code, duration: 3000 });
+    }
+  }
+
+  async function demoScannerDocument() {
+    var code = await blip.promptScanner({
+      type: 'info',
+      icon: 'loading',
+      title: 'Escanear producto',
+      subtitle: 'Pasa el escaner de codigos de barras',
+      cancelLabel: 'Cancelar',
+      scanner: {
+        showInput: false,
+        suffixKeyCodes: [13],
+        reactToPaste: true,
+        onScan: function(code) { console.log('onScan:', code); }
+      }
+    });
+    if (code !== null) {
+      blip.add({ type: 'success', icon: 'success', title: 'Producto: ' + code, duration: 3000 });
+    }
+  }
+
+  async function demoScannerError() {
+    var code = await blip.promptScanner({
+      type: 'warning',
+      icon: 'warning',
+      title: 'Scanner con error handling',
+      subtitle: 'Escribe manualmente para provocar un error de escaneo',
+      placeholder: 'Escribe algo y pulsa Enter...',
+      cancelLabel: 'Cerrar',
+      scanner: {
+        minLength: 4,
+        avgTimeByChar: 30,
+        suffixKeyCodes: [13],
+        reactToPaste: true,
+        onScan: function(code) {
+          console.log('onScan:', code);
+        },
+        onScanError: function(err) {
+          console.log('onScanError:', err);
+          blip.add({ type: 'error', icon: 'error', title: 'Error de escaneo', subtitle: err.message, duration: 4000 });
+        }
+      }
+    });
+    if (code !== null) {
+      blip.add({ type: 'success', icon: 'success', title: 'Codigo: ' + code, duration: 3000 });
+    }
+  }
+
   /* ── 10. Subida de ficheros (v6.0) ─────────── */
 
   async function demoUploadBasic() {
@@ -2868,8 +2993,73 @@ blip.setIslandWidth('normal');
         { name: 'cancelLabel', value: "'Salir'", desc: 'Texto personalizado del bot\u00f3n de cancelaci\u00f3n.' }
       ]
     },
+    demoScannerBasic: {
+      title: 'Scanner B\u00e1sico',
+      code: `var code = await blip.promptScanner({\n  title: 'Escanear codigo',\n  placeholder: 'Pasa el escaner...'\n});\n// code: string | null`,
+      props: [
+        { name: 'title', value: "'Escanear codigo'", desc: 'T\u00edtulo de la notificaci\u00f3n.' },
+        { name: 'placeholder', value: "'Pasa el escaner...'", desc: 'Texto de ayuda. El submit manual est\u00e1 bloqueado.' },
+        { name: 'scanner.minLength', value: '6', desc: 'Longitud m\u00ednima del c\u00f3digo para considerarse v\u00e1lido.' },
+        { name: 'scanner.avgTimeByChar', value: '30', desc: 'Tiempo m\u00e1ximo medio por car\u00e1cter en ms. Entradas m\u00e1s lentas se rechazan.' },
+        { name: 'scanner.suffixKeyCodes', value: '[9, 13]', desc: 'KeyCodes que finalizan el escaneo (Tab y Enter). Siempre interceptados.' },
+        { name: 'scanner.prefixKeyCodes', value: '[]', desc: 'KeyCodes que inician el escaneo (se ignoran del resultado).' },
+        { name: 'scanner.timeBeforeScanTest', value: '100', desc: 'Ms de espera tras la \u00faltima tecla antes de validar autom\u00e1ticamente.' },
+        { name: 'scanner.reactToKeydown', value: 'true', desc: 'Escuchar eventos keydown para detectar escaneo.' },
+        { name: 'scanner.reactToPaste', value: 'false', desc: 'Si true, escuchar eventos paste como escaneo.' },
+        { name: 'scanTarget', value: 'document', desc: 'Elemento donde se disparan los eventos scan y scanError.' }
+      ]
+    },
+    demoScannerCustom: {
+      title: 'Scanner con Opciones',
+      code: `document.addEventListener('scan', (e) => {\n  console.log('Evento scan:', e.detail.scanCode);\n});\n\nvar code = await blip.promptScanner({\n  type: 'info',\n  icon: 'info',\n  title: 'Escanear producto',\n  subtitle: 'Pasa el escaner de codigos de barras',\n  placeholder: 'Codigo de barras...',\n  cancelLabel: 'Salir',\n  scanner: {\n    minLength: 4,\n    avgTimeByChar: 50,\n    suffixKeyCodes: [13],\n    timeBeforeScanTest: 0,\n    reactToPaste: true,\n    onScan: (code) => console.log('onScan:', code)\n  }\n});`,
+      props: [
+        { name: 'scanner.minLength', value: '4', desc: 'Longitud m\u00ednima personalizada (por defecto 6).' },
+        { name: 'scanner.avgTimeByChar', value: '50', desc: 'Tiempo m\u00e1ximo medio por car\u00e1cter en ms (por defecto 30). M\u00e1s permisivo.' },
+        { name: 'scanner.suffixKeyCodes', value: '[13]', desc: 'Solo Enter como finalizador (por defecto [9, 13] = Tab + Enter).' },
+        { name: 'scanner.timeBeforeScanTest', value: '0', desc: 'Desactiva la auto-validación por timeout. Solo valida al pulsar Enter.' },
+        { name: 'scanner.onScan', value: 'function(code)', desc: 'Callback al detectar escaneo v\u00e1lido. Recibe el c\u00f3digo escaneado.' },
+        { name: 'scanner.onScanError', value: 'function(err)', desc: 'Callback en error. err tiene message, scanCode, scanDuration.' },
+        { name: 'scanner.onKeyDetect', value: 'function(keyCode, event)', desc: 'Callback por cada tecla. Retornar false para ignorar.' },
+        { name: 'scanner.onKeyProcess', value: 'function(char, event)', desc: 'Callback por cada car\u00e1cter procesado.' },
+        { name: 'scanner.keyCodeMapper', value: 'function|null', desc: 'Funci\u00f3n custom para decodificar tecla \u2192 car\u00e1cter. null = interno.' },
+        { name: 'scanner.scanButtonKeyCode', value: 'number|false', desc: 'KeyCode del bot\u00f3n f\u00edsico del esc\u00e1ner. false = desactivado.' },
+        { name: 'scanner.scanButtonLongPressTime', value: '500', desc: 'Ms para considerar pulsaci\u00f3n larga del bot\u00f3n del esc\u00e1ner.' },
+        { name: 'scanner.onScanButtonLongPress', value: 'function', desc: 'Callback al mantener pulsado el bot\u00f3n del esc\u00e1ner.' },
+        { name: 'scanner.stopPropagation', value: 'false', desc: 'Detener propagaci\u00f3n de eventos de tecla durante el escaneo.' },
+        { name: 'scanner.preventDefault', value: 'false', desc: 'Prevenir acci\u00f3n por defecto de teclas durante el escaneo.' },
+        { name: 'scanner.captureEvents', value: 'false', desc: 'Registrar listeners en fase de captura.' },
+        { name: 'scanner.onPaste', value: 'function(text, event)', desc: 'Callback al pegar texto (requiere reactToPaste: true).' },
+        { name: 'scanner.reactToPaste', value: 'false', desc: 'Si true, escuchar eventos paste como escaneo.' },
+        { name: 'scanTarget', value: 'document', desc: 'Elemento donde se disparan los eventos scan y scanError.' }
+      ]
+    },
+    demoScannerDocument: {
+      title: 'Scanner Document Mode',
+      code: `var code = await blip.promptScanner({\n  type: 'info',\n  icon: 'loading',\n  title: 'Escanear producto',\n  subtitle: 'Pasa el escaner de codigos de barras',\n  cancelLabel: 'Cancelar',\n  scanner: {\n    showInput: false,\n    suffixKeyCodes: [13],\n    reactToPaste: true,\n    onScan: function(code) { console.log('onScan:', code); }\n  }\n});`,
+      props: [
+        { name: 'scanner.showInput', value: 'false', desc: 'Oculta el input y escucha eventos en el document (no requiere foco).' },
+        { name: 'scanner.suffixKeyCodes', value: '[13]', desc: 'Solo Enter como finalizador del escaneo.' },
+        { name: 'scanner.reactToPaste', value: 'true', desc: 'Escuchar eventos paste como escaneo. Necesario para probar pegando texto.' },
+        { name: 'scanner.onScan', value: 'function(code)', desc: 'Callback al detectar escaneo v\u00e1lido.' },
+        { name: 'cancelLabel', value: "'Cancelar'", desc: 'Texto del bot\u00f3n de cancelaci\u00f3n.' }
+      ]
+    },
+    demoScannerError: {
+      title: 'Scanner onScanError',
+      code: `var code = await blip.promptScanner({\n  type: 'warning',\n  icon: 'warning',\n  title: 'Scanner con error handling',\n  subtitle: 'Escribe manualmente para provocar un error',\n  placeholder: 'Escribe algo y pulsa Enter...',\n  cancelLabel: 'Cerrar',\n  scanner: {\n    minLength: 4,\n    avgTimeByChar: 30,\n    suffixKeyCodes: [13],\n    reactToPaste: true,\n    onScan: (code) => console.log('onScan:', code),\n    onScanError: (err) => {\n      console.log('onScanError:', err);\n      blip.add({ type: 'error', title: err.message });\n    }\n  }\n});`,
+      props: [
+        { name: 'scanner.onScanError', value: 'function(err)', desc: 'Callback cuando la entrada no cumple criterios de escaneo.' },
+        { name: 'err.message', value: 'string', desc: 'Descripción del error (código corto o entrada lenta).' },
+        { name: 'err.scanCode', value: 'string', desc: 'El código recibido que falló la validación.' },
+        { name: 'err.scanDuration', value: 'number', desc: 'Duración en ms desde el primer al último carácter.' },
+        { name: 'err.avgTimeByChar', value: 'number', desc: 'Umbral configurado de tiempo medio por carácter.' },
+        { name: 'err.minLength', value: 'number', desc: 'Longitud mínima configurada.' },
+        { name: 'scanner.minLength', value: '4', desc: 'Longitud mínima para que el código sea válido.' },
+        { name: 'scanner.avgTimeByChar', value: '30', desc: 'Tiempo máximo medio por carácter. Entradas manuales lo superan → error.' }
+      ]
+    },
     demoUploadBasic: {
-      title: 'Upload B\u00e1sico',
+      title: 'Upload Básico',
       code: `var result = await blip.addUpload({\n  type: 'info',\n  icon: 'upload',\n  title: 'Subir archivo',\n  subtitle: 'Selecciona un archivo'\n});\n// result.status: 'submitted' | 'cancelled'\n// result.files: [File] | null`,
       props: [
         { name: 'type', value: "'info'", desc: 'Tipo de notificaci\u00f3n (color del borde).' },

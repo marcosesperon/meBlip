@@ -186,6 +186,7 @@ Anade una actividad a la cola. Devuelve una **Promesa** que se resuelve con `{ i
 | `addVerify(config)` | Patron verify: muestra una notificacion con codigo de verificacion que el usuario debe introducir. Ver seccion dedicada. |
 | `addForm(config)` | Patron form: muestra una notificacion con formulario interactivo cuyos campos se definen en un array. Ver seccion dedicada. |
 | `prompt(config)` | Atajo tipo `window.prompt()`: muestra una notificacion con un unico campo de texto. Internamente usa `addForm()`. Ver seccion dedicada. |
+| `promptScanner(config)` | Prompt con deteccion de escaner de codigos de barras/QR. Detecta entrada rapida de escaner y dispara evento `scan`. Ver seccion dedicada. |
 | `addUpload(config)` | Patron upload: muestra una notificacion con zona de drop para subir ficheros. Ver seccion dedicada. |
 | `addGeolocation(config)` | Patron geolocation: solicita la ubicacion del usuario con la API del navegador. Ver seccion dedicada. |
 | `addMap(config)` | Patron map: muestra una previsualizacion de mapa estatico con tiles de OpenStreetMap. Ver seccion dedicada. |
@@ -848,6 +849,88 @@ Atajo para mostrar una notificacion con un unico campo de texto, similar a `wind
 | *...resto* | | Acepta todas las propiedades de `add(config)`. |
 
 Retorna `Promise<string | null>`. Devuelve el texto introducido o `null` si se cancelo.
+
+---
+
+Referencia: `promptScanner(config)`
+--------------------------------------
+
+Prompt exclusivo para escaner de codigos de barras/QR. Los escaneres de hardware envian caracteres como pulsaciones de teclado muy rapidas, a menudo con prefijo/sufijo (Tab o Enter). `promptScanner()` muestra un input que solo acepta entrada de escaner (por velocidad y patrones) y dispara un evento `scan` en un elemento DOM configurable.
+
+> Logica de deteccion basada en [onscan.js](https://github.com/axenox/onscan.js).
+
+Si la entrada es rapida (escaner), se auto-submit y dispara el evento `scan`. Si la entrada no cumple los criterios de escaneo (demasiado lenta o corta), se dispara el evento `scanError` y la promesa se cierra. El submit manual (Enter o boton confirmar) esta bloqueado: solo se puede resolver mediante un escaneo valido o pulsando cancelar.
+
+| Propiedad | Tipo | Descripcion |
+|-----------|------|-------------|
+| `placeholder` | `string` | Texto de ayuda dentro del campo. |
+| `required` | `boolean` | Si el campo es obligatorio. Por defecto `true`. |
+| `value` | `string` | Valor inicial del campo. |
+| `cancelLabel` | `string` | Texto del boton cancelar. Por defecto `'Cancelar'`. |
+| `scanTarget` | `EventTarget` | Elemento donde se disparan los eventos `scan` y `scanError`. Por defecto `document`. |
+| `scanner` | `object` | Opciones de deteccion del escaner (ver tabla inferior). |
+| `onCancel` | `function` | Callback ejecutado si el usuario cancela. |
+| *...resto* | | Acepta todas las propiedades de `add(config)`. |
+
+**Opciones de `scanner`:**
+
+| Propiedad | Tipo | Defecto | Descripcion |
+|-----------|------|---------|-------------|
+| `onScan` | `function` | `noop` | Callback al detectar un escaneo valido. Recibe el codigo escaneado. |
+| `onScanError` | `function` | `noop` | Callback cuando la entrada no cumple los criterios de escaneo. Al recibir error desde suffix (Enter) se cierra el prompt. |
+| `onKeyProcess` | `function` | `noop` | Callback por cada tecla procesada. |
+| `onKeyDetect` | `function` | `noop` | Callback al detectar cualquier tecla. Retornar `false` para ignorar. |
+| `onPaste` | `function` | `noop` | Callback al pegar texto (requiere `reactToPaste: true`). |
+| `keyCodeMapper` | `function\|null` | `null` | Funcion para decodificar el evento de teclado. `null` usa la decodificacion interna. |
+| `onScanButtonLongPress` | `function` | `noop` | Callback al mantener pulsado el boton del escaner. |
+| `scanButtonKeyCode` | `number\|false` | `false` | KeyCode del boton fisico del escaner. `false` para desactivar. |
+| `scanButtonLongPressTime` | `number` | `500` | Milisegundos para considerar pulsacion larga del boton. |
+| `timeBeforeScanTest` | `number` | `100` | Milisegundos de espera tras la ultima tecla antes de validar el escaneo. `0` para desactivar (solo validar con suffixKeyCodes). |
+| `avgTimeByChar` | `number` | `30` | Tiempo maximo medio por caracter (ms). Entradas mas lentas se rechazan. |
+| `minLength` | `number` | `6` | Longitud minima del codigo para considerarse valido. |
+| `suffixKeyCodes` | `array` | `[9, 13]` | KeyCodes que finalizan el escaneo (Tab, Enter). Siempre interceptados (nunca pasan al formulario). |
+| `prefixKeyCodes` | `array` | `[]` | KeyCodes que inician el escaneo (se ignoran del resultado). |
+| `stopPropagation` | `boolean` | `false` | Detener propagacion de eventos de tecla durante el escaneo. |
+| `preventDefault` | `boolean` | `false` | Prevenir accion por defecto de teclas durante el escaneo. |
+| `captureEvents` | `boolean` | `false` | Registrar listeners en fase de captura. |
+| `reactToKeydown` | `boolean` | `true` | Escuchar eventos keydown para detectar escaneo. |
+| `reactToPaste` | `boolean` | `false` | Escuchar eventos paste como escaneo. |
+| `showInput` | `boolean` | `true` | `false` oculta el input y escucha en el document (no requiere foco). |
+
+Retorna `Promise<string | null>`. Devuelve el codigo escaneado o `null` si se cancelo o hubo error de escaneo.
+
+**Eventos dispatched en `scanTarget`:**
+- `scan` — `event.detail.scanCode` contiene el codigo escaneado.
+- `scanError` — `event.detail` contiene `{ message, scanCode, scanDuration, avgTimeByChar, minLength }`.
+
+**Ejemplo basico:**
+
+```js
+var code = await blip.promptScanner({
+  title: 'Escanear codigo',
+  placeholder: 'Pasa el escaner...'
+});
+// code: string | null
+```
+
+**Ejemplo con opciones de escaner y listener:**
+
+```js
+document.addEventListener('scan', (e) => {
+  console.log('Codigo escaneado:', e.detail.scanCode);
+});
+
+var code = await blip.promptScanner({
+  title: 'Escanear producto',
+  placeholder: 'Pasa el escaner...',
+  scanner: {
+    minLength: 8,
+    avgTimeByChar: 50,
+    suffixKeyCodes: [13],
+    onScan: (code) => console.log('Scan:', code)
+  }
+});
+```
 
 ---
 

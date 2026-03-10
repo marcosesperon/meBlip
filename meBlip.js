@@ -10,7 +10,7 @@
  * @url     https://github.com/marcosesperon
  * @donate  https://buymeacoffee.com/marcosesperon
  * @license MIT
- * @version 1.0.0
+ * @version 2.0.0
  */
 
 class meBlip {
@@ -1423,6 +1423,16 @@ class meBlip {
     // Callback onHide: se dispara antes de resolver la promesa
     if (activity && activity.onHide) activity.onHide({ id, type: activity.type });
     this._lastExitAnimation = activity?.exitAnimation || null;
+    if (activity && activity._scannerVars) {
+      if (activity._scannerVars.testTimer) clearTimeout(activity._scannerVars.testTimer);
+      if (activity._scannerVars.longPressTimer) clearTimeout(activity._scannerVars.longPressTimer);
+      const sv = activity._scannerVars;
+      if (sv._listenEl && sv._handlers) {
+        sv._listenEl.removeEventListener('keydown', sv._handlers.keydown, sv._captureEvents);
+        sv._listenEl.removeEventListener('paste', sv._handlers.paste, sv._captureEvents);
+        sv._listenEl.removeEventListener('keyup', sv._handlers.keyup, sv._captureEvents);
+      }
+    }
     if (this.timers.has(id)) { clearTimeout(this.timers.get(id)); this.timers.delete(id); }
     this.timerMeta.delete(id);
     if (this.resolvers.has(id)) {
@@ -1696,6 +1706,72 @@ class meBlip {
       if (result.status === 'submitted') {
         return result.data.field_0;
       }
+      return null;
+    });
+  }
+
+  /**
+   * Prompt exclusivo para escaner de codigos de barras/QR.
+   * Los escaneres envian caracteres como pulsaciones rapidas de teclado.
+   * Solo resuelve la promesa mediante un escaneo valido (onScan) o cancelacion.
+   * Si la entrada no cumple los criterios de escaneo (onScanError), se cierra con null.
+   * El submit manual (Enter/boton confirmar) esta bloqueado.
+   * Basado en onscan.js (https://github.com/axenox/onscan.js).
+   *
+   * @param {Object} [config={}] - Mismas propiedades que prompt(), mas:
+   * @param {Object} [config.scanner] - Opciones de deteccion del escaner (ver documentacion).
+   * @param {boolean} [config.scanner.showInput=true] - `false` oculta el input y escucha eventos en el document (no requiere foco).
+   * @param {EventTarget} [config.scanTarget=document] - Elemento donde se disparan los eventos 'scan' y 'scanError'.
+   * @returns {Promise<string|null>} El codigo escaneado o null si se cancelo/error.
+   */
+  promptScanner(config = {}) {
+    const placeholder = config.placeholder || '';
+    const required = config.required !== false;
+    const value = config.value || '';
+
+    const scannerDefaults = {
+      onScan: function() {},
+      onScanError: function() {},
+      onKeyProcess: function() {},
+      onKeyDetect: function() {},
+      onPaste: function() {},
+      keyCodeMapper: null,
+      onScanButtonLongPress: function() {},
+      scanButtonKeyCode: false,
+      scanButtonLongPressTime: 500,
+      timeBeforeScanTest: 100,
+      avgTimeByChar: 30,
+      minLength: 6,
+      suffixKeyCodes: [9, 13],
+      prefixKeyCodes: [],
+      ignoreIfFocusOn: false,
+      stopPropagation: false,
+      preventDefault: false,
+      captureEvents: false,
+      reactToKeydown: true,
+      reactToPaste: false,
+      showInput: true
+    };
+
+    const scannerOpts = Object.assign(scannerDefaults, config.scanner || {});
+    scannerOpts.suffixKeyCodes = new Set(scannerOpts.suffixKeyCodes);
+    scannerOpts.prefixKeyCodes = new Set(scannerOpts.prefixKeyCodes);
+    scannerOpts.scanTarget = config.scanTarget || document;
+
+    const formConfig = {
+      ...config,
+      fields: [{ type: 'text', label: '', placeholder, required, value }],
+      _scanner: scannerOpts
+    };
+
+    delete formConfig.placeholder;
+    delete formConfig.required;
+    delete formConfig.value;
+    delete formConfig.scanner;
+    delete formConfig.scanTarget;
+
+    return this.addForm(formConfig).then(result => {
+      if (result.status === 'submitted') return result.data.field_0;
       return null;
     });
   }
@@ -2521,6 +2597,7 @@ class meBlip {
         this._updateCountdown(data);
         // Bind de eventos para verificacion, formulario o upload
         if (data._verify) this._bindVerifyInputs(data);
+        if (data._scanner) this._bindScannerInput(data);
         if (data._form) this._bindFormInputs(data);
         if (data._upload) this._bindUploadInputs(data);
         if (data._geo) this._bindGeoInputs(data);
@@ -2626,9 +2703,6 @@ class meBlip {
       });
     }
 
-    // Focus inmediato para móviles (dentro del callstack del tap)
-    inputs[0]?.focus();
-
     // Esperar a que la isla termine de expandirse antes de mostrar inputs y dar foco
     const verifyEl = this.content.querySelector('.meblip-verify');
     const waitForSpring = () => {
@@ -2697,9 +2771,6 @@ class meBlip {
       }
     });
 
-    // Focus inmediato para móviles (dentro del callstack del tap)
-    allInputs[0]?.focus();
-
     // Esperar a que la isla termine de expandirse antes de mostrar campos y dar foco
     const waitForSpring = () => {
       if (Math.abs(this.width - this.targetWidth) < 1 && Math.abs(this.height - this.targetHeight) < 1) {
@@ -2714,6 +2785,196 @@ class meBlip {
     if (cancelBtn) {
       cancelBtn.addEventListener('click', () => this.remove(data.id));
     }
+  }
+
+  /**
+   * Vincula la deteccion de escaner al input del formulario.
+   * Logica de deteccion basada en onscan.js (https://github.com/axenox/onscan.js).
+   * @param {Object} data - Datos de la actividad con _scanner.
+   * @private
+   */
+  _bindScannerInput(data) {
+    if (!this.content) return;
+    const self = this;
+    const inputEl = this.content.querySelector('.meblip-form-input');
+    if (!inputEl) return;
+
+    // Ocultar boton confirmar: solo se resuelve por escaneo o cancelar
+    const confirmBtn = this.content.querySelector('.meblip-form-confirm');
+    if (confirmBtn) confirmBtn.style.display = 'none';
+
+    const opts = data._scanner;
+    const hiddenMode = opts.showInput === false;
+    const listenEl = hiddenMode ? document : inputEl;
+
+    if (hiddenMode) {
+      const formField = self.content.querySelector('.meblip-form-field');
+      if (formField) formField.style.display = 'none';
+      const formEl = self.content.querySelector('.meblip-form');
+      if (formEl) {
+        formEl.style.marginTop = '4px';
+        formEl.style.paddingBottom = '0';
+      }
+      const formActions = self.content.querySelector('.meblip-form-actions');
+      if (formActions) formActions.style.marginTop = '0';
+      if (formEl) formEl.style.gap = '0';
+      // Recalcular dimensiones con los elementos ocultos
+      this._measure();
+    }
+
+    const vars = {
+      firstCharTime: 0,
+      lastCharTime: 0,
+      accumulatedString: '',
+      testTimer: false,
+      longPressed: false,
+      longPressTimer: null
+    };
+    data._scannerVars = vars;
+
+    const decodeKeyEvent = (e) => {
+      if (e.key && e.key.length === 1) return e.key;
+      const code = e.keyCode;
+      if ((code >= 48 && code <= 90) || (code >= 106 && code <= 111)) {
+        const decoded = String.fromCharCode(code);
+        return e.shiftKey ? decoded.toUpperCase() : decoded.toLowerCase();
+      }
+      if (code >= 96 && code <= 105) return String(code - 96);
+      return '';
+    };
+
+    const reinitialize = () => {
+      vars.firstCharTime = 0;
+      vars.lastCharTime = 0;
+      vars.accumulatedString = '';
+    };
+
+    const emitError = (errorData) => {
+      opts.onScanError.call(inputEl, errorData);
+      opts.scanTarget.dispatchEvent(new CustomEvent('scanError', { detail: errorData }));
+      reinitialize();
+    };
+
+    const validateScanCode = (sScanCode) => {
+      const duration = vars.lastCharTime - vars.firstCharTime;
+      if (sScanCode.length < opts.minLength) {
+        emitError({
+          message: 'Received code is shorter than minimal length',
+          scanCode: sScanCode,
+          scanDuration: duration,
+          avgTimeByChar: opts.avgTimeByChar,
+          minLength: opts.minLength
+        });
+        return false;
+      }
+      if (duration > sScanCode.length * opts.avgTimeByChar) {
+        emitError({
+          message: 'Received code was not entered in time',
+          scanCode: sScanCode,
+          scanDuration: duration,
+          avgTimeByChar: opts.avgTimeByChar,
+          minLength: opts.minLength
+        });
+        return false;
+      }
+      // Escaneo valido
+      opts.onScan.call(inputEl, sScanCode);
+      opts.scanTarget.dispatchEvent(new CustomEvent('scan', { detail: { scanCode: sScanCode } }));
+      reinitialize();
+      inputEl.value = sScanCode;
+      if (data._formResolve) data._formResolve({ field_0: sScanCode });
+      return true;
+    };
+
+    const handleKeyDown = (e) => {
+      if (opts.onKeyDetect.call(inputEl, e.keyCode, e) === false) return;
+
+      if (opts.scanButtonKeyCode !== false && e.keyCode === opts.scanButtonKeyCode) {
+        if (!vars.longPressed) {
+          vars.longPressTimer = setTimeout(opts.onScanButtonLongPress, opts.scanButtonLongPressTime, inputEl);
+          vars.longPressed = true;
+        }
+        return;
+      }
+
+      // Siempre interceptar suffix keys (Enter/Tab) para bloquear form submit
+      if (opts.suffixKeyCodes.has(e.keyCode)) {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        if (vars.firstCharTime && vars.accumulatedString.length > 0) {
+          // Hay texto acumulado: validar como escaneo
+          vars.lastCharTime = Date.now();
+          if (vars.testTimer) clearTimeout(vars.testTimer);
+          if (!validateScanCode(vars.accumulatedString)) {
+            // Error de escaneo desde suffix: cerrar prompt con error
+            self.remove(data.id);
+          }
+          vars.testTimer = false;
+        }
+        // Sin texto acumulado: ignorar Enter silenciosamente
+        return;
+      }
+
+      let character = null;
+
+      if (!vars.firstCharTime && opts.prefixKeyCodes.has(e.keyCode)) {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+      } else {
+        character = (opts.keyCodeMapper || decodeKeyEvent).call(inputEl, e);
+        if (character === null) return;
+        vars.accumulatedString += character;
+        if (opts.preventDefault) e.preventDefault();
+        if (opts.stopPropagation) e.stopImmediatePropagation();
+      }
+
+      if (!vars.firstCharTime) vars.firstCharTime = Date.now();
+      vars.lastCharTime = Date.now();
+
+      if (vars.testTimer) clearTimeout(vars.testTimer);
+      if (opts.timeBeforeScanTest > 0) {
+        vars.testTimer = setTimeout(() => {
+          validateScanCode(vars.accumulatedString);
+          // Error desde timer: solo reinicializa, sigue esperando escaneo
+        }, opts.timeBeforeScanTest);
+      }
+
+      opts.onKeyProcess.call(inputEl, character, e);
+    };
+
+    const handlePaste = (e) => {
+      const sPasteString = (e.clipboardData || window.clipboardData).getData('text');
+      e.preventDefault();
+      if (opts.stopPropagation) e.stopImmediatePropagation();
+      opts.onPaste.call(inputEl, sPasteString, e);
+      vars.firstCharTime = 0;
+      vars.lastCharTime = 0;
+      if (!validateScanCode(sPasteString)) {
+        // Error de escaneo desde paste: cerrar prompt con error
+        self.remove(data.id);
+      }
+    };
+
+    const handleKeyUp = (e) => {
+      if (e.keyCode === opts.scanButtonKeyCode) {
+        clearTimeout(vars.longPressTimer);
+        vars.longPressed = false;
+      }
+    };
+
+    if (opts.reactToKeydown || opts.scanButtonKeyCode !== false) {
+      listenEl.addEventListener('keydown', handleKeyDown, opts.captureEvents);
+    }
+    if (opts.reactToPaste) {
+      listenEl.addEventListener('paste', handlePaste, opts.captureEvents);
+    }
+    if (opts.scanButtonKeyCode !== false) {
+      listenEl.addEventListener('keyup', handleKeyUp, opts.captureEvents);
+    }
+
+    vars._listenEl = listenEl;
+    vars._handlers = { keydown: handleKeyDown, paste: handlePaste, keyup: handleKeyUp };
+    vars._captureEvents = opts.captureEvents;
   }
 
   /**
@@ -3000,14 +3261,17 @@ class meBlip {
     if (geoGhost) geoGhost.classList.add('is-ready');
     const mapGhost = ghost.querySelector('.meblip-map');
     if (mapGhost) mapGhost.classList.add('is-ready');
+    const origPb = this.content.style.paddingBottom;
     if (resolved !== null) {
       ghost.style.cssText = `position:absolute;visibility:hidden;display:block;width:${resolved}px;`;
+      if (origPb) ghost.style.paddingBottom = origPb;
       document.body.appendChild(ghost);
       const rect = ghost.getBoundingClientRect();
       this.targetWidth = resolved;
       this.targetHeight = Math.max(this.minHeight, Math.ceil(rect.height));
     } else {
       ghost.style.cssText = "position:absolute;visibility:hidden;display:inline-block;width:max-content;";
+      if (origPb) ghost.style.paddingBottom = origPb;
       document.body.appendChild(ghost);
       const rect = ghost.getBoundingClientRect();
       this.targetWidth = Math.max(this.minWidth, Math.min(Math.ceil(rect.width) + 2, this.maxWidth));
