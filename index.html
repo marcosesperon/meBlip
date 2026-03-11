@@ -1673,7 +1673,7 @@ blip.setIslandWidth('normal');
 
   function demoActionsError() {
     blip.add({
-      type: 'error', icon: 'error', title: 'Error de conexión', subtitle: 'No se pudo sincronizar', isBlocking: true,
+      type: 'error', icon: 'error', title: 'Error de conexión', subtitle: 'No se pudo sincronizar', isBlocking: true, restoreFocus: false,
       actions: [
         { label: 'Reintentar', type: 'primary', onClick: () => demoSuccess() },
         { label: 'Cancelar', onClick: (ctx) => blip.remove(ctx.activityId) }
@@ -2651,9 +2651,10 @@ blip.setIslandWidth('normal');
     },
     demoActionsError: {
       title: 'Error + Reintentar',
-      code: `blip.add({\n  type: 'error',\n  icon: 'error',\n  title: 'Error de conexi\u00f3n',\n  subtitle: 'No se pudo sincronizar',\n  isBlocking: true,\n  actions: [\n    { label: 'Reintentar', type: 'primary',\n      onClick: () => demoSuccess() },\n    { label: 'Cancelar',\n      onClick: ctx => blip.remove(ctx.activityId) }\n  ]\n});`,
+      code: `blip.add({\n  type: 'error',\n  icon: 'error',\n  title: 'Error de conexi\u00f3n',\n  subtitle: 'No se pudo sincronizar',\n  isBlocking: true,\n  restoreFocus: false,\n  actions: [\n    { label: 'Reintentar', type: 'primary',\n      onClick: () => demoSuccess() },\n    { label: 'Cancelar',\n      onClick: ctx => blip.remove(ctx.activityId) }\n  ]\n});`,
       props: [
         { name: 'isBlocking', value: 'true', desc: 'Overlay que impide interactuar con el fondo hasta cerrar.' },
+        { name: 'restoreFocus', value: 'false', desc: 'No restaura el foco al elemento previo al cerrar la notificaci\u00f3n bloqueante.' },
         { name: 'actions', value: '[2 botones]', desc: 'Reintentar lanza una nueva notificaci\u00f3n; Cancelar cierra.' }
       ]
     },

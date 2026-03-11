@@ -158,6 +158,7 @@ Anade una actividad a la cola. Devuelve una **Promesa** que se resuelve con `{ i
 | `showCloseButton` | `boolean` | Si es `true`, muestra un boton X en la esquina derecha para cerrar la notificacion. |
 | `persistent` | `boolean` | Si es `true`, la notificacion no se puede cerrar con Escape, click ni boton X. Solo se cierra programaticamente via `remove()` o `update()` con `duration`. |
 | `isBlocking` | `boolean` | Activa un overlay que impide interactuar con el fondo. |
+| `restoreFocus` | `boolean` | Si es `false`, no restaura el foco al elemento previamente enfocado cuando se cierra una notificacion bloqueante. Por defecto `true`. |
 | `waitToDisplay` | `boolean` | Si es `true`, el temporizador de `duration` no arranca hasta que la actividad se muestre. |
 | `enableAnimations` | `boolean` | Permite desactivar las animaciones de la isla. Por defecto `true`. |
 | `animation` | `string` | Animacion de la isla: `'pulse'`, `'shake'`, `'bounce'`, `'glow'`, `'breathe'`, `'heartbeat'`, `'wobble'`, `'ripple'`, `'swing'` o `'none'`. Si se omite, no se reproduce ninguna animacion. |

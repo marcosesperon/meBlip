@@ -10,7 +10,7 @@
  * @url     https://github.com/marcosesperon
  * @donate  https://buymeacoffee.com/marcosesperon
  * @license MIT
- * @version 2.0.0
+ * @version 2.0.1
  */
 
 class meBlip {
@@ -1311,6 +1311,7 @@ class meBlip {
    * @param {string} [config.exitAnimation] - Animacion de salida ('fade'|'slide-down'|'slide-up'|'shrink-bounce').
    * @param {string} [config.position] - Override de posicion para esta notificacion.
    * @param {string} [config.islandWidth] - Override de ancho para esta notificacion ('compact'|'normal'|'wide'|CSS).
+   * @param {boolean} [config.restoreFocus=true] - Si false, no restaura el foco al elemento previo al cerrar la notificacion bloqueante.
    * @param {function} [config.onShow] - Callback al mostrarse. Recibe {id, type}.
    * @param {function} [config.onHide] - Callback al cerrarse. Recibe {id, type}.
    * @returns {Promise} Promesa que se resuelve cuando la actividad se cierra, con {id, status: 'closed'}. La promesa tiene una propiedad `id` con el identificador asignado.
@@ -1423,6 +1424,7 @@ class meBlip {
     // Callback onHide: se dispara antes de resolver la promesa
     if (activity && activity.onHide) activity.onHide({ id, type: activity.type });
     this._lastExitAnimation = activity?.exitAnimation || null;
+    if (activity && activity.restoreFocus === false) this._skipRestoreFocus = true;
     if (activity && activity._scannerVars) {
       if (activity._scannerVars.testTimer) clearTimeout(activity._scannerVars.testTimer);
       if (activity._scannerVars.longPressTimer) clearTimeout(activity._scannerVars.longPressTimer);
@@ -2199,8 +2201,9 @@ class meBlip {
     }
     if (inert) this.island.focus();
     else if (this._previouslyFocused) {
-      this._previouslyFocused.focus();
+      if (!this._skipRestoreFocus) this._previouslyFocused.focus();
       this._previouslyFocused = null;
+      this._skipRestoreFocus = false;
     }
   }
 
