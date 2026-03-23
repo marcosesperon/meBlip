@@ -951,13 +951,17 @@ class meBlip {
         font-size: 14px;
         line-height: 24px;
         font-weight: 600;
-        white-space: nowrap;
+        white-space: normal;
+        word-break: break-word;
+        padding-right: 12px;
       }
 
       .meblip-subtitle {
         font-size: 12px;
         color: var(--meblip-text-sub);
-        white-space: nowrap;
+        white-space: normal;
+        word-break: break-word;
+        padding-right: 12px;
         opacity: 0;
         transform: translateY(-4px);
         transition: opacity 0.3s ease 0.4s, transform 0.3s ease 0.4s;
