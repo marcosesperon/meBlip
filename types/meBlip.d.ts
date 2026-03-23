@@ -8,6 +8,15 @@ type ActivityType = 'success' | 'error' | 'info' | 'warning' | 'upload' | 'downl
 type Animation = 'shake' | 'pulse' | 'bounce' | 'glow' | 'breathe' | 'heartbeat' | 'wobble' | 'ripple' | 'swing';
 type ExitAnimation = 'fade' | 'slide-down' | 'slide-up' | 'shrink-bounce';
 
+interface OverlayStyle {
+  /** Desenfoque en px. */
+  blur?: number;
+  /** Contraste (0-1, donde 1 es normal). */
+  contrast?: number;
+  /** Escala de grises (0-1, donde 0 es normal). */
+  grayscale?: number;
+}
+
 interface MeBlipOptions {
   position?: Position;
   theme?: Theme;
@@ -18,6 +27,7 @@ interface MeBlipOptions {
   closeAnimation?: boolean;
   typeColors?: Partial<Record<ActivityType, string>>;
   icons?: Record<string, string>;
+  overlayStyle?: OverlayStyle;
 }
 
 interface ActionConfig {
@@ -166,6 +176,9 @@ declare class meBlip {
   /** Set reduced motion mode */
   setReducedMotion(value: ReducedMotion): void;
 
+  /** Set the overlay backdrop-filter style */
+  setOverlayStyle(style: OverlayStyle): void;
+
   /** Add a notification to the queue */
   add(config: ActivityConfig): ActivityPromise;
 
@@ -211,6 +224,7 @@ export default meBlip;
 export { meBlip };
 export type {
   MeBlipOptions,
+  OverlayStyle,
   ActivityConfig,
   ActivityPromise,
   ActionConfig,

@@ -722,7 +722,8 @@ body.light-mode .info-drawer-table td:nth-child(2) { color: #7c3aed; }
   icons: {
     premium: '&lt;svg ...&gt;...&lt;/svg&gt;',
     heart: '&lt;svg ...&gt;...&lt;/svg&gt;'
-  }
+  },
+  overlayStyle: { blur: 4, contrast: 0.85, grayscale: 0.3 }
 });</pre>
     <div class="demo-category-header" style="margin-top: 20px;">
       <h2>Config Helpers</h2>
@@ -742,7 +743,10 @@ blip.setStackStyle('3d');
 
 // Cambiar ancho de la isla
 blip.setIslandWidth('normal');
-// Opciones: 'compact', 'normal', 'wide'</pre>
+// Opciones: 'compact', 'normal', 'wide'
+
+// Cambiar backdrop-filter del overlay bloqueante
+blip.setOverlayStyle({ blur: 4, contrast: 0.85, grayscale: 0.3 });</pre>
   </section>
 </div>
 
@@ -1030,7 +1034,7 @@ blip.setIslandWidth('normal');
   <section class="demo-category cat-advanced">
     <div class="demo-category-header">
       <h2>Avanzado</h2>
-      <span class="demo-category-badge">24 demos</span>
+      <span class="demo-category-badge">25 demos</span>
     </div>
     <div class="demo-grid">
       <div class="demo-card" onclick="demoCustomType()">
@@ -1186,6 +1190,13 @@ blip.setIslandWidth('normal');
         </div>
         <div class="demo-card-title">className</div>
         <div class="demo-card-desc">Aplica clase CSS personalizada a la isla y al overlay</div>
+      </div>
+      <div class="demo-card" onclick="demoOverlayStyle()">
+        <div class="demo-card-icon" style="background: rgba(250,204,21,0.12); color: #facc15;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 3l18 18"/><path d="M21 3 3 21"/></svg>
+        </div>
+        <div class="demo-card-title">Overlay Style</div>
+        <div class="demo-card-desc">Backdrop-filter con blur, contraste y escala de grises en el overlay bloqueante</div>
       </div>
       <div class="demo-card" onclick="demoOnShow()">
         <div class="demo-card-icon" style="background: rgba(34,197,94,0.12); color: #22c55e;">
@@ -1499,7 +1510,8 @@ blip.setIslandWidth('normal');
     icons: {
       premium: '<svg aria-hidden="true" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>',
       heart: '<svg aria-hidden="true" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>'
-    }
+    },
+    overlayStyle: { blur: 4, contrast: 0.85, grayscale: 0.3 }
   });
 
   /* ── Config helpers ─────────────────────────── */
@@ -1930,6 +1942,17 @@ blip.setIslandWidth('normal');
       onHide: () => {
         blip.add({ type: 'success', icon: 'success', title: 'onHide ejecutado', duration: 2000 });
       }
+    });
+  }
+
+  function demoOverlayStyle() {
+    blip.add({
+      type: 'warning', icon: 'warning', title: 'Atencion requerida',
+      subtitle: 'El fondo se desenfoca mientras esta activa',
+      isBlocking: true,
+      actions: [
+        { label: 'Entendido', type: 'primary', onClick: (ctx) => blip.remove(ctx.activityId) }
+      ]
     });
   }
 
@@ -2654,6 +2677,7 @@ blip.setIslandWidth('normal');
       code: `blip.add({\n  type: 'error',\n  icon: 'error',\n  title: 'Error de conexi\u00f3n',\n  subtitle: 'No se pudo sincronizar',\n  isBlocking: true,\n  restoreFocus: false,\n  actions: [\n    { label: 'Reintentar', type: 'primary',\n      onClick: () => demoSuccess() },\n    { label: 'Cancelar',\n      onClick: ctx => blip.remove(ctx.activityId) }\n  ]\n});`,
       props: [
         { name: 'isBlocking', value: 'true', desc: 'Overlay que impide interactuar con el fondo hasta cerrar.' },
+        { name: 'overlayStyle', value: '{ blur: 4, contrast: 0.85, grayscale: 0.3 }', desc: 'backdrop-filter del overlay (configurado en el constructor).' },
         { name: 'restoreFocus', value: 'false', desc: 'No restaura el foco al elemento previo al cerrar la notificaci\u00f3n bloqueante.' },
         { name: 'actions', value: '[2 botones]', desc: 'Reintentar lanza una nueva notificaci\u00f3n; Cancelar cierra.' }
       ]
@@ -2848,6 +2872,17 @@ blip.setIslandWidth('normal');
       code: `blip.add({\n  type: 'info',\n  icon: 'info',\n  title: 'Destacada',\n  subtitle: 'Clase meblip-highlighted aplicada a isla y overlay',\n  className: 'meblip-highlighted',\n  duration: 4000\n});`,
       props: [
         { name: 'className', value: "'meblip-highlighted'", desc: 'Clase CSS aplicada a #meblip-island-root y #meblip-blocking-overlay. Se retira al cerrarse.' }
+      ]
+    },
+    demoOverlayStyle: {
+      title: 'Overlay Style',
+      code: `// Constructor:\nnew meBlip({\n  overlayStyle: { blur: 4, contrast: 0.85, grayscale: 0.3 }\n});\n\n// Notificacion bloqueante:\nblip.add({\n  type: 'warning',\n  icon: 'warning',\n  title: 'Atencion requerida',\n  subtitle: 'El fondo se desenfoca mientras esta activa',\n  isBlocking: true,\n  actions: [\n    { label: 'Entendido', type: 'primary',\n      onClick: ctx => blip.remove(ctx.activityId) }\n  ]\n});`,
+      props: [
+        { name: 'overlayStyle', value: '{ blur, contrast, grayscale }', desc: 'Configura el backdrop-filter del overlay bloqueante. Se define en el constructor o con setOverlayStyle().' },
+        { name: 'blur', value: '4', desc: 'Desenfoque en px aplicado al fondo.' },
+        { name: 'contrast', value: '0.85', desc: 'Contraste del fondo (0-1, donde 1 es normal).' },
+        { name: 'grayscale', value: '0.3', desc: 'Escala de grises del fondo (0-1, donde 0 es normal).' },
+        { name: 'isBlocking', value: 'true', desc: 'Activa el overlay donde se aplica el backdrop-filter.' }
       ]
     },
     demoOnShow: {

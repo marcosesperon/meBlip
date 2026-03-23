@@ -48,6 +48,7 @@ class meBlip {
     this.closeAnimation = options.closeAnimation !== undefined ? options.closeAnimation : true;
     this.reducedMotion = options.reducedMotion || false;
     this._reducedMotionActive = false;
+    this.overlayStyle = options.overlayStyle || {};
 
     // Mapa de prioridades: las actividades de mayor valor se muestran primero
     this.priorityMap = { 'low': 0, 'normal': 1, 'high': 2 };
@@ -143,6 +144,8 @@ class meBlip {
         z-index: 9998;
         display: none;
         pointer-events: auto;
+        backdrop-filter: var(--meblip-overlay-backdrop, none);
+        -webkit-backdrop-filter: var(--meblip-overlay-backdrop, none);
       }
       #meblip-blocking-overlay.is-active {
         display: block;
@@ -1047,6 +1050,7 @@ class meBlip {
       this.overlay.id = "meblip-blocking-overlay";
       document.body.appendChild(this.overlay);
     }
+    this._applyOverlayStyle();
 
     // Root container: elemento fijo que aloja la isla y las capas de stack
     this.root = document.getElementById("meblip-island-root");
@@ -1266,6 +1270,35 @@ class meBlip {
   setIslandWidth(width) {
     this.islandWidth = width;
     if (this.isVisible && this.activeId) this._measure();
+  }
+
+  /**
+   * Actualiza el estilo del overlay bloqueante (backdrop-filter).
+   *
+   * @param {Object} style - Propiedades del backdrop-filter.
+   * @param {number} [style.blur] - Desenfoque en px.
+   * @param {number} [style.contrast] - Contraste (0-1, donde 1 es normal).
+   * @param {number} [style.grayscale] - Escala de grises (0-1, donde 0 es normal).
+   */
+  setOverlayStyle(style) {
+    this.overlayStyle = style || {};
+    this._applyOverlayStyle();
+  }
+
+  /**
+   * Compone el valor de `backdrop-filter` a partir de `this.overlayStyle`
+   * y lo aplica como CSS custom property en el overlay.
+   * @private
+   */
+  _applyOverlayStyle() {
+    if (!this.overlay) return;
+    const s = this.overlayStyle;
+    const parts = [];
+    if (s.blur != null) parts.push(`blur(${s.blur}px)`);
+    if (s.contrast != null) parts.push(`contrast(${s.contrast})`);
+    if (s.grayscale != null) parts.push(`grayscale(${s.grayscale})`);
+    const value = parts.length ? parts.join(' ') : 'none';
+    this.overlay.style.setProperty('--meblip-overlay-backdrop', value);
   }
 
   // ──────────────────────────────────────────────

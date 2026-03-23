@@ -118,6 +118,7 @@ Referencia de la API
 | `closeAnimation` | `boolean` | `true` | Controla la animación de cierre de la isla. `true` usa la exit animation normal, `false` aplica un fade rápido (clase `is-closing-fade`) para ocultar el borde residual. |
 | `typeColors` | `object` | `{}` | Sobreescribe o extiende los colores por tipo. Las claves son nombres de tipo y los valores colores hex. Ej: `{ success: '#00ff88', premium: '#8b5cf6' }`. |
 | `icons` | `object` | `{}` | Sobreescribe o extiende los iconos SVG integrados. Las claves son nombres de tipo y los valores HTML SVG. Ej: `{ success: '<svg>...</svg>', custom: '<svg>...</svg>' }`. |
+| `overlayStyle` | `object` | `{}` | Configura el `backdrop-filter` del overlay bloqueante (`isBlocking: true`). Propiedades: `blur` (numero, px), `contrast` (numero, 0-1 donde 1 es normal), `grayscale` (numero, 0-1 donde 0 es normal). Ej: `{ blur: 4, contrast: 0.8, grayscale: 0.5 }`. |
 
 ```javascript
 // Ejemplo: personalizar colores y añadir tipo custom
@@ -198,6 +199,7 @@ Anade una actividad a la cola. Devuelve una **Promesa** que se resuelve con `{ i
 | `setStackStyle(style)` | Cambia el estilo de apilamiento: `'3d'`, `'fan'` o `'counter'`. |
 | `setIslandWidth(width)` | Cambia el ancho de la isla: `'compact'`, `'normal'`, `'wide'` o valor CSS arbitrario. |
 | `setReducedMotion(value)` | Cambia el modo de movimiento reducido en runtime: `true`, `false` o `'system'`. |
+| `setOverlayStyle(style)` | Cambia el `backdrop-filter` del overlay bloqueante en runtime. Ej: `{ blur: 4, contrast: 0.8, grayscale: 0.5 }`. |
 
 ### 4. Propiedad `icons`
 
