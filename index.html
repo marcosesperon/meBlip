@@ -1034,7 +1034,7 @@ blip.setOverlayStyle({ blur: 4, contrast: 0.85, grayscale: 0.3 });</pre>
   <section class="demo-category cat-advanced">
     <div class="demo-category-header">
       <h2>Avanzado</h2>
-      <span class="demo-category-badge">25 demos</span>
+      <span class="demo-category-badge">26 demos</span>
     </div>
     <div class="demo-grid">
       <div class="demo-card" onclick="demoCustomType()">
@@ -1211,6 +1211,13 @@ blip.setOverlayStyle({ blur: 4, contrast: 0.85, grayscale: 0.3 });</pre>
         </div>
         <div class="demo-card-title">onHide</div>
         <div class="demo-card-desc">Callback al cerrarse, lanza notificaci&oacute;n secundaria de confirmaci&oacute;n</div>
+      </div>
+      <div class="demo-card" onclick="demoPromise()">
+        <div class="demo-card-icon" style="background: rgba(139,92,246,0.12); color: #8b5cf6;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4"/><path d="m16.2 7.8 2.9-2.9"/><path d="M18 12h4"/><path d="m16.2 16.2 2.9 2.9"/><path d="M12 18v4"/><path d="m4.9 19.1 2.9-2.9"/><path d="M2 12h4"/><path d="m4.9 4.9 2.9 2.9"/></svg>
+        </div>
+        <div class="demo-card-title">Promise</div>
+        <div class="demo-card-desc">Patr&oacute;n promise: loading autom&aacute;tico mientras espera, transici&oacute;n a success o error</div>
       </div>
     </div>
   </section>
@@ -1943,6 +1950,16 @@ blip.setOverlayStyle({ blur: 4, contrast: 0.85, grayscale: 0.3 });</pre>
         blip.add({ type: 'success', icon: 'success', title: 'onHide ejecutado', duration: 2000 });
       }
     });
+  }
+
+  async function demoPromise() {
+    var fakeFetch = new Promise((resolve) => setTimeout(() => resolve({ usuarios: 42 }), 2000));
+    var result = await blip.promise(fakeFetch, {
+      loading: { title: 'Cargando datos', subtitle: 'Conectando con el servidor...' },
+      success: (data) => ({ title: 'Datos recibidos', subtitle: data.usuarios + ' usuarios encontrados' }),
+      error: (err) => ({ title: 'Fallo de conexion', subtitle: err.message })
+    });
+    console.log('Promise result:', result);
   }
 
   function demoOverlayStyle() {
@@ -2897,6 +2914,16 @@ blip.setOverlayStyle({ blur: 4, contrast: 0.85, grayscale: 0.3 });</pre>
       code: `blip.add({\n  type: 'warning',\n  icon: 'warning',\n  title: 'Cerrame',\n  subtitle: 'Al cerrar se lanzara otra notificacion',\n  duration: 4000,\n  onHide: () => {\n    blip.add({ type: 'success', icon: 'success',\n      title: 'onHide ejecutado', duration: 2000 });\n  }\n});`,
       props: [
         { name: 'onHide', value: '() => {}', desc: 'Callback ejecutado cuando la notificación se cierra (por timeout, Escape o programáticamente).' }
+      ]
+    },
+    demoPromise: {
+      title: 'Promise',
+      code: `var fakeFetch = new Promise((resolve) =>\n  setTimeout(() => resolve({ usuarios: 42 }), 2000)\n);\n\nvar result = await blip.promise(fakeFetch, {\n  loading: {\n    title: 'Cargando datos',\n    subtitle: 'Conectando con el servidor...'\n  },\n  success: (data) => ({\n    title: 'Datos recibidos',\n    subtitle: data.usuarios + ' usuarios encontrados'\n  }),\n  error: (err) => ({\n    title: 'Fallo de conexion',\n    subtitle: err.message\n  })\n});`,
+      props: [
+        { name: 'loading', value: '{ title, subtitle, ... }', desc: 'Override de propiedades para la fase loading. Acepta todas las propiedades de add().' },
+        { name: 'success', value: 'Object | Function', desc: 'Override para fase success. Si es funcion, recibe el resultado: (data) => ({ title, subtitle... }).' },
+        { name: 'error', value: 'Object | Function', desc: 'Override para fase error. Si es funcion, recibe el error: (err) => ({ title, subtitle... }).' },
+        { name: 'status', value: "'resolved' | 'rejected'", desc: 'Estado final de la promesa en el resultado.' }
       ]
     },
     demoContentActions: {

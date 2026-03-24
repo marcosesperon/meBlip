@@ -192,6 +192,7 @@ Anade una actividad a la cola. Devuelve una **Promesa** que se resuelve con `{ i
 | `addUpload(config)` | Patron upload: muestra una notificacion con zona de drop para subir ficheros. Ver seccion dedicada. |
 | `addGeolocation(config)` | Patron geolocation: solicita la ubicacion del usuario con la API del navegador. Ver seccion dedicada. |
 | `addMap(config)` | Patron map: muestra una previsualizacion de mapa estatico con tiles de OpenStreetMap. Ver seccion dedicada. |
+| `promise(promise, config)` | Patron promise: muestra loading mientras una promesa esta pendiente y transiciona a success/error automaticamente. Ver seccion dedicada. |
 | `chain(steps)` | Encadena multiples pasos secuenciales en una sola isla con morphing suave. Ver seccion dedicada. |
 | `confetti()` | Lanza el efecto de confetti manualmente sobre la isla. |
 | `setTheme(theme)` | Cambia el tema: `'light'`, `'dark'` o `'system'`. |
@@ -1012,6 +1013,38 @@ Cada paso del array acepta todas las propiedades de `add(config)` mas:
 | `until` | `Promise` | Promesa que debe resolverse antes de avanzar. Alternativa a `duration`. |
 
 Retorna `Promise<{ id, status }>` donde `status` es `'chain-complete'` o `'chain-interrupted'` (si se cierra manualmente).
+
+---
+
+Referencia: `promise(promise, config)`
+-----------------------------------------
+
+Muestra una notificacion loading mientras una promesa esta pendiente, y la transiciona automaticamente a success o error segun el resultado. Internamente usa `add()` + `update()`.
+
+```javascript
+var result = await blip.promise(
+  fetch('/api/usuarios').then(r => r.json()),
+  {
+    loading: { title: 'Cargando datos', subtitle: 'Conectando con el servidor...' },
+    success: (data) => ({ title: 'Datos recibidos', subtitle: data.length + ' usuarios' }),
+    error: (err) => ({ title: 'Fallo de conexion', subtitle: err.message })
+  }
+);
+
+console.log(result.status); // 'resolved' o 'rejected'
+console.log(result.data);   // resultado de la promesa (si resolved)
+```
+
+El primer argumento es la promesa a observar. El segundo es un objeto de configuracion con las siguientes propiedades especificas:
+
+| Propiedad | Tipo | Descripcion |
+|-----------|------|-------------|
+| `loading` | `object` | Override de propiedades para la fase loading (`title`, `subtitle`, `icon`...). Por defecto usa `type: 'loading'` y `title: 'Cargando...'`. |
+| `success` | `object \| function` | Override para fase success. Si es funcion, recibe el resultado: `(data) => ({ title, subtitle... })`. Por defecto usa `type: 'success'` y `title: 'Completado'`. |
+| `error` | `object \| function` | Override para fase error. Si es funcion, recibe el error: `(err) => ({ title, subtitle... })`. Por defecto usa `type: 'error'` y `title: 'Error'`. |
+| *...resto* | | Acepta todas las propiedades de `add(config)` como base para la notificacion. Las propiedades `loading`, `success` y `error` se aplican sobre esta base en cada fase. |
+
+Retorna `Promise<{ id, status, data?, error? }>` donde `status` es `'resolved'` o `'rejected'`. `data` contiene el resultado de la promesa si se resolvio. `error` contiene el error si fue rechazada.
 
 ---
 

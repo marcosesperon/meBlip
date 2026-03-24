@@ -144,6 +144,21 @@ interface GeolocationConfig extends ActivityConfig {
   onCancel?: () => void;
 }
 
+interface PromisePhaseConfig {
+  title?: string;
+  subtitle?: string;
+  icon?: string;
+  type?: ActivityType;
+  duration?: number;
+  [key: string]: any;
+}
+
+interface PromiseConfig extends ActivityConfig {
+  loading?: PromisePhaseConfig;
+  success?: PromisePhaseConfig | ((data: any) => PromisePhaseConfig);
+  error?: PromisePhaseConfig | ((error: any) => PromisePhaseConfig);
+}
+
 interface MapConfig extends ActivityConfig {
   lat: number;
   lng: number;
@@ -216,6 +231,9 @@ declare class meBlip {
   /** Add a static map preview notification */
   addMap(config: MapConfig): Promise<{ id: string; status: 'closed' | 'cancelled' }>;
 
+  /** Promise pattern: show loading while a promise is pending, then transition to success or error */
+  promise<T = any>(userPromise: Promise<T>, config?: PromiseConfig): Promise<{ id: string; status: 'resolved' | 'rejected'; data?: T; error?: any }>;
+
   /** Launch confetti animation */
   confetti(): void;
 }
@@ -237,6 +255,8 @@ export type {
   GeolocationConfig,
   GeolocationPosition,
   MapConfig,
+  PromisePhaseConfig,
+  PromiseConfig,
   Position,
   Theme,
   StackStyle,

@@ -2007,6 +2007,52 @@ class meBlip {
   }
 
   /**
+   * Patron Promise: muestra una notificacion loading mientras una promesa esta pendiente,
+   * y la transiciona automaticamente a success o error segun el resultado.
+   *
+   * @param {Promise} userPromise - La promesa a observar.
+   * @param {Object} [config={}] - Configuracion base (propiedades de add()) mas:
+   * @param {Object} [config.loading] - Override de propiedades para la fase loading (title, subtitle, icon...).
+   * @param {Object|Function} [config.success] - Override para fase success. Si es funcion, recibe el resultado: (data) => ({title, subtitle...}).
+   * @param {Object|Function} [config.error] - Override para fase error. Si es funcion, recibe el error: (err) => ({title, subtitle...}).
+   * @returns {Promise<{id, status: 'resolved'|'rejected', data?, error?}>}
+   */
+  promise(userPromise, config = {}) {
+    const loadingCfg = config.loading || {};
+    const successCfg = config.success;
+    const errorCfg = config.error;
+
+    const baseCfg = { ...config };
+    delete baseCfg.loading;
+    delete baseCfg.success;
+    delete baseCfg.error;
+
+    const task = this.add({
+      type: 'loading',
+      title: 'Cargando...',
+      ...baseCfg,
+      ...loadingCfg,
+      duration: null
+    });
+
+    return userPromise.then(data => {
+      if (!this.activities.find(a => a.id === task.id)) {
+        return { id: task.id, status: 'resolved', data };
+      }
+      const sCfg = typeof successCfg === 'function' ? successCfg(data) : (successCfg || {});
+      this.update(task.id, { type: 'success', title: 'Completado', duration: 3000, ...sCfg });
+      return { id: task.id, status: 'resolved', data };
+    }).catch(err => {
+      if (!this.activities.find(a => a.id === task.id)) {
+        return { id: task.id, status: 'rejected', error: err };
+      }
+      const eCfg = typeof errorCfg === 'function' ? errorCfg(err) : (errorCfg || {});
+      this.update(task.id, { type: 'error', title: 'Error', duration: 3000, ...eCfg });
+      return { id: task.id, status: 'rejected', error: err };
+    });
+  }
+
+  /**
    * Convierte coordenadas lat/lng/zoom a coordenadas de tile x/y de OpenStreetMap.
    * @param {number} lat - Latitud.
    * @param {number} lng - Longitud.
