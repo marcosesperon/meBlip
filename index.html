@@ -965,7 +965,7 @@ blip.setOverlayStyle({ blur: 4, contrast: 0.85, grayscale: 0.3 });</pre>
   <section class="demo-category cat-actions">
     <div class="demo-category-header">
       <h2>Acciones</h2>
-      <span class="demo-category-badge">3 demos</span>
+      <span class="demo-category-badge">4 demos</span>
     </div>
     <div class="demo-grid">
       <div class="demo-card" onclick="demoAvatar()">
@@ -989,6 +989,17 @@ blip.setOverlayStyle({ blur: 4, contrast: 0.85, grayscale: 0.3 });</pre>
         <div class="demo-card-title">Error + Reintentar</div>
         <div class="demo-card-desc">Overlay bloqueante con opciones de reintentar o cancelar</div>
       </div>
+      <div class="demo-card" onclick="demoFocusOnClose()">
+        <div class="demo-card-icon" style="background: rgba(249,115,22,0.12); color: #f97316;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4"/><path d="M12 18v4"/><path d="M4.93 4.93l2.83 2.83"/><path d="M16.24 16.24l2.83 2.83"/><path d="M2 12h4"/><path d="M18 12h4"/><path d="M4.93 19.07l2.83-2.83"/><path d="M16.24 7.76l2.83-2.83"/></svg>
+        </div>
+        <div class="demo-card-title">Foco personalizado</div>
+        <div class="demo-card-desc">Al cerrar, el foco va a un input concreto en lugar del previo</div>
+      </div>
+    </div>
+    <div style="margin-top:16px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
+      <label style="font-size:13px;color:var(--text-secondary);">Input objetivo del demo "Foco personalizado":</label>
+      <input id="focus-target-input" type="text" placeholder="Aqu&iacute; ir&aacute; el foco al cerrar" style="flex:1;min-width:220px;padding:8px 12px;border:1px solid var(--border);border-radius:8px;background:var(--bg-secondary);color:var(--text-primary);font-size:13px;" />
     </div>
   </section>
 
@@ -1695,6 +1706,20 @@ blip.setOverlayStyle({ blur: 4, contrast: 0.85, grayscale: 0.3 });</pre>
       type: 'error', icon: 'error', title: 'Error de conexión', subtitle: 'No se pudo sincronizar', isBlocking: true, restoreFocus: false,
       actions: [
         { label: 'Reintentar', type: 'primary', onClick: () => demoSuccess() },
+        { label: 'Cancelar', onClick: (ctx) => blip.remove(ctx.activityId) }
+      ]
+    });
+  }
+
+  function demoFocusOnClose() {
+    blip.add({
+      type: 'info', icon: 'info',
+      title: 'Confirma tu acción',
+      subtitle: 'Al cerrar, el foco saltará al input',
+      isBlocking: true,
+      focusOnClose: '#focus-target-input',
+      actions: [
+        { label: 'Aceptar', type: 'primary', onClick: (ctx) => blip.remove(ctx.activityId) },
         { label: 'Cancelar', onClick: (ctx) => blip.remove(ctx.activityId) }
       ]
     });
@@ -2697,6 +2722,14 @@ blip.setOverlayStyle({ blur: 4, contrast: 0.85, grayscale: 0.3 });</pre>
         { name: 'overlayStyle', value: '{ blur: 4, contrast: 0.85, grayscale: 0.3 }', desc: 'backdrop-filter del overlay (configurado en el constructor).' },
         { name: 'restoreFocus', value: 'false', desc: 'No restaura el foco al elemento previo al cerrar la notificaci\u00f3n bloqueante.' },
         { name: 'actions', value: '[2 botones]', desc: 'Reintentar lanza una nueva notificaci\u00f3n; Cancelar cierra.' }
+      ]
+    },
+    demoFocusOnClose: {
+      title: 'Foco personalizado',
+      code: `blip.add({\n  type: 'info', icon: 'info',\n  title: 'Confirma tu acci\u00f3n',\n  subtitle: 'Al cerrar, el foco saltar\u00e1 al input',\n  isBlocking: true,\n  focusOnClose: '#focus-target-input',\n  actions: [\n    { label: 'Aceptar', type: 'primary',\n      onClick: ctx => blip.remove(ctx.activityId) },\n    { label: 'Cancelar',\n      onClick: ctx => blip.remove(ctx.activityId) }\n  ]\n});`,
+      props: [
+        { name: 'isBlocking', value: 'true', desc: 'Overlay bloqueante que captura el foco durante la notificaci\u00f3n.' },
+        { name: 'focusOnClose', value: "'#focus-target-input'", desc: 'Selector CSS del elemento que recibir\u00e1 el foco al cerrar (en lugar del elemento previo). Tambi\u00e9n acepta un Element o una funci\u00f3n que devuelva un Element.' }
       ]
     },
     demoNormalQueue: {

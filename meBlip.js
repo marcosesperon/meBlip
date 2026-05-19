@@ -1349,6 +1349,7 @@ class meBlip {
    * @param {string} [config.position] - Override de posicion para esta notificacion.
    * @param {string} [config.islandWidth] - Override de ancho para esta notificacion ('compact'|'normal'|'wide'|CSS).
    * @param {boolean} [config.restoreFocus=true] - Si false, no restaura el foco al elemento previo al cerrar la notificacion bloqueante.
+   * @param {Element|string|function} [config.focusOnClose] - Elemento al que dar foco al cerrar la notificacion bloqueante (en lugar del elemento previamente enfocado). Acepta un Element, un selector CSS o una funcion que devuelve un Element. Ignorado si restoreFocus es false.
    * @param {function} [config.onShow] - Callback al mostrarse. Recibe {id, type}.
    * @param {function} [config.onHide] - Callback al cerrarse. Recibe {id, type}.
    * @returns {Promise} Promesa que se resuelve cuando la actividad se cierra, con {id, status: 'closed'}. La promesa tiene una propiedad `id` con el identificador asignado.
@@ -1462,6 +1463,7 @@ class meBlip {
     if (activity && activity.onHide) activity.onHide({ id, type: activity.type });
     this._lastExitAnimation = activity?.exitAnimation || null;
     if (activity && activity.restoreFocus === false) this._skipRestoreFocus = true;
+    if (activity && activity.focusOnClose) this._focusOnClose = activity.focusOnClose;
     if (activity && activity._scannerVars) {
       if (activity._scannerVars.testTimer) clearTimeout(activity._scannerVars.testTimer);
       if (activity._scannerVars.longPressTimer) clearTimeout(activity._scannerVars.longPressTimer);
@@ -2284,9 +2286,18 @@ class meBlip {
     }
     if (inert) this.island.focus();
     else if (this._previouslyFocused) {
-      if (!this._skipRestoreFocus) this._previouslyFocused.focus();
+      if (!this._skipRestoreFocus) {
+        let target = this._focusOnClose;
+        if (typeof target === 'function') {
+          try { target = target(); } catch (e) { target = null; }
+        }
+        if (typeof target === 'string') target = document.querySelector(target);
+        if (target && typeof target.focus === 'function') target.focus();
+        else this._previouslyFocused.focus();
+      }
       this._previouslyFocused = null;
       this._skipRestoreFocus = false;
+      this._focusOnClose = null;
     }
   }
 

@@ -57,6 +57,8 @@ interface ActivityConfig {
   className?: string;
   actions?: ActionConfig[];
   waitToDisplay?: boolean;
+  restoreFocus?: boolean;
+  focusOnClose?: Element | string | (() => Element | null);
   onShow?: (ctx: { id: string; type?: string }) => void;
   onHide?: (ctx: { id: string; type?: string }) => void;
 }

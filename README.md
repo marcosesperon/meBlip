@@ -160,6 +160,7 @@ Anade una actividad a la cola. Devuelve una **Promesa** que se resuelve con `{ i
 | `persistent` | `boolean` | Si es `true`, la notificacion no se puede cerrar con Escape, click ni boton X. Solo se cierra programaticamente via `remove()` o `update()` con `duration`. |
 | `isBlocking` | `boolean` | Activa un overlay que impide interactuar con el fondo. |
 | `restoreFocus` | `boolean` | Si es `false`, no restaura el foco al elemento previamente enfocado cuando se cierra una notificacion bloqueante. Por defecto `true`. |
+| `focusOnClose` | `Element \| string \| function` | Elemento al que dar foco al cerrar una notificacion bloqueante en lugar del elemento previamente enfocado. Acepta un `Element`, un selector CSS (`'#miInput'`) o una funcion que devuelve un `Element`. Se ignora si `restoreFocus` es `false`. |
 | `waitToDisplay` | `boolean` | Si es `true`, el temporizador de `duration` no arranca hasta que la actividad se muestre. |
 | `enableAnimations` | `boolean` | Permite desactivar las animaciones de la isla. Por defecto `true`. |
 | `animation` | `string` | Animacion de la isla: `'pulse'`, `'shake'`, `'bounce'`, `'glow'`, `'breathe'`, `'heartbeat'`, `'wobble'`, `'ripple'`, `'swing'` o `'none'`. Si se omite, no se reproduce ninguna animacion. |
