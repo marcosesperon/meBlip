@@ -63,6 +63,13 @@ interface ActivityConfig {
   onHide?: (ctx: { id: string; type?: string }) => void;
 }
 
+interface RemoveOptions {
+  /** Element (o selector CSS, o funcion que devuelve un Element) que recibira el foco al cerrar, en lugar del valor previo de la actividad. */
+  focusOnClose?: Element | string | (() => Element | null);
+  /** Si es false, no restaura el foco al cerrar (anula el valor previo de la actividad para esta llamada). */
+  restoreFocus?: boolean;
+}
+
 interface ActivityPromise extends Promise<{ id: string; status: string }> {
   id: string;
   remove(): void;
@@ -206,8 +213,9 @@ declare class meBlip {
   /** Check if a notification exists in the queue by ID */
   has(id: string): boolean;
 
-  /** Remove a notification by ID (or the active one) */
-  remove(id?: string): void;
+  /** Remove a notification by ID (or the active one), optionally overriding focus behavior at close */
+  remove(id?: string, options?: RemoveOptions): void;
+  remove(options: RemoveOptions): void;
 
   /** Remove all notifications belonging to a group */
   removeGroup(groupId: string): void;
@@ -247,6 +255,7 @@ export type {
   OverlayStyle,
   ActivityConfig,
   ActivityPromise,
+  RemoveOptions,
   ActionConfig,
   UndoConfig,
   VerifyConfig,

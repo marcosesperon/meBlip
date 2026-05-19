@@ -183,7 +183,7 @@ Anade una actividad a la cola. Devuelve una **Promesa** que se resuelve con `{ i
 |--------|-------------|
 | `update([id], patch)` | Modifica una actividad. Si se omite el `id`, se actua sobre la notificacion activa. Util para actualizar progreso, subtitulo, tipo, etc. Produce morphing visual si se cambia el `type`. |
 | `has(id)` | Comprueba si existe una actividad con el ID dado en la cola. Devuelve `true` si existe, `false` en caso contrario. |
-| `remove([id])` | Cierra y elimina una actividad inmediatamente. Si se omite el `id`, se elimina la notificacion activa. |
+| `remove([id], [options])` | Cierra y elimina una actividad inmediatamente. Si se omite el `id`, se elimina la notificacion activa. Acepta un objeto `options` opcional con `focusOnClose` y/o `restoreFocus` para sobreescribir el comportamiento de foco solo en esta llamada (sin tener que pasar antes por `update()`). Tambien se admite `remove(options)` para actuar sobre la activa. |
 | `removeGroup(groupId)` | Cierra todas las actividades que pertenecen a un grupo. Reutiliza `remove()` internamente para cada actividad del grupo. |
 | `addUndo(config)` | Patron undo: muestra una notificacion con boton de deshacer y countdown. Ver seccion dedicada. |
 | `addVerify(config)` | Patron verify: muestra una notificacion con codigo de verificacion que el usuario debe introducir. Ver seccion dedicada. |

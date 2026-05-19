@@ -1715,12 +1715,13 @@ blip.setOverlayStyle({ blur: 4, contrast: 0.85, grayscale: 0.3 });</pre>
     blip.add({
       type: 'info', icon: 'info',
       title: 'Confirma tu acción',
-      subtitle: 'Al cerrar, el foco saltará al input',
+      subtitle: 'Aceptar → input; Cancelar → botón',
       isBlocking: true,
       focusOnClose: '#focus-target-input',
       actions: [
         { label: 'Aceptar', type: 'primary', onClick: (ctx) => blip.remove(ctx.activityId) },
-        { label: 'Cancelar', onClick: (ctx) => blip.remove(ctx.activityId) }
+        // remove() admite un override puntual de focusOnClose para esta llamada concreta
+        { label: 'Cancelar', onClick: (ctx) => blip.remove(ctx.activityId, { focusOnClose: '.cat-actions .demo-card' }) }
       ]
     });
   }
@@ -2726,10 +2727,11 @@ blip.setOverlayStyle({ blur: 4, contrast: 0.85, grayscale: 0.3 });</pre>
     },
     demoFocusOnClose: {
       title: 'Foco personalizado',
-      code: `blip.add({\n  type: 'info', icon: 'info',\n  title: 'Confirma tu acci\u00f3n',\n  subtitle: 'Al cerrar, el foco saltar\u00e1 al input',\n  isBlocking: true,\n  focusOnClose: '#focus-target-input',\n  actions: [\n    { label: 'Aceptar', type: 'primary',\n      onClick: ctx => blip.remove(ctx.activityId) },\n    { label: 'Cancelar',\n      onClick: ctx => blip.remove(ctx.activityId) }\n  ]\n});`,
+      code: `blip.add({\n  type: 'info', icon: 'info',\n  title: 'Confirma tu acci\u00f3n',\n  subtitle: 'Aceptar \u2192 input; Cancelar \u2192 bot\u00f3n',\n  isBlocking: true,\n  focusOnClose: '#focus-target-input',\n  actions: [\n    { label: 'Aceptar', type: 'primary',\n      onClick: ctx => blip.remove(ctx.activityId) },\n    { label: 'Cancelar',\n      // override puntual del focusOnClose al cerrar\n      onClick: ctx => blip.remove(ctx.activityId,\n        { focusOnClose: '.cat-actions .demo-card' }) }\n  ]\n});`,
       props: [
         { name: 'isBlocking', value: 'true', desc: 'Overlay bloqueante que captura el foco durante la notificaci\u00f3n.' },
-        { name: 'focusOnClose', value: "'#focus-target-input'", desc: 'Selector CSS del elemento que recibir\u00e1 el foco al cerrar (en lugar del elemento previo). Tambi\u00e9n acepta un Element o una funci\u00f3n que devuelva un Element.' }
+        { name: 'focusOnClose', value: "'#focus-target-input'", desc: 'Selector CSS del elemento que recibir\u00e1 el foco al cerrar (en lugar del elemento previo). Tambi\u00e9n acepta un Element o una funci\u00f3n que devuelva un Element.' },
+        { name: 'remove(id, options)', value: '{ focusOnClose: ... }', desc: 'Override puntual al cerrar: el bot\u00f3n Cancelar pasa su propio focusOnClose en remove() en lugar de usar el de la actividad.' }
       ]
     },
     demoNormalQueue: {

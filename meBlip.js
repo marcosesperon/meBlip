@@ -1454,16 +1454,40 @@ class meBlip {
    * Elimina una actividad de la cola, limpia su temporizador
    * y resuelve su promesa asociada con estado 'closed'.
    *
-   * @param {string} [id] - ID de la actividad a eliminar. Si se omite, se elimina la actividad activa.
+   * Acepta varias firmas:
+   *   remove()                  -> elimina la actividad activa
+   *   remove(id)                -> elimina la actividad indicada
+   *   remove(options)           -> elimina la activa aplicando overrides
+   *   remove(id, options)       -> elimina la indicada aplicando overrides
+   *
+   * @param {string|Object} [idOrOptions] - ID de la actividad, u objeto de opciones si se quiere
+   *   sobreescribir la activa.
+   * @param {Object} [options] - Overrides aplicados al cerrar (solo para esta llamada):
+   * @param {Element|string|function} [options.focusOnClose] - Elemento (o selector/funcion) que recibira
+   *   el foco al cerrar, sustituyendo cualquier valor previo de la actividad.
+   * @param {boolean} [options.restoreFocus] - Si false, no restaura el foco al cerrar.
    */
-  remove(id) {
-    if (!id) id = this.activeId;
+  remove(idOrOptions, options) {
+    let id, opts;
+    if (typeof idOrOptions === 'object' && idOrOptions !== null) {
+      id = this.activeId;
+      opts = idOrOptions;
+    } else {
+      id = idOrOptions || this.activeId;
+      opts = options;
+    }
     const activity = this.activities.find(a => a.id === id);
     // Callback onHide: se dispara antes de resolver la promesa
     if (activity && activity.onHide) activity.onHide({ id, type: activity.type });
     this._lastExitAnimation = activity?.exitAnimation || null;
-    if (activity && activity.restoreFocus === false) this._skipRestoreFocus = true;
-    if (activity && activity.focusOnClose) this._focusOnClose = activity.focusOnClose;
+    const restoreFocus = opts && opts.restoreFocus !== undefined
+      ? opts.restoreFocus
+      : (activity ? activity.restoreFocus : undefined);
+    const focusOnClose = opts && opts.focusOnClose !== undefined
+      ? opts.focusOnClose
+      : (activity ? activity.focusOnClose : undefined);
+    if (restoreFocus === false) this._skipRestoreFocus = true;
+    if (focusOnClose) this._focusOnClose = focusOnClose;
     if (activity && activity._scannerVars) {
       if (activity._scannerVars.testTimer) clearTimeout(activity._scannerVars.testTimer);
       if (activity._scannerVars.longPressTimer) clearTimeout(activity._scannerVars.longPressTimer);
