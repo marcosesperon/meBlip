@@ -244,6 +244,7 @@ class meBlip {
         transform: scale(1);
         opacity: 1;
         pointer-events: auto;
+        backdrop-filter: blur(var(--meblip-island-blur));
       }
 
       .meblip-island.is-visible.is-closing-fade {
@@ -404,7 +405,6 @@ class meBlip {
         fill: var(--meblip-island-bg);
         stroke: var(--meblip-island-border);
         stroke-width: 1.5px;
-        backdrop-filter: blur(var(--meblip-island-blur));
         transition: fill 0.3s ease, stroke 0.3s ease;
       }
 
@@ -433,9 +433,14 @@ class meBlip {
         gap: 12px;
       }
 
+      .meblip-close-wrap {
+        position: relative; flex-shrink: 0; margin-left: auto;
+        width: 24px; height: 24px;
+        display: flex; align-items: center; justify-content: center;
+      }
       .meblip-close-btn {
         display: flex; align-items: center; justify-content: center;
-        width: 20px; height: 20px; flex-shrink: 0; margin-left: auto;
+        width: 20px; height: 20px; flex-shrink: 0;
         background: none; border: none; color: var(--meblip-text-sub);
         cursor: pointer; border-radius: 50%; transition: background 0.2s ease, color 0.2s ease;
         padding: 0; opacity: 0.6;
@@ -994,19 +999,28 @@ class meBlip {
         transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1), background 0.3s ease;
       }
 
-      /* COUNTDOWN VISUAL - Barra inferior que se consume durante el duration */
-      .meblip-countdown {
+      /* COUNTDOWN VISUAL - Anillo circular que se completa durante el duration */
+      .meblip-close-ring {
         position: absolute;
-        bottom: 0; left: 0;
-        height: 3px;
-        background: var(--meblip-accent);
-        z-index: 12;
-        opacity: 0.7;
-        width: 100%;
+        inset: 0;
+        width: 100%; height: 100%;
+        transform: rotate(-90deg);
+        transform-origin: center;
+        pointer-events: none;
+        overflow: visible;
       }
-      .meblip-countdown.is-running { animation: meblip-countdown-shrink linear forwards; }
-      @keyframes meblip-countdown-shrink { from { width: 100%; } to { width: 0%; } }
-      .meblip-island.is-paused .meblip-countdown { animation-play-state: paused; }
+      .meblip-close-ring circle {
+        fill: none;
+        stroke: var(--meblip-accent);
+        stroke-width: 2.5;
+        stroke-linecap: round;
+        stroke-dasharray: 100;
+        stroke-dashoffset: 100;
+        opacity: 0.85;
+      }
+      .meblip-close-ring.is-running circle { animation: meblip-ring-fill linear forwards; }
+      @keyframes meblip-ring-fill { from { stroke-dashoffset: 100; } to { stroke-dashoffset: 0; } }
+      .meblip-island.is-paused .meblip-close-ring circle { animation-play-state: paused; }
 
       /* Reduced motion */
       #meblip-island-root.meblip-reduced-motion *,
@@ -1023,8 +1037,8 @@ class meBlip {
       #meblip-island-root.meblip-reduced-motion {
         transition-duration: 0.1s !important;
       }
-      #meblip-island-root.meblip-reduced-motion .meblip-countdown.is-running {
-        animation: none !important;
+      #meblip-island-root.meblip-reduced-motion .meblip-close-ring {
+        display: none !important;
       }
 
     `;
@@ -1343,8 +1357,8 @@ class meBlip {
    * @param {boolean} [config.confetti] - Si true, lanza confetti al mostrarse.
    * @param {string} [config.iconColor] - Color del icono. Acepta nombre de tipo ('success','error'...) o hex ('#ff00ff').
    * @param {string} [config.glowColor] - Color del shadow en animacion 'glow'. Acepta nombre de tipo o hex.
-   * @param {boolean} [config.showCloseButton] - Si true, muestra boton X para cerrar.
-   * @param {boolean} [config.showCountdown] - Si true, muestra barra de countdown inferior.
+   * @param {boolean} [config.showCloseButton=true] - Muestra boton X para cerrar. Visible por defecto en add(); pasa false para ocultarlo. En los metodos especiales (addUndo/addVerify/addForm/prompt/promptScanner/addUpload/addGeolocation/addMap) esta oculto por defecto salvo que pases true.
+   * @param {boolean} [config.showCountdown=true] - Muestra el anillo de countdown circular (alrededor del boton X, o como elemento visual si no hay boton). Activo por defecto siempre que haya duration; pasa false para ocultarlo.
    * @param {string} [config.exitAnimation] - Animacion de salida ('fade'|'slide-down'|'slide-up'|'shrink-bounce').
    * @param {string} [config.position] - Override de posicion para esta notificacion.
    * @param {string} [config.islandWidth] - Override de ancho para esta notificacion ('compact'|'normal'|'wide'|CSS).
@@ -1539,6 +1553,7 @@ class meBlip {
     return new Promise((resolve) => {
       const actConfig = {
         ...config,
+        showCloseButton: config.showCloseButton ?? false,
         duration: undoDuration,
         showCountdown: true,
         actions: [
@@ -1616,6 +1631,7 @@ class meBlip {
     return new Promise((resolve) => {
       const actConfig = {
         ...config,
+        showCloseButton: config.showCloseButton ?? false,
         _verify: { mode, code, codeLength: code ? code.length : codeLength, codeType, caseSensitive, confirmLabel, cancelLabel },
         actions: []
       };
@@ -1706,6 +1722,7 @@ class meBlip {
     return new Promise((resolve) => {
       const actConfig = {
         ...config,
+        showCloseButton: config.showCloseButton ?? false,
         _form: { fields, confirmLabel, cancelLabel },
         actions: []
       };
@@ -1867,6 +1884,7 @@ class meBlip {
     return new Promise((resolve) => {
       const actConfig = {
         ...config,
+        showCloseButton: config.showCloseButton ?? false,
         _upload: { multiple, accept, maxSize, confirmLabel, cancelLabel },
         actions: []
       };
@@ -1932,6 +1950,7 @@ class meBlip {
     return new Promise((resolve) => {
       const actConfig = {
         ...config,
+        showCloseButton: config.showCloseButton ?? false,
         type: config.type || 'loading',
         icon: config.icon || 'location',
         title: config.title || 'Ubicacion',
@@ -2006,6 +2025,7 @@ class meBlip {
     return new Promise((resolve) => {
       const actConfig = {
         ...config,
+        showCloseButton: config.showCloseButton ?? false,
         icon: config.icon || 'map',
         _map: { lat, lng, zoom, mapWidth, mapHeight, tileUrl, markerLabel, showMarker, cancelLabel },
         actions: []
@@ -2687,7 +2707,7 @@ class meBlip {
             <div class="meblip-title">${data.title || ''}</div>
             <div class="meblip-subtitle">${data.subtitle || ''}</div>
           </div>
-          ${data.showCloseButton ? `<button class="meblip-close-btn" aria-label="Cerrar notificación"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>` : ''}
+          ${this._closeAreaHTML(data)}
         </div>
         ${data.progress != null ? `
           <div class="meblip-progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round(data.progress * 100)}">
@@ -2728,23 +2748,54 @@ class meBlip {
   }
 
   /**
-   * Crea o actualiza la barra de countdown visual en la isla.
+   * Determina si el countdown visual (anillo) debe mostrarse para esta actividad.
+   * Activo por defecto siempre que haya `duration`, salvo `showCountdown: false`.
+   * @param {Object} data - Datos de la actividad.
+   * @returns {boolean}
+   * @private
+   */
+  _hasCountdown(data) {
+    return !!(data.duration && data.showCountdown !== false);
+  }
+
+  /**
+   * Genera el HTML de la zona de cierre del header: boton X y/o anillo de
+   * countdown circular. Si hay countdown y boton, el anillo rodea al boton.
+   * Si hay countdown sin boton, el anillo aparece como elemento visual.
+   * @param {Object} data - Datos de la actividad.
+   * @returns {string}
+   * @private
+   */
+  _closeAreaHTML(data) {
+    const showClose = data.showCloseButton !== false;
+    const showCountdown = this._hasCountdown(data);
+    if (!showClose && !showCountdown) return '';
+    const ring = showCountdown
+      ? `<svg class="meblip-close-ring" viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="18" r="15.915"/></svg>`
+      : '';
+    const btn = showClose
+      ? `<button class="meblip-close-btn" aria-label="Cerrar notificación"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>`
+      : '';
+    return `<div class="meblip-close-wrap">${ring}${btn}</div>`;
+  }
+
+  /**
+   * Arranca la animacion del anillo de countdown circular si existe en el header.
+   * El anillo se completa (0% -> 100%) durante el `duration` y se pausa al hacer
+   * hover (via clase `is-paused` en la isla).
    * @param {Object} data - Datos de la actividad.
    * @private
    */
   _updateCountdown(data) {
-    const existing = this.island?.querySelector('.meblip-countdown');
-    if (existing) existing.remove();
-    if (data.duration && data.showCountdown === true && this.island) {
-      const el = document.createElement('div');
-      el.className = 'meblip-countdown';
-      this.island.appendChild(el);
-      requestAnimationFrame(() => {
-        el.style.animationDuration = `${data.duration}ms`;
-        el.classList.add('is-running');
-        if (this.isPaused) this.island.classList.add('is-paused');
-      });
-    }
+    const ring = this.content?.querySelector('.meblip-close-ring');
+    if (!ring) return;
+    const circle = ring.querySelector('circle');
+    if (circle) circle.style.animationDuration = `${data.duration}ms`;
+    requestAnimationFrame(() => {
+      if (!ring.isConnected) return;
+      ring.classList.add('is-running');
+      if (this.isPaused) this.island?.classList.add('is-paused');
+    });
   }
 
   /**
@@ -3442,8 +3493,8 @@ class meBlip {
     }
     this.isClosing = true;
     if (this.content) this.content.classList.remove('is-active');
-    const countdown = this.island?.querySelector('.meblip-countdown');
-    if (countdown) countdown.remove();
+    const countdownRing = this.island?.querySelector('.meblip-close-ring');
+    if (countdownRing) countdownRing.classList.remove('is-running');
     if (this.island) {
       this.island.setAttribute('tabindex', '-1');
       // Detener animaciones infinitas y limpiar clases de entrada/salida

@@ -156,7 +156,7 @@ Anade una actividad a la cola. Devuelve una **Promesa** que se resuelve con `{ i
 | `groupTitle` | `string` | Plantilla de titulo para el grupo. Usa `{n}` para el conteo (ej: `'Subiendo {n} archivos'`). |
 | `actions` | `array` | Botones de accion: `[{ label, type, icon, onClick }]`. `icon` es HTML opcional para mostrar un icono junto al texto. El callback recibe `{ activityId }`. |
 | `closeOnClick` | `boolean` | Si es `true`, la isla se cierra al hacer clic sobre ella. |
-| `showCloseButton` | `boolean` | Si es `true`, muestra un boton X en la esquina derecha para cerrar la notificacion. |
+| `showCloseButton` | `boolean` | Muestra un boton X en la esquina derecha para cerrar la notificacion. Visible por defecto (`true`) en `add()`; pasa `false` para ocultarlo. En los metodos especiales (`addUndo`, `addVerify`, `addForm`, `prompt`, `promptScanner`, `addUpload`, `addGeolocation`, `addMap`) esta oculto por defecto: pasa `showCloseButton: true` para mostrarlo. |
 | `persistent` | `boolean` | Si es `true`, la notificacion no se puede cerrar con Escape, click ni boton X. Solo se cierra programaticamente via `remove()` o `update()` con `duration`. |
 | `isBlocking` | `boolean` | Activa un overlay que impide interactuar con el fondo. |
 | `restoreFocus` | `boolean` | Si es `false`, no restaura el foco al elemento previamente enfocado cuando se cierra una notificacion bloqueante. Por defecto `true`. |
@@ -167,7 +167,7 @@ Anade una actividad a la cola. Devuelve una **Promesa** que se resuelve con `{ i
 | `glowColor` | `string` | Color del shadow en la animacion `glow`. Acepta un nombre de tipo (`'error'`, `'success'`...) o un color hex (`'#ff00ff'`). Si se omite, usa el color de acento. |
 | `entryAnimation` | `string` | Animacion de entrada alternativa: `'slide-spring'`. La isla entra deslizandose con rebote elastico en lugar del scale clasico. |
 | `exitAnimation` | `string` | Animacion de salida: `'fade'`, `'slide-down'`, `'slide-up'` o `'shrink-bounce'`. Si se omite, se usa el colapso por defecto. |
-| `showCountdown` | `boolean` | Si es `true`, muestra una barra visual de countdown en la parte inferior de la isla. Por defecto `false`. |
+| `showCountdown` | `boolean` | Muestra el anillo de countdown circular que se completa (0% → 100%) durante el `duration`. Si hay boton X, el anillo lo rodea; si no, aparece como un elemento redondo solo visual. **Activo por defecto siempre que haya `duration`**; pasa `false` para ocultarlo. |
 | `confetti` | `boolean` | Si es `true`, lanza un efecto de confetti al mostrarse la notificacion. |
 | `onShow` | `function` | Callback que se ejecuta cuando la actividad se muestra por primera vez. Recibe `{ id, type }`. |
 | `onHide` | `function` | Callback que se ejecuta cuando la actividad se cierra. Recibe `{ id, type }`. |

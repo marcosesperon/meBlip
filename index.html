@@ -635,6 +635,108 @@ body.light-mode .info-drawer-table td:nth-child(2) { color: #7c3aed; }
   #info-drawer-panel { width: 100vw; }
 }
 
+/* ── Referencia de la API ──────────────────────── */
+.api-reference { margin-top: 60px; scroll-margin-top: 80px; }
+.api-ref-intro {
+  font-size: 13.5px;
+  color: #a1a1aa;
+  max-width: 780px;
+  margin: -4px 0 32px;
+}
+body.light-mode .api-ref-intro { color: #71717a; }
+.api-ref-intro code {
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  font-size: 12.5px;
+  color: #93c5fd;
+  background: rgba(96,165,250,0.1);
+  padding: 1px 6px;
+  border-radius: 5px;
+}
+body.light-mode .api-ref-intro code { color: #2563eb; background: rgba(37,99,235,0.08); }
+
+.api-ref-block { margin-bottom: 38px; }
+.api-ref-block h3 {
+  font-size: 15px;
+  font-weight: 700;
+  color: #e4e4e7;
+  margin-bottom: 4px;
+  display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;
+}
+body.light-mode .api-ref-block h3 { color: #18181b; }
+.api-ref-block h3 code {
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  font-size: 13px;
+  color: #60a5fa;
+  background: rgba(96,165,250,0.1);
+  padding: 3px 9px;
+  border-radius: 7px;
+  font-weight: 600;
+}
+body.light-mode .api-ref-block h3 code { color: #2563eb; background: rgba(37,99,235,0.08); }
+.api-ref-block h3 .api-ref-h3-note { font-size: 12px; font-weight: 500; color: #71717a; }
+.api-ref-desc { font-size: 12.5px; color: #71717a; margin: 0 0 12px; max-width: 780px; }
+.api-ref-desc code {
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  font-size: 11.5px;
+  color: #a78bfa;
+}
+body.light-mode .api-ref-desc code { color: #7c3aed; }
+
+.api-ref-table-wrap {
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 12px;
+  overflow: hidden;
+  background: rgba(255,255,255,0.015);
+}
+body.light-mode .api-ref-table-wrap { border-color: rgba(0,0,0,0.06); background: #ffffff; }
+.api-ref-table-wrap .info-drawer-table th { padding: 10px 14px; background: rgba(255,255,255,0.02); }
+body.light-mode .api-ref-table-wrap .info-drawer-table th { background: rgba(0,0,0,0.02); }
+.api-ref-table-wrap .info-drawer-table td { padding: 9px 14px; }
+.api-ref-table-wrap .info-drawer-table tr:last-child td { border-bottom: none; }
+.api-ref-table-wrap .info-drawer-table td:last-child code {
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  font-size: 11.5px;
+  color: #a78bfa;
+}
+body.light-mode .api-ref-table-wrap .info-drawer-table td:last-child code { color: #7c3aed; }
+.api-ref-table-wrap .info-drawer-table td:last-child em { color: #93c5fd; font-style: normal; }
+body.light-mode .api-ref-table-wrap .info-drawer-table td:last-child em { color: #2563eb; }
+.api-ref-table-wrap .info-drawer-table .req { color: #f87171; font-weight: 700; }
+body.light-mode .api-ref-table-wrap .info-drawer-table .req { color: #dc2626; }
+
+.api-ref-enums { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; }
+.api-ref-enum {
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 10px;
+  padding: 13px 14px;
+  background: rgba(255,255,255,0.015);
+}
+body.light-mode .api-ref-enum { border-color: rgba(0,0,0,0.06); background: #ffffff; }
+.api-ref-enum-label {
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em;
+  color: #a1a1aa; font-weight: 600; margin-bottom: 9px;
+}
+body.light-mode .api-ref-enum-label { color: #71717a; }
+.api-ref-enum-label code {
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  text-transform: none; letter-spacing: 0; color: #60a5fa; font-size: 11px;
+}
+body.light-mode .api-ref-enum-label code { color: #2563eb; }
+.api-ref-enum-values { display: flex; flex-wrap: wrap; gap: 6px; }
+.api-ref-tag {
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  font-size: 11.5px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: rgba(167,139,250,0.12);
+  color: #c4b5fd;
+}
+body.light-mode .api-ref-tag { background: rgba(124,58,237,0.08); color: #7c3aed; }
+.api-ref-tag.is-default { background: rgba(34,197,94,0.14); color: #4ade80; }
+body.light-mode .api-ref-tag.is-default { background: rgba(34,197,94,0.1); color: #16a34a; }
+.cat-reference-badge { background: rgba(96,165,250,0.12); color: #60a5fa; }
+body.light-mode .cat-reference-badge { background: rgba(37,99,235,0.1); color: #2563eb; }
+
 </style>
 </head>
 
@@ -647,6 +749,7 @@ body.light-mode .info-drawer-table td:nth-child(2) { color: #7c3aed; }
     meBlip
   </div>
   <div class="header-links">
+    <a href="#api-reference" class="github-link">API</a>
     <a href="https://github.com/marcosesperon/meBlip" target="_blank" rel="noopener" class="github-link">GitHub</a>
     <a class="bmc-btn" href="https://buymeacoffee.com/marcosesperon" target="_blank" rel="noopener">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>
@@ -1506,6 +1609,403 @@ blip.setOverlayStyle({ blur: 4, contrast: 0.85, grayscale: 0.3 });</pre>
     </div>
   </section>
 
+  <!-- ── Referencia de la API ──────────────────────── -->
+  <section class="demo-category api-reference" id="api-reference">
+    <div class="demo-category-header">
+      <h2>Referencia de la API</h2>
+      <span class="demo-category-badge cat-reference-badge">Todas las opciones</span>
+    </div>
+    <p class="api-ref-intro">Documentaci&oacute;n completa de cada opci&oacute;n que admite el componente: el constructor, los m&eacute;todos de configuraci&oacute;n, <code>add()</code> y todos los m&eacute;todos especiales. Las opciones con un valor por defecto indicado son opcionales; las marcadas con <span class="req">*</span> son obligatorias.</p>
+
+    <!-- Constructor -->
+    <div class="api-ref-block">
+      <h3><code>new meBlip(options)</code> <span class="api-ref-h3-note">opciones de instancia</span></h3>
+      <p class="api-ref-desc">Configuraci&oacute;n global aplicada a todas las notificaciones. Todas las opciones son opcionales.</p>
+      <div class="api-ref-table-wrap">
+        <table class="info-drawer-table">
+          <tr><th>Opci&oacute;n</th><th>Tipo</th><th>Descripci&oacute;n</th></tr>
+          <tr><td>position</td><td>string</td><td>Posici&oacute;n en pantalla. Por defecto <code>'top-center'</code>. Ver <em>Valores admitidos</em>.</td></tr>
+          <tr><td>theme</td><td>string</td><td>Tema visual: <code>'dark'</code> | <code>'light'</code> | <code>'system'</code>. Por defecto <code>'dark'</code>.</td></tr>
+          <tr><td>stackStyle</td><td>string</td><td>Estilo de apilado de la cola: <code>'3d'</code> | <code>'fan'</code> | <code>'counter'</code>. Por defecto <code>'3d'</code>.</td></tr>
+          <tr><td>islandWidth</td><td>string</td><td>Ancho de la isla: <code>'compact'</code> | <code>'normal'</code> | <code>'wide'</code> o un valor CSS. Por defecto <code>'normal'</code>.</td></tr>
+          <tr><td>autoConfetti</td><td>boolean</td><td>Lanza confetti autom&aacute;ticamente en notificaciones de tipo <code>success</code>. Por defecto <code>false</code>.</td></tr>
+          <tr><td>reducedMotion</td><td>boolean | 'system'</td><td>Reduce/desactiva las animaciones. <code>'system'</code> respeta <code>prefers-reduced-motion</code>. Por defecto <code>false</code>.</td></tr>
+          <tr><td>closeAnimation</td><td>boolean</td><td>Animaci&oacute;n de cierre. <code>false</code> usa un fade r&aacute;pido. Por defecto <code>true</code>.</td></tr>
+          <tr><td>typeColors</td><td>object</td><td>Sobrescribe los colores por tipo. Ej: <code>{ success: '#43A047', error: '#E53935' }</code>.</td></tr>
+          <tr><td>icons</td><td>object</td><td>A&ntilde;ade o sobrescribe iconos SVG por clave. Ej: <code>{ rocket: '&lt;svg&gt;&hellip;&lt;/svg&gt;' }</code>.</td></tr>
+          <tr><td>overlayStyle</td><td>object</td><td><code>backdrop-filter</code> del overlay bloqueante: <code>{ blur, contrast, grayscale }</code> (ver fila siguiente).</td></tr>
+          <tr><td>overlayStyle.blur</td><td>number</td><td>Desenfoque en px.</td></tr>
+          <tr><td>overlayStyle.contrast</td><td>number</td><td>Contraste de 0 a 1 (1 es normal).</td></tr>
+          <tr><td>overlayStyle.grayscale</td><td>number</td><td>Escala de grises de 0 a 1 (0 es normal).</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- Setters -->
+    <div class="api-ref-block">
+      <h3>M&eacute;todos de configuraci&oacute;n</h3>
+      <p class="api-ref-desc">Cambian la configuraci&oacute;n global en caliente, despu&eacute;s de instanciar.</p>
+      <div class="api-ref-table-wrap">
+        <table class="info-drawer-table">
+          <tr><th>M&eacute;todo</th><th>Par&aacute;metro</th><th>Descripci&oacute;n</th></tr>
+          <tr><td>setTheme(theme)</td><td>'dark'|'light'|'system'</td><td>Cambia el tema visual.</td></tr>
+          <tr><td>setPosition(pos)</td><td>Position</td><td>Cambia la posici&oacute;n en pantalla.</td></tr>
+          <tr><td>setStackStyle(style)</td><td>'3d'|'fan'|'counter'</td><td>Cambia el estilo de apilado de la cola.</td></tr>
+          <tr><td>setIslandWidth(width)</td><td>'compact'|'normal'|'wide'|CSS</td><td>Cambia el ancho por defecto de la isla.</td></tr>
+          <tr><td>setReducedMotion(value)</td><td>boolean|'system'</td><td>Activa/desactiva el movimiento reducido.</td></tr>
+          <tr><td>setOverlayStyle(style)</td><td>{blur,contrast,grayscale}</td><td>Ajusta el <code>backdrop-filter</code> del overlay bloqueante.</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- add() -->
+    <div class="api-ref-block">
+      <h3><code>add(config)</code> <span class="api-ref-h3-note">opciones de una notificaci&oacute;n</span></h3>
+      <p class="api-ref-desc">Estas opciones tambi&eacute;n est&aacute;n disponibles en <code>update()</code> y en todos los m&eacute;todos especiales (<code>addUndo</code>, <code>addVerify</code>, <code>addForm</code>, <code>prompt</code>, <code>addUpload</code>, <code>addGeolocation</code>, <code>addMap</code>, <code>promise</code>, <code>chain</code>).</p>
+      <div class="api-ref-table-wrap">
+        <table class="info-drawer-table">
+          <tr><th>Opci&oacute;n</th><th>Tipo</th><th>Descripci&oacute;n</th></tr>
+          <tr><td>id</td><td>string</td><td>ID &uacute;nico. Se genera autom&aacute;ticamente si se omite.</td></tr>
+          <tr><td>type</td><td>string</td><td>Tipo de actividad; define color e icono por defecto. Ver <em>Valores admitidos</em>.</td></tr>
+          <tr><td>title</td><td>string</td><td>T&iacute;tulo principal.</td></tr>
+          <tr><td>subtitle</td><td>string</td><td>Texto secundario. Admite HTML.</td></tr>
+          <tr><td>content</td><td>string</td><td>HTML personalizado entre el header y las acciones.</td></tr>
+          <tr><td>icon</td><td>string</td><td>HTML/SVG del icono, o una clave de icono integrado (ver <em>Valores admitidos</em>). Sobrescribe el icono del tipo.</td></tr>
+          <tr><td>avatarUrl</td><td>string</td><td>URL de imagen de avatar (reemplaza al icono).</td></tr>
+          <tr><td>progress</td><td>number</td><td>Progreso de 0 a 1; muestra una barra de progreso.</td></tr>
+          <tr><td>duration</td><td>number</td><td>ms antes del auto-cierre. Si se omite, la notificaci&oacute;n permanece abierta.</td></tr>
+          <tr><td>priority</td><td>string</td><td>Prioridad en la cola: <code>'low'</code> | <code>'normal'</code> | <code>'high'</code>. Por defecto <code>'normal'</code>.</td></tr>
+          <tr><td>closeOnClick</td><td>boolean</td><td>Cierra la isla al hacer click sobre ella. Por defecto <code>false</code>.</td></tr>
+          <tr><td>persistent</td><td>boolean</td><td>No se puede cerrar con Escape, click ni bot&oacute;n X; solo program&aacute;ticamente. Por defecto <code>false</code>.</td></tr>
+          <tr><td>isBlocking</td><td>boolean</td><td>Muestra un overlay bloqueante de fondo. Por defecto <code>false</code>.</td></tr>
+          <tr><td>waitToDisplay</td><td>boolean</td><td>El temporizador de <code>duration</code> no arranca hasta que la actividad se muestre. Por defecto <code>false</code>.</td></tr>
+          <tr><td>enableAnimations</td><td>boolean</td><td>Activa las animaciones de la isla. Por defecto <code>true</code>.</td></tr>
+          <tr><td>animation</td><td>string</td><td>Override de animaci&oacute;n de la isla. Ver <em>Valores admitidos</em>; <code>'none'</code> la desactiva.</td></tr>
+          <tr><td>entryAnimation</td><td>string</td><td>Animaci&oacute;n de entrada alternativa: <code>'slide-spring'</code>.</td></tr>
+          <tr><td>exitAnimation</td><td>string</td><td>Animaci&oacute;n de salida: <code>'fade'</code> | <code>'slide-down'</code> | <code>'slide-up'</code> | <code>'shrink-bounce'</code>.</td></tr>
+          <tr><td>soundUrl</td><td>string</td><td>URL de un sonido a reproducir cuando la actividad se muestre.</td></tr>
+          <tr><td>groupId</td><td>string</td><td>Agrupa actividades similares (incrementa el contador y promedia el progreso).</td></tr>
+          <tr><td>groupTitle</td><td>string</td><td>Plantilla de t&iacute;tulo del grupo. Usa <code>{n}</code> como contador.</td></tr>
+          <tr><td>actions</td><td>array</td><td>Botones de acci&oacute;n. Ver <em>Estructura de un bot&oacute;n</em>.</td></tr>
+          <tr><td>confetti</td><td>boolean</td><td>Lanza confetti al mostrarse. Por defecto <code>false</code>.</td></tr>
+          <tr><td>iconColor</td><td>string</td><td>Color del icono. Acepta un nombre de tipo (<code>'success'</code>&hellip;) o un hex.</td></tr>
+          <tr><td>glowColor</td><td>string</td><td>Color del resplandor en la animaci&oacute;n <code>'glow'</code>. Nombre de tipo o hex.</td></tr>
+          <tr><td>showCloseButton</td><td>boolean</td><td>Bot&oacute;n X para cerrar. Por defecto <code>true</code> en <code>add()</code>; <code>false</code> en los m&eacute;todos especiales.</td></tr>
+          <tr><td>showCountdown</td><td>boolean</td><td>Anillo de countdown circular alrededor del bot&oacute;n X (o elemento visual si no hay bot&oacute;n). Activo por defecto si hay <code>duration</code>.</td></tr>
+          <tr><td>position</td><td>string</td><td>Override de posici&oacute;n para esta notificaci&oacute;n.</td></tr>
+          <tr><td>islandWidth</td><td>string</td><td>Override de ancho para esta notificaci&oacute;n.</td></tr>
+          <tr><td>restoreFocus</td><td>boolean</td><td>Restaura el foco al elemento previo al cerrar una notificaci&oacute;n bloqueante. Por defecto <code>true</code>.</td></tr>
+          <tr><td>focusOnClose</td><td>Element|string|function</td><td>Elemento (o selector CSS / funci&oacute;n que devuelve un Element) que recibe el foco al cerrar. Ignorado si <code>restoreFocus</code> es <code>false</code>.</td></tr>
+          <tr><td>onShow</td><td>function</td><td>Callback al mostrarse. Recibe <code>{ id, type }</code>.</td></tr>
+          <tr><td>onHide</td><td>function</td><td>Callback al cerrarse. Recibe <code>{ id, type }</code>.</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- actions[] -->
+    <div class="api-ref-block">
+      <h3>Estructura de un bot&oacute;n <span class="api-ref-h3-note">elemento de <code>actions[]</code></span></h3>
+      <div class="api-ref-table-wrap">
+        <table class="info-drawer-table">
+          <tr><th>Propiedad</th><th>Tipo</th><th>Descripci&oacute;n</th></tr>
+          <tr><td>label <span class="req">*</span></td><td>string</td><td>Texto del bot&oacute;n.</td></tr>
+          <tr><td>type</td><td>string</td><td>Estilo: <code>'primary'</code> | <code>'secondary'</code> | <code>'danger'</code> | <code>'dismiss'</code>.</td></tr>
+          <tr><td>icon</td><td>string</td><td>HTML/SVG opcional mostrado junto al texto.</td></tr>
+          <tr><td>onClick</td><td>function</td><td>Callback al pulsar. Recibe <code>{ activityId }</code>.</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- Métodos principales -->
+    <div class="api-ref-block">
+      <h3>M&eacute;todos de gesti&oacute;n</h3>
+      <div class="api-ref-table-wrap">
+        <table class="info-drawer-table">
+          <tr><th>M&eacute;todo</th><th>Devuelve</th><th>Descripci&oacute;n</th></tr>
+          <tr><td>add(config)</td><td>Promise</td><td>A&ntilde;ade una notificaci&oacute;n. Resuelve al cerrarse con <code>{ id, status: 'closed' }</code>. La promesa expone <code>.id</code> y <code>.remove()</code>.</td></tr>
+          <tr><td>update(id, patch)</td><td>Promise</td><td>Actualiza una notificaci&oacute;n existente. Tambi&eacute;n <code>update(patch)</code> act&uacute;a sobre la activa.</td></tr>
+          <tr><td>remove(id?, options?)</td><td>&mdash;</td><td>Elimina una notificaci&oacute;n (o la activa). <code>options</code>: <code>{ focusOnClose, restoreFocus }</code> aplicados solo en esta llamada.</td></tr>
+          <tr><td>removeGroup(groupId)</td><td>&mdash;</td><td>Elimina todas las notificaciones de un grupo.</td></tr>
+          <tr><td>has(id)</td><td>boolean</td><td>Indica si existe una notificaci&oacute;n con ese ID en la cola.</td></tr>
+          <tr><td>confetti()</td><td>&mdash;</td><td>Lanza una animaci&oacute;n de confetti.</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- addUndo -->
+    <div class="api-ref-block">
+      <h3><code>addUndo(config)</code> <span class="api-ref-h3-note">+ opciones de add()</span></h3>
+      <p class="api-ref-desc">Patr&oacute;n deshacer. Devuelve <code>Promise&lt;{ id, status: 'undone' | 'confirmed' }&gt;</code>.</p>
+      <div class="api-ref-table-wrap">
+        <table class="info-drawer-table">
+          <tr><th>Opci&oacute;n</th><th>Tipo</th><th>Descripci&oacute;n</th></tr>
+          <tr><td>undoLabel</td><td>string</td><td>Texto del bot&oacute;n deshacer. Por defecto <code>'Deshacer'</code>.</td></tr>
+          <tr><td>undoDuration</td><td>number</td><td>Duraci&oacute;n del countdown en ms. Por defecto <code>5000</code>.</td></tr>
+          <tr><td>undoIcon</td><td>string</td><td>Icono opcional del bot&oacute;n deshacer.</td></tr>
+          <tr><td>onUndo</td><td>function</td><td>Callback si el usuario deshace.</td></tr>
+          <tr><td>onConfirm</td><td>function</td><td>Callback si expira el timer (acci&oacute;n confirmada).</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- addVerify -->
+    <div class="api-ref-block">
+      <h3><code>addVerify(config)</code> <span class="api-ref-h3-note">+ opciones de add()</span></h3>
+      <p class="api-ref-desc">Verificaci&oacute;n por c&oacute;digo. Devuelve <code>Promise&lt;{ id, status: 'verified' | 'submitted' | 'cancelled', code }&gt;</code>.</p>
+      <div class="api-ref-table-wrap">
+        <table class="info-drawer-table">
+          <tr><th>Opci&oacute;n</th><th>Tipo</th><th>Descripci&oacute;n</th></tr>
+          <tr><td>mode</td><td>string</td><td><code>'verify'</code> (c&oacute;digo visible) o <code>'input'</code> (c&oacute;digo ciego). Por defecto <code>'verify'</code>.</td></tr>
+          <tr><td>code</td><td>string</td><td>C&oacute;digo a verificar (modo verify). Se genera autom&aacute;ticamente si se omite.</td></tr>
+          <tr><td>codeLength</td><td>number</td><td>Longitud del c&oacute;digo. Por defecto <code>4</code>.</td></tr>
+          <tr><td>codeType</td><td>string</td><td><code>'numeric'</code> o <code>'alphanumeric'</code>. Por defecto <code>'alphanumeric'</code>.</td></tr>
+          <tr><td>caseSensitive</td><td>boolean</td><td>Distingue may&uacute;sculas/min&uacute;sculas. Por defecto <code>false</code>.</td></tr>
+          <tr><td>confirmLabel</td><td>string</td><td>Texto del bot&oacute;n confirmar (modo input). Por defecto <code>'Confirmar'</code>.</td></tr>
+          <tr><td>cancelLabel</td><td>string</td><td>Texto del bot&oacute;n cancelar. Por defecto <code>'Cancelar'</code>.</td></tr>
+          <tr><td>onVerify</td><td>function</td><td>Callback si el c&oacute;digo es correcto (modo verify).</td></tr>
+          <tr><td>onSubmit</td><td>function</td><td>Callback con el c&oacute;digo introducido (modo input).</td></tr>
+          <tr><td>onFail</td><td>function</td><td>Callback si el c&oacute;digo es incorrecto (modo verify).</td></tr>
+          <tr><td>onCancel</td><td>function</td><td>Callback si el usuario cancela.</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- addForm -->
+    <div class="api-ref-block">
+      <h3><code>addForm(config)</code> <span class="api-ref-h3-note">+ opciones de add()</span></h3>
+      <p class="api-ref-desc">Formulario en la isla. Devuelve <code>Promise&lt;{ id, status: 'submitted' | 'cancelled', data }&gt;</code>.</p>
+      <div class="api-ref-table-wrap">
+        <table class="info-drawer-table">
+          <tr><th>Opci&oacute;n</th><th>Tipo</th><th>Descripci&oacute;n</th></tr>
+          <tr><td>fields <span class="req">*</span></td><td>array</td><td>Campos del formulario. Ver <em>Estructura de un campo</em>.</td></tr>
+          <tr><td>confirmLabel</td><td>string</td><td>Texto del bot&oacute;n confirmar. Por defecto <code>'Confirmar'</code>.</td></tr>
+          <tr><td>cancelLabel</td><td>string</td><td>Texto del bot&oacute;n cancelar. Por defecto <code>'Cancelar'</code>.</td></tr>
+          <tr><td>onSubmit</td><td>function</td><td>Callback con los datos del formulario.</td></tr>
+          <tr><td>onCancel</td><td>function</td><td>Callback al cancelar.</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- Estructura de un campo -->
+    <div class="api-ref-block">
+      <h3>Estructura de un campo <span class="api-ref-h3-note">elemento de <code>fields[]</code></span></h3>
+      <div class="api-ref-table-wrap">
+        <table class="info-drawer-table">
+          <tr><th>Propiedad</th><th>Tipo</th><th>Descripci&oacute;n</th></tr>
+          <tr><td>type <span class="req">*</span></td><td>string</td><td><code>'text'</code> | <code>'email'</code> | <code>'tel'</code> | <code>'number'</code> | <code>'password'</code> | <code>'url'</code> | <code>'date'</code> | <code>'select'</code> | <code>'textarea'</code>.</td></tr>
+          <tr><td>label <span class="req">*</span></td><td>string</td><td>Etiqueta del campo.</td></tr>
+          <tr><td>required</td><td>boolean</td><td>Campo obligatorio. Por defecto <code>false</code>.</td></tr>
+          <tr><td>placeholder</td><td>string</td><td>Texto de ayuda dentro del campo.</td></tr>
+          <tr><td>value</td><td>string</td><td>Valor inicial.</td></tr>
+          <tr><td>options</td><td>array</td><td>Opciones para <code>'select'</code>. Cada elemento es un string o un array <code>[valor, etiqueta]</code>.</td></tr>
+          <tr><td>rows</td><td>number</td><td>Filas visibles para <code>'textarea'</code>. Por defecto <code>2</code>.</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- prompt -->
+    <div class="api-ref-block">
+      <h3><code>prompt(config)</code> <span class="api-ref-h3-note">+ opciones de add()</span></h3>
+      <p class="api-ref-desc">Atajo de un solo campo de texto (usa <code>addForm</code> internamente). Devuelve <code>Promise&lt;string | null&gt;</code>.</p>
+      <div class="api-ref-table-wrap">
+        <table class="info-drawer-table">
+          <tr><th>Opci&oacute;n</th><th>Tipo</th><th>Descripci&oacute;n</th></tr>
+          <tr><td>placeholder</td><td>string</td><td>Texto de ayuda dentro del campo.</td></tr>
+          <tr><td>required</td><td>boolean</td><td>Campo obligatorio. Por defecto <code>true</code>.</td></tr>
+          <tr><td>value</td><td>string</td><td>Valor inicial del campo.</td></tr>
+          <tr><td>confirmLabel</td><td>string</td><td>Texto del bot&oacute;n confirmar. Por defecto <code>'Confirmar'</code>.</td></tr>
+          <tr><td>cancelLabel</td><td>string</td><td>Texto del bot&oacute;n cancelar. Por defecto <code>'Cancelar'</code>.</td></tr>
+          <tr><td>onCancel</td><td>function</td><td>Callback al cancelar.</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- promptScanner -->
+    <div class="api-ref-block">
+      <h3><code>promptScanner(config)</code> <span class="api-ref-h3-note">+ opciones de prompt()</span></h3>
+      <p class="api-ref-desc">Prompt para esc&aacute;neres de c&oacute;digos de barras/QR (basado en onscan.js). Devuelve <code>Promise&lt;string | null&gt;</code>.</p>
+      <div class="api-ref-table-wrap">
+        <table class="info-drawer-table">
+          <tr><th>Opci&oacute;n</th><th>Tipo</th><th>Descripci&oacute;n</th></tr>
+          <tr><td>scanner</td><td>object</td><td>Opciones de detecci&oacute;n del esc&aacute;ner (callbacks <code>onScan</code>/<code>onScanError</code>, <code>minLength</code>, <code>avgTimeByChar</code>&hellip;).</td></tr>
+          <tr><td>scanner.showInput</td><td>boolean</td><td><code>false</code> oculta el input y escucha eventos en el <code>document</code> (no requiere foco). Por defecto <code>true</code>.</td></tr>
+          <tr><td>scanTarget</td><td>EventTarget</td><td>Elemento donde se disparan los eventos <code>'scan'</code>/<code>'scanError'</code>. Por defecto <code>document</code>.</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- addUpload -->
+    <div class="api-ref-block">
+      <h3><code>addUpload(config)</code> <span class="api-ref-h3-note">+ opciones de add()</span></h3>
+      <p class="api-ref-desc">Zona de subida de ficheros. Devuelve <code>Promise&lt;{ id, status: 'submitted' | 'cancelled', files }&gt;</code>.</p>
+      <div class="api-ref-table-wrap">
+        <table class="info-drawer-table">
+          <tr><th>Opci&oacute;n</th><th>Tipo</th><th>Descripci&oacute;n</th></tr>
+          <tr><td>multiple</td><td>boolean</td><td>Permite seleccionar m&uacute;ltiples ficheros. Por defecto <code>false</code>.</td></tr>
+          <tr><td>accept</td><td>string</td><td>Extensiones o MIME types permitidos. Ej: <code>'.pdf,.docx'</code>, <code>'image/*'</code>.</td></tr>
+          <tr><td>maxSize</td><td>number</td><td>Tama&ntilde;o m&aacute;ximo por fichero en bytes. <code>0</code> o sin definir = sin l&iacute;mite.</td></tr>
+          <tr><td>confirmLabel</td><td>string</td><td>Texto del bot&oacute;n confirmar. Por defecto <code>'Subir'</code>.</td></tr>
+          <tr><td>cancelLabel</td><td>string</td><td>Texto del bot&oacute;n cancelar. Por defecto <code>'Cancelar'</code>.</td></tr>
+          <tr><td>onSubmit</td><td>function</td><td>Callback con el array de ficheros.</td></tr>
+          <tr><td>onCancel</td><td>function</td><td>Callback al cancelar.</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- addGeolocation -->
+    <div class="api-ref-block">
+      <h3><code>addGeolocation(config)</code> <span class="api-ref-h3-note">+ opciones de add()</span></h3>
+      <p class="api-ref-desc">Geolocalizaci&oacute;n integrada. Devuelve <code>Promise&lt;{ id, status: 'located' | 'cancelled' | 'error', position, error }&gt;</code>.</p>
+      <div class="api-ref-table-wrap">
+        <table class="info-drawer-table">
+          <tr><th>Opci&oacute;n</th><th>Tipo</th><th>Descripci&oacute;n</th></tr>
+          <tr><td>highAccuracy</td><td>boolean</td><td>Solicita alta precisi&oacute;n (GPS). Por defecto <code>false</code>.</td></tr>
+          <tr><td>timeout</td><td>number</td><td>Tiempo m&aacute;ximo en ms para obtener la posici&oacute;n.</td></tr>
+          <tr><td>maximumAge</td><td>number</td><td>Edad m&aacute;xima en ms de una posici&oacute;n cacheada aceptable.</td></tr>
+          <tr><td>duration</td><td>number</td><td>Tiempo en ms que la notificaci&oacute;n permanece visible tras el resultado.</td></tr>
+          <tr><td>cancelLabel</td><td>string</td><td>Texto del bot&oacute;n cancelar. Por defecto <code>'Cancelar'</code>.</td></tr>
+          <tr><td>onCancel</td><td>function</td><td>Callback al cancelar.</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- addMap -->
+    <div class="api-ref-block">
+      <h3><code>addMap(config)</code> <span class="api-ref-h3-note">+ opciones de add()</span></h3>
+      <p class="api-ref-desc">Previsualizaci&oacute;n de mapa est&aacute;tico. Devuelve <code>Promise&lt;{ id, status: 'closed' | 'cancelled' }&gt;</code>.</p>
+      <div class="api-ref-table-wrap">
+        <table class="info-drawer-table">
+          <tr><th>Opci&oacute;n</th><th>Tipo</th><th>Descripci&oacute;n</th></tr>
+          <tr><td>lat <span class="req">*</span></td><td>number</td><td>Latitud del centro del mapa.</td></tr>
+          <tr><td>lng <span class="req">*</span></td><td>number</td><td>Longitud del centro del mapa.</td></tr>
+          <tr><td>zoom</td><td>number</td><td>Nivel de zoom (1-19). Por defecto <code>15</code>.</td></tr>
+          <tr><td>mapWidth</td><td>number</td><td>Ancho del mapa en px. Por defecto <code>368</code>.</td></tr>
+          <tr><td>mapHeight</td><td>number</td><td>Alto del mapa en px. Por defecto <code>160</code>.</td></tr>
+          <tr><td>tileUrl</td><td>string</td><td>URL de tiles con placeholders <code>{z}</code>, <code>{x}</code>, <code>{y}</code>. Por defecto OpenStreetMap.</td></tr>
+          <tr><td>markerLabel</td><td>string</td><td>Texto descriptivo debajo del mapa.</td></tr>
+          <tr><td>showMarker</td><td>boolean</td><td>Muestra un marcador en el centro. Por defecto <code>true</code>.</td></tr>
+          <tr><td>cancelLabel</td><td>string</td><td>Texto del bot&oacute;n cerrar. Por defecto <code>'Cerrar'</code>.</td></tr>
+          <tr><td>actions</td><td>array</td><td>Botones de acci&oacute;n adicionales. Ver <em>Estructura de un bot&oacute;n</em>.</td></tr>
+          <tr><td>onCancel</td><td>function</td><td>Callback al cerrar.</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- promise -->
+    <div class="api-ref-block">
+      <h3><code>promise(userPromise, config)</code> <span class="api-ref-h3-note">+ opciones de add()</span></h3>
+      <p class="api-ref-desc">Observa una promesa: muestra <code>loading</code> mientras est&aacute; pendiente y transiciona a <code>success</code>/<code>error</code>. Devuelve <code>Promise&lt;{ id, status: 'resolved' | 'rejected', data?, error? }&gt;</code>.</p>
+      <div class="api-ref-table-wrap">
+        <table class="info-drawer-table">
+          <tr><th>Opci&oacute;n</th><th>Tipo</th><th>Descripci&oacute;n</th></tr>
+          <tr><td>loading</td><td>object</td><td>Override de propiedades para la fase loading (<code>title</code>, <code>subtitle</code>, <code>icon</code>&hellip;).</td></tr>
+          <tr><td>success</td><td>object | function</td><td>Override para la fase success. Si es funci&oacute;n, recibe el resultado: <code>(data) =&gt; ({&hellip;})</code>.</td></tr>
+          <tr><td>error</td><td>object | function</td><td>Override para la fase error. Si es funci&oacute;n, recibe el error: <code>(err) =&gt; ({&hellip;})</code>.</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- chain -->
+    <div class="api-ref-block">
+      <h3><code>chain(steps)</code></h3>
+      <p class="api-ref-desc">Encadena varios pasos en la misma isla. Devuelve <code>Promise&lt;{ id, status: 'chain-complete' | 'chain-interrupted' }&gt;</code>.</p>
+      <div class="api-ref-table-wrap">
+        <table class="info-drawer-table">
+          <tr><th>Par&aacute;metro</th><th>Tipo</th><th>Descripci&oacute;n</th></tr>
+          <tr><td>steps <span class="req">*</span></td><td>array</td><td>Lista de pasos. Cada paso acepta las mismas propiedades que <code>add()</code> m&aacute;s <code>until</code>.</td></tr>
+          <tr><td>step.until</td><td>Promise</td><td>Espera a esta promesa antes de avanzar al siguiente paso.</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- Valores admitidos -->
+    <div class="api-ref-block">
+      <h3>Valores admitidos</h3>
+      <p class="api-ref-desc">Enumeraciones aceptadas por las distintas opciones. El valor por defecto aparece <span class="api-ref-tag is-default">resaltado</span>.</p>
+      <div class="api-ref-enums">
+        <div class="api-ref-enum">
+          <div class="api-ref-enum-label">Tipos <code>type</code></div>
+          <div class="api-ref-enum-values">
+            <span class="api-ref-tag">success</span><span class="api-ref-tag">error</span><span class="api-ref-tag">info</span><span class="api-ref-tag">warning</span><span class="api-ref-tag">upload</span><span class="api-ref-tag">download</span><span class="api-ref-tag">loading</span><span class="api-ref-tag">thinking</span><span class="api-ref-tag">speaking</span><span class="api-ref-tag">listening</span><span class="api-ref-tag">&hellip;personalizado</span>
+          </div>
+        </div>
+        <div class="api-ref-enum">
+          <div class="api-ref-enum-label">Iconos integrados <code>icon</code></div>
+          <div class="api-ref-enum-values">
+            <span class="api-ref-tag">success</span><span class="api-ref-tag">error</span><span class="api-ref-tag">info</span><span class="api-ref-tag">warning</span><span class="api-ref-tag">upload</span><span class="api-ref-tag">download</span><span class="api-ref-tag">loading</span><span class="api-ref-tag">thinking</span><span class="api-ref-tag">speaking</span><span class="api-ref-tag">listening</span><span class="api-ref-tag">typingDots</span><span class="api-ref-tag">progressOrbit</span><span class="api-ref-tag">location</span><span class="api-ref-tag">map</span>
+          </div>
+        </div>
+        <div class="api-ref-enum">
+          <div class="api-ref-enum-label">Animaciones <code>animation</code></div>
+          <div class="api-ref-enum-values">
+            <span class="api-ref-tag">shake</span><span class="api-ref-tag">pulse</span><span class="api-ref-tag">bounce</span><span class="api-ref-tag">glow</span><span class="api-ref-tag">breathe</span><span class="api-ref-tag">heartbeat</span><span class="api-ref-tag">wobble</span><span class="api-ref-tag">ripple</span><span class="api-ref-tag">swing</span><span class="api-ref-tag">none</span>
+          </div>
+        </div>
+        <div class="api-ref-enum">
+          <div class="api-ref-enum-label">Entrada <code>entryAnimation</code></div>
+          <div class="api-ref-enum-values">
+            <span class="api-ref-tag">slide-spring</span>
+          </div>
+        </div>
+        <div class="api-ref-enum">
+          <div class="api-ref-enum-label">Salida <code>exitAnimation</code></div>
+          <div class="api-ref-enum-values">
+            <span class="api-ref-tag">fade</span><span class="api-ref-tag">slide-down</span><span class="api-ref-tag">slide-up</span><span class="api-ref-tag">shrink-bounce</span>
+          </div>
+        </div>
+        <div class="api-ref-enum">
+          <div class="api-ref-enum-label">Posiciones <code>position</code></div>
+          <div class="api-ref-enum-values">
+            <span class="api-ref-tag">top-left</span><span class="api-ref-tag is-default">top-center</span><span class="api-ref-tag">top-right</span><span class="api-ref-tag">center</span><span class="api-ref-tag">bottom-left</span><span class="api-ref-tag">bottom-center</span><span class="api-ref-tag">bottom-right</span>
+          </div>
+        </div>
+        <div class="api-ref-enum">
+          <div class="api-ref-enum-label">Tema <code>theme</code></div>
+          <div class="api-ref-enum-values">
+            <span class="api-ref-tag is-default">dark</span><span class="api-ref-tag">light</span><span class="api-ref-tag">system</span>
+          </div>
+        </div>
+        <div class="api-ref-enum">
+          <div class="api-ref-enum-label">Apilado <code>stackStyle</code></div>
+          <div class="api-ref-enum-values">
+            <span class="api-ref-tag is-default">3d</span><span class="api-ref-tag">fan</span><span class="api-ref-tag">counter</span>
+          </div>
+        </div>
+        <div class="api-ref-enum">
+          <div class="api-ref-enum-label">Ancho <code>islandWidth</code></div>
+          <div class="api-ref-enum-values">
+            <span class="api-ref-tag">compact</span><span class="api-ref-tag is-default">normal</span><span class="api-ref-tag">wide</span><span class="api-ref-tag">&hellip;valor CSS</span>
+          </div>
+        </div>
+        <div class="api-ref-enum">
+          <div class="api-ref-enum-label">Prioridad <code>priority</code></div>
+          <div class="api-ref-enum-values">
+            <span class="api-ref-tag">low</span><span class="api-ref-tag is-default">normal</span><span class="api-ref-tag">high</span>
+          </div>
+        </div>
+        <div class="api-ref-enum">
+          <div class="api-ref-enum-label">Tipos de campo <code>fields[].type</code></div>
+          <div class="api-ref-enum-values">
+            <span class="api-ref-tag">text</span><span class="api-ref-tag">email</span><span class="api-ref-tag">tel</span><span class="api-ref-tag">number</span><span class="api-ref-tag">password</span><span class="api-ref-tag">url</span><span class="api-ref-tag">date</span><span class="api-ref-tag">select</span><span class="api-ref-tag">textarea</span>
+          </div>
+        </div>
+        <div class="api-ref-enum">
+          <div class="api-ref-enum-label">Tipos de bot&oacute;n <code>actions[].type</code></div>
+          <div class="api-ref-enum-values">
+            <span class="api-ref-tag">primary</span><span class="api-ref-tag">secondary</span><span class="api-ref-tag">danger</span><span class="api-ref-tag">dismiss</span>
+          </div>
+        </div>
+        <div class="api-ref-enum">
+          <div class="api-ref-enum-label">Movimiento <code>reducedMotion</code></div>
+          <div class="api-ref-enum-values">
+            <span class="api-ref-tag is-default">false</span><span class="api-ref-tag">true</span><span class="api-ref-tag">system</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </section>
+
 </div>
 
 <!-- ── Footer ──────────────────────────────────── -->
@@ -1786,7 +2286,7 @@ blip.setOverlayStyle({ blur: 4, contrast: 0.85, grayscale: 0.3 });</pre>
   }
 
   function demoCountdown() {
-    blip.add({ type: 'info', icon: 'info', title: 'Countdown', subtitle: 'Observa la barra inferior (hover para pausar)', duration: 5000, showCountdown: true });
+    blip.add({ type: 'info', icon: 'info', title: 'Countdown', subtitle: 'Observa el anillo del botón X (hover para pausar)', duration: 5000, showCountdown: true });
   }
 
   function demoUndo() {
@@ -2544,7 +3044,7 @@ blip.setOverlayStyle({ blur: 4, contrast: 0.85, grayscale: 0.3 });</pre>
       props: [
         { name: 'type', value: "'warning'", desc: 'Tipo warning. Aplica fondo \u00e1mbar (#f59e0b).' },
         { name: 'icon', value: "'warning'", desc: 'Icono SVG de alerta predefinido.' },
-        { name: 'showCloseButton', value: 'true', desc: 'Muestra un bot\u00f3n X para cerrar manualmente.' },
+        { name: 'showCloseButton', value: 'true', desc: 'Bot\u00f3n X para cerrar manualmente. Visible por defecto; usa false para ocultarlo.' },
         { name: 'soundUrl', value: "'https://...'", desc: 'URL de audio que se reproduce al mostrarse.' }
       ]
     },
@@ -2747,7 +3247,7 @@ blip.setOverlayStyle({ blur: 4, contrast: 0.85, grayscale: 0.3 });</pre>
       code: `blip.add({\n  type: 'info', icon: 'info',\n  title: 'Primera',\n  subtitle: 'Estoy ocupando la isla 2s',\n  duration: 2000\n});\nblip.add({\n  type: 'success', icon: 'success',\n  title: 'Esper\u00e9 mi turno',\n  subtitle: 'Mis 3s empiezan ahora que me ves',\n  duration: 3000,\n  waitToDisplay: true,\n  showCountdown: true\n});`,
       props: [
         { name: 'waitToDisplay', value: 'true', desc: 'La duraci\u00f3n cuenta desde que se muestra, no desde que se a\u00f1ade a la cola.' },
-        { name: 'showCountdown', value: 'true', desc: 'Barra visual de countdown en la parte inferior de la isla.' }
+        { name: 'showCountdown', value: 'true', desc: 'Anillo de countdown circular alrededor del botón X (activo por defecto si hay duration).' }
       ]
     },
     demoHighPriority: {
@@ -2798,10 +3298,10 @@ blip.setOverlayStyle({ blur: 4, contrast: 0.85, grayscale: 0.3 });</pre>
     },
     demoCountdown: {
       title: 'Countdown',
-      code: `blip.add({\n  type: 'info',\n  icon: 'info',\n  title: 'Countdown',\n  subtitle: 'Observa la barra inferior\\n    (hover para pausar)',\n  duration: 5000,\n  showCountdown: true\n});`,
+      code: `blip.add({\n  type: 'info',\n  icon: 'info',\n  title: 'Countdown',\n  subtitle: 'Observa el anillo del bot\u00f3n X\\n    (hover para pausar)',\n  duration: 5000,\n  showCountdown: true\n});`,
       props: [
-        { name: 'showCountdown', value: 'true', desc: 'Barra visual de countdown en la parte inferior. Se pausa con hover.' },
-        { name: 'duration', value: '5000', desc: 'La barra se vac\u00eda progresivamente durante 5 segundos.' }
+        { name: 'showCountdown', value: 'true', desc: 'Anillo circular que se completa (0%\u2192100%) durante el duration, alrededor del bot\u00f3n X. Se pausa con hover. Activo por defecto si hay duration; usa false para ocultarlo.' },
+        { name: 'duration', value: '5000', desc: 'El anillo se completa progresivamente durante 5 segundos.' }
       ]
     },
     demoUndo: {
@@ -3310,7 +3810,5 @@ blip.setOverlayStyle({ blur: 4, contrast: 0.85, grayscale: 0.3 });</pre>
   </div>
 </div>
 
-</body>
-</html>
 </body>
 </html>

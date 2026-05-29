@@ -46,7 +46,10 @@ interface ActivityConfig {
   duration?: number;
   priority?: Priority;
   progress?: number;
+  /** Muestra el anillo de countdown circular que se completa durante el duration (rodea al boton X, o como elemento visual si no hay boton). Activo por defecto si hay duration; pasa false para ocultarlo. */
   showCountdown?: boolean;
+  /** Muestra el boton X para cerrar. Visible por defecto en add() (pasa false para ocultarlo). En los metodos especiales (addUndo/addVerify/addForm/prompt/promptScanner/addUpload/addGeolocation/addMap) esta oculto por defecto salvo que pases true. */
+  showCloseButton?: boolean;
   animation?: Animation;
   exitAnimation?: ExitAnimation;
   enableAnimations?: boolean;
