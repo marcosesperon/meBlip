@@ -3655,13 +3655,18 @@ class meBlip {
           }
       }
 
-      // Aplicar dimensiones al DOM
-      this.island.style.width = `${this.width}px`; this.island.style.height = `${this.height}px`;
-      this.svg.setAttribute("width", this.width); this.svg.setAttribute("height", this.height);
+      // Aplicar dimensiones al DOM.
+      // Clamp a valores no negativos: el muelle (spring) puede sobrepasar por debajo
+      // de 0 durante un cierre rapido, y un width/height negativo en el SVG lanza error.
+      const w = Math.max(0, this.width);
+      const h = Math.max(0, this.height);
+      this.island.style.width = `${w}px`; this.island.style.height = `${h}px`;
+      this.svg.setAttribute("width", w); this.svg.setAttribute("height", h);
 
-      // Radio de borde dinamico: circular (minimo) o redondeado (expandido)
-      const r = this.isAtMinSize() ? this.height / 2 : Math.min(22, this.height * 0.4);
-      this.path.setAttribute("d", `M ${r},0 H ${this.width-r} Q ${this.width},0 ${this.width},${r} V ${this.height-r} Q ${this.width},${this.height} ${this.width-r},${this.height} H ${r} Q 0,${this.height} 0,${this.height-r} V ${r} Q 0,0 ${r},0 Z`);
+      // Radio de borde dinamico: circular (minimo) o redondeado (expandido).
+      // Limitado a la mitad del lado mas corto para que el path no se deforme con tamanos pequenos.
+      const r = Math.min(this.isAtMinSize() ? h / 2 : Math.min(22, h * 0.4), w / 2, h / 2);
+      this.path.setAttribute("d", `M ${r},0 H ${w-r} Q ${w},0 ${w},${r} V ${h-r} Q ${w},${h} ${w-r},${h} H ${r} Q 0,${h} 0,${h-r} V ${r} Q 0,0 ${r},0 Z`);
       this.island.style.borderRadius = `${r}px`;
 
       this.stackLayers.forEach((layer, i) => {
@@ -3675,7 +3680,7 @@ class meBlip {
             transform = `translateX(calc(-50% + ${offX}px)) translateY(${offY}px) rotate(${rot}deg)`;
           }
           layer.style.opacity = (0.6 / (i + 1)).toString();
-          layer.style.width = `${this.width}px`; layer.style.height = `${this.height}px`;
+          layer.style.width = `${w}px`; layer.style.height = `${h}px`;
           layer.style.borderRadius = `${r}px`; layer.style.transform = transform;
         } else layer.style.opacity = "0";
       });
