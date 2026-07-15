@@ -63,17 +63,22 @@ interface ActivityConfig {
   restoreFocus?: boolean;
   focusOnClose?: Element | string | (() => Element | null);
   onShow?: (ctx: { id: string; type?: string }) => void;
-  onHide?: (ctx: { id: string; type?: string }) => void;
+  onHide?: (ctx: { id: string; type?: string; reason: CloseReason }) => void;
 }
+
+/** Origen del cierre de una notificacion: accion del usuario, expiracion del duration o cierre por codigo. */
+type CloseReason = 'user' | 'timeout' | 'programmatic';
 
 interface RemoveOptions {
   /** Element (o selector CSS, o funcion que devuelve un Element) que recibira el foco al cerrar, en lugar del valor previo de la actividad. */
   focusOnClose?: Element | string | (() => Element | null);
   /** Si es false, no restaura el foco al cerrar (anula el valor previo de la actividad para esta llamada). */
   restoreFocus?: boolean;
+  /** Origen del cierre que se propaga a onHide y a la promesa. Por defecto 'programmatic'. */
+  reason?: CloseReason;
 }
 
-interface ActivityPromise extends Promise<{ id: string; status: string }> {
+interface ActivityPromise extends Promise<{ id: string; status: string; reason: CloseReason }> {
   id: string;
   remove(): void;
 }

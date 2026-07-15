@@ -1128,7 +1128,7 @@ class meBlip {
         if (active?.persistent) return;
         const dismiss = active?.actions?.find(a => a.type === 'dismiss');
         if (dismiss && dismiss.onClick) dismiss.onClick({ activityId: active.id });
-        else this.remove(this.activeId);
+        else this.remove(this.activeId, { reason: 'user' });
       }
     });
 
@@ -1365,8 +1365,8 @@ class meBlip {
    * @param {boolean} [config.restoreFocus=true] - Si false, no restaura el foco al elemento previo al cerrar la notificacion bloqueante.
    * @param {Element|string|function} [config.focusOnClose] - Elemento al que dar foco al cerrar la notificacion bloqueante (en lugar del elemento previamente enfocado). Acepta un Element, un selector CSS o una funcion que devuelve un Element. Ignorado si restoreFocus es false.
    * @param {function} [config.onShow] - Callback al mostrarse. Recibe {id, type}.
-   * @param {function} [config.onHide] - Callback al cerrarse. Recibe {id, type}.
-   * @returns {Promise} Promesa que se resuelve cuando la actividad se cierra, con {id, status: 'closed'}. La promesa tiene una propiedad `id` con el identificador asignado.
+   * @param {function} [config.onHide] - Callback al cerrarse. Recibe {id, type, reason}. `reason` indica el origen del cierre: 'user' (boton X, clic o Escape), 'timeout' (expiro el duration) o 'programmatic' (cierre por codigo).
+   * @returns {Promise} Promesa que se resuelve cuando la actividad se cierra, con {id, status: 'closed', reason}. `reason` indica el origen del cierre ('user'|'timeout'|'programmatic'). La promesa tiene una propiedad `id` con el identificador asignado.
    */
   add(config) {
     // Logica de agrupacion: si ya existe una actividad con el mismo groupId,
@@ -1480,6 +1480,8 @@ class meBlip {
    * @param {Element|string|function} [options.focusOnClose] - Elemento (o selector/funcion) que recibira
    *   el foco al cerrar, sustituyendo cualquier valor previo de la actividad.
    * @param {boolean} [options.restoreFocus] - Si false, no restaura el foco al cerrar.
+   * @param {string} [options.reason='programmatic'] - Origen del cierre que se propaga a onHide y a la
+   *   promesa: 'user' (accion del usuario), 'timeout' (expiro el duration) o 'programmatic' (cierre por codigo).
    */
   remove(idOrOptions, options) {
     let id, opts;
@@ -1491,8 +1493,10 @@ class meBlip {
       opts = options;
     }
     const activity = this.activities.find(a => a.id === id);
+    // Origen del cierre: por defecto 'programmatic' (cierre por codigo)
+    const reason = opts && opts.reason ? opts.reason : 'programmatic';
     // Callback onHide: se dispara antes de resolver la promesa
-    if (activity && activity.onHide) activity.onHide({ id, type: activity.type });
+    if (activity && activity.onHide) activity.onHide({ id, type: activity.type, reason });
     this._lastExitAnimation = activity?.exitAnimation || null;
     const restoreFocus = opts && opts.restoreFocus !== undefined
       ? opts.restoreFocus
@@ -1515,7 +1519,7 @@ class meBlip {
     if (this.timers.has(id)) { clearTimeout(this.timers.get(id)); this.timers.delete(id); }
     this.timerMeta.delete(id);
     if (this.resolvers.has(id)) {
-      this.resolvers.get(id)({ id, status: 'closed' });
+      this.resolvers.get(id)({ id, status: 'closed', reason });
       this.resolvers.delete(id);
     }
     this.promises.delete(id);
@@ -2257,7 +2261,7 @@ class meBlip {
    */
   _setTimer(id, ms) {
     if (this.timers.has(id)) clearTimeout(this.timers.get(id));
-    this.timers.set(id, setTimeout(() => this.remove(id), ms));
+    this.timers.set(id, setTimeout(() => this.remove(id, { reason: 'timeout' }), ms));
     this.timerMeta.set(id, { startTime: Date.now(), remainingTime: ms, originalDuration: ms });
   }
 
@@ -2282,7 +2286,7 @@ class meBlip {
   _resumeTimer(id) {
     const meta = this.timerMeta.get(id);
     if (!meta || meta.remainingTime <= 0) return;
-    this.timers.set(id, setTimeout(() => this.remove(id), meta.remainingTime));
+    this.timers.set(id, setTimeout(() => this.remove(id, { reason: 'timeout' }), meta.remainingTime));
     meta.startTime = Date.now();
   }
 
@@ -2298,7 +2302,7 @@ class meBlip {
     const active = this.activities.find(a => a.id === this.activeId);
     if (!active) return;
     const closeBtn = e.target.closest('.meblip-close-btn');
-    if (closeBtn) { if (active.persistent) return; this.remove(active.id); return; }
+    if (closeBtn) { if (active.persistent) return; this.remove(active.id, { reason: 'user' }); return; }
     const actionBtn = e.target.closest('.meblip-action-btn');
     if (actionBtn) {
       const actionIndex = parseInt(actionBtn.dataset.index);
@@ -2311,7 +2315,7 @@ class meBlip {
     if (active._upload) return;
     if (active._geo) return;
     if (active._map) return;
-    if (active.closeOnClick && !active.persistent) this.remove(active.id);
+    if (active.closeOnClick && !active.persistent) this.remove(active.id, { reason: 'user' });
   }
 
   /**

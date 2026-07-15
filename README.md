@@ -138,7 +138,7 @@ blip.add({ type: 'premium', icon: 'premium', title: 'Premium', duration: 3000 })
 
 ### 2. Metodo `add(config)`
 
-Anade una actividad a la cola. Devuelve una **Promesa** que se resuelve con `{ id, status: 'closed' }` cuando la notificacion se cierra. La promesa expone una propiedad `id` con el identificador asignado (util cuando no se pasa un `id` explicito) y un metodo `.remove()` que cierra la notificacion inmediatamente (equivale a `blip.remove(task.id)`).
+Anade una actividad a la cola. Devuelve una **Promesa** que se resuelve con `{ id, status: 'closed', reason }` cuando la notificacion se cierra. `reason` indica el origen del cierre: `'user'` (boton X, clic o Escape), `'timeout'` (expiro el `duration`) o `'programmatic'` (cierre por codigo). La promesa expone una propiedad `id` con el identificador asignado (util cuando no se pasa un `id` explicito) y un metodo `.remove()` que cierra la notificacion inmediatamente (equivale a `blip.remove(task.id)`).
 
 | Propiedad | Tipo | Descripcion |
 |-----------|------|-------------|
@@ -170,7 +170,7 @@ Anade una actividad a la cola. Devuelve una **Promesa** que se resuelve con `{ i
 | `showCountdown` | `boolean` | Muestra el anillo de countdown circular que se completa (0% → 100%) durante el `duration`. Si hay boton X, el anillo lo rodea; si no, aparece como un elemento redondo solo visual. **Activo por defecto siempre que haya `duration`**; pasa `false` para ocultarlo. |
 | `confetti` | `boolean` | Si es `true`, lanza un efecto de confetti al mostrarse la notificacion. |
 | `onShow` | `function` | Callback que se ejecuta cuando la actividad se muestra por primera vez. Recibe `{ id, type }`. |
-| `onHide` | `function` | Callback que se ejecuta cuando la actividad se cierra. Recibe `{ id, type }`. |
+| `onHide` | `function` | Callback que se ejecuta cuando la actividad se cierra. Recibe `{ id, type, reason }`, donde `reason` es `'user'` (boton X, clic o Escape), `'timeout'` (expiro el `duration`) o `'programmatic'` (cierre por codigo). |
 | `position` | `string` | Override de posicion para esta notificacion. Mismos valores que en el constructor. La isla se mueve animadamente y restaura la posicion global al cerrarse. |
 | `content` | `string` | HTML personalizado que se renderiza entre el header y las acciones. Permite inyectar contenido libre (estadisticas, widgets, etc.). Coexiste con `actions`, `verify`, `form` y `upload`. |
 | `islandWidth` | `string` | Override del ancho para esta notificacion. Mismos valores que en el constructor. |
@@ -183,7 +183,7 @@ Anade una actividad a la cola. Devuelve una **Promesa** que se resuelve con `{ i
 |--------|-------------|
 | `update([id], patch)` | Modifica una actividad. Si se omite el `id`, se actua sobre la notificacion activa. Util para actualizar progreso, subtitulo, tipo, etc. Produce morphing visual si se cambia el `type`. |
 | `has(id)` | Comprueba si existe una actividad con el ID dado en la cola. Devuelve `true` si existe, `false` en caso contrario. |
-| `remove([id], [options])` | Cierra y elimina una actividad inmediatamente. Si se omite el `id`, se elimina la notificacion activa. Acepta un objeto `options` opcional con `focusOnClose` y/o `restoreFocus` para sobreescribir el comportamiento de foco solo en esta llamada (sin tener que pasar antes por `update()`). Tambien se admite `remove(options)` para actuar sobre la activa. |
+| `remove([id], [options])` | Cierra y elimina una actividad inmediatamente. Si se omite el `id`, se elimina la notificacion activa. Acepta un objeto `options` opcional con `focusOnClose` y/o `restoreFocus` para sobreescribir el comportamiento de foco solo en esta llamada (sin tener que pasar antes por `update()`), y `reason` para indicar el origen del cierre que recibiran `onHide` y la promesa (por defecto `'programmatic'`). Tambien se admite `remove(options)` para actuar sobre la activa. |
 | `removeGroup(groupId)` | Cierra todas las actividades que pertenecen a un grupo. Reutiliza `remove()` internamente para cada actividad del grupo. |
 | `addUndo(config)` | Patron undo: muestra una notificacion con boton de deshacer y countdown. Ver seccion dedicada. |
 | `addVerify(config)` | Patron verify: muestra una notificacion con codigo de verificacion que el usuario debe introducir. Ver seccion dedicada. |
@@ -379,7 +379,7 @@ var result = await blip.add({
   title: 'Tarea Completada',
   duration: 3000
 });
-console.log(result); // { id: '...', status: 'closed' }
+console.log(result); // { id: '...', status: 'closed', reason: 'timeout' }
 ```
 
 ### I. Obtener el ID generado
@@ -587,10 +587,21 @@ blip.add({
   onShow: ({ id, type }) => {
     console.log(`Notificacion ${id} visible (tipo: ${type})`);
   },
-  onHide: ({ id, type }) => {
-    console.log(`Notificacion ${id} cerrada`);
+  onHide: ({ id, type, reason }) => {
+    // reason: 'user' (boton X, clic o Escape) | 'timeout' (expiro el duration) | 'programmatic' (cierre por codigo)
+    console.log(`Notificacion ${id} cerrada. Motivo: ${reason}`);
+    if (reason === 'user') console.log('El usuario cerro la notificacion manualmente');
   }
 });
+```
+
+El campo `reason` tambien esta disponible al esperar la promesa que devuelve `add()`:
+
+```javascript
+const { reason } = await blip.add({ title: 'Guardado', duration: 3000 });
+if (reason === 'user') {
+  // El usuario pulso la X, hizo clic o cerro con Escape
+}
 ```
 
 ### T. Ancho de Isla

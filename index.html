@@ -1330,6 +1330,13 @@ blip.setOverlayStyle({ blur: 4, contrast: 0.85, grayscale: 0.3 });</pre>
         <div class="demo-card-title">onHide</div>
         <div class="demo-card-desc">Callback al cerrarse, lanza notificaci&oacute;n secundaria de confirmaci&oacute;n</div>
       </div>
+      <div class="demo-card" onclick="demoCloseReason()">
+        <div class="demo-card-icon" style="background: rgba(59,130,246,0.12); color: #3b82f6;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+        </div>
+        <div class="demo-card-title">Motivo de cierre (reason)</div>
+        <div class="demo-card-desc">Distingue si cerraste con la <code>X</code>/Escape (<code>user</code>) o expir&oacute; el tiempo (<code>timeout</code>)</div>
+      </div>
       <div class="demo-card" onclick="demoPromise()">
         <div class="demo-card-icon" style="background: rgba(139,92,246,0.12); color: #8b5cf6;">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4"/><path d="m16.2 7.8 2.9-2.9"/><path d="M18 12h4"/><path d="m16.2 16.2 2.9 2.9"/><path d="M12 18v4"/><path d="m4.9 19.1 2.9-2.9"/><path d="M2 12h4"/><path d="m4.9 4.9 2.9 2.9"/></svg>
@@ -1701,7 +1708,7 @@ blip.setOverlayStyle({ blur: 4, contrast: 0.85, grayscale: 0.3 });</pre>
           <tr><td>restoreFocus</td><td>boolean</td><td>Restaura el foco al elemento previo al cerrar una notificaci&oacute;n bloqueante. Por defecto <code>true</code>.</td></tr>
           <tr><td>focusOnClose</td><td>Element|string|function</td><td>Elemento (o selector CSS / funci&oacute;n que devuelve un Element) que recibe el foco al cerrar. Ignorado si <code>restoreFocus</code> es <code>false</code>.</td></tr>
           <tr><td>onShow</td><td>function</td><td>Callback al mostrarse. Recibe <code>{ id, type }</code>.</td></tr>
-          <tr><td>onHide</td><td>function</td><td>Callback al cerrarse. Recibe <code>{ id, type }</code>.</td></tr>
+          <tr><td>onHide</td><td>function</td><td>Callback al cerrarse. Recibe <code>{ id, type, reason }</code>, donde <code>reason</code> es <code>'user'</code>, <code>'timeout'</code> o <code>'programmatic'</code>.</td></tr>
         </table>
       </div>
     </div>
@@ -2478,6 +2485,27 @@ blip.setOverlayStyle({ blur: 4, contrast: 0.85, grayscale: 0.3 });</pre>
       duration: 4000,
       onHide: () => {
         blip.add({ type: 'success', icon: 'success', title: 'onHide ejecutado', duration: 2000 });
+      }
+    });
+  }
+
+  function demoCloseReason() {
+    // Muestra el origen del cierre: ciérrala con la X/Escape ('user') o espera al timeout ('timeout')
+    blip.add({
+      type: 'info',
+      icon: 'info',
+      title: 'Ciérrame o espera',
+      subtitle: 'Con la X o Escape = user; si expira = timeout',
+      duration: 5000,
+      onHide: ({ reason }) => {
+        var es_usuario = reason === 'user';
+        blip.add({
+          type: es_usuario ? 'success' : 'warning',
+          icon: es_usuario ? 'success' : 'warning',
+          title: 'Cerrada por: ' + reason,
+          subtitle: es_usuario ? 'La cerraste manualmente' : 'Expiró el tiempo',
+          duration: 2500
+        });
       }
     });
   }
@@ -3452,7 +3480,14 @@ blip.setOverlayStyle({ blur: 4, contrast: 0.85, grayscale: 0.3 });</pre>
       title: 'onHide',
       code: `blip.add({\n  type: 'warning',\n  icon: 'warning',\n  title: 'Cerrame',\n  subtitle: 'Al cerrar se lanzara otra notificacion',\n  duration: 4000,\n  onHide: () => {\n    blip.add({ type: 'success', icon: 'success',\n      title: 'onHide ejecutado', duration: 2000 });\n  }\n});`,
       props: [
-        { name: 'onHide', value: '() => {}', desc: 'Callback ejecutado cuando la notificación se cierra (por timeout, Escape o programáticamente).' }
+        { name: 'onHide', value: '({ id, type, reason }) => {}', desc: 'Callback ejecutado cuando la notificación se cierra. Recibe reason con el origen del cierre.' }
+      ]
+    },
+    demoCloseReason: {
+      title: 'Motivo de cierre (reason)',
+      code: `blip.add({\n  type: 'info',\n  icon: 'info',\n  title: 'Ciérrame o espera',\n  duration: 5000,\n  onHide: ({ reason }) => {\n    // 'user' | 'timeout' | 'programmatic'\n    console.log('Cerrada por:', reason);\n  }\n});\n\n// También disponible en la promesa:\nconst { reason } = await blip.add({ ... });`,
+      props: [
+        { name: 'reason', value: "'user' | 'timeout' | 'programmatic'", desc: "Origen del cierre. 'user': botón X, clic o Escape. 'timeout': expiró el duration. 'programmatic': cierre por código. Disponible en onHide y en la promesa que devuelve add()." }
       ]
     },
     demoPromise: {
